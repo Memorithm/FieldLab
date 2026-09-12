@@ -92,3 +92,28 @@ jobs:
           name: fieldlab-fl2-${{ github.sha }}
           path: results/ci/fl2.json
           if-no-files-found: error
+
+  fl3:
+    name: FL-3 hysteresis and context switching
+    needs: fl2
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pinned Rust toolchain
+        run: |
+          rustup toolchain install nightly-2026-07-02 --profile minimal
+          rustup override set nightly-2026-07-02
+
+      - name: Execute FL-3 campaign
+        run: |
+          mkdir -p results/ci
+          cargo run -p field-bench --bin fl3 > results/ci/fl3.json
+          cat results/ci/fl3.json
+
+      - name: Retain FL-3 evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: fieldlab-fl3-${{ github.sha }}
+          path: results/ci/fl3.json
+          if-no-files-found: error
