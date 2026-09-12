@@ -4,6 +4,7 @@ use field_core::{dot, EnergyModel, FieldState, NodeState, ValidationError};
 use std::error::Error;
 use std::fmt::{Display, Formatter};
 
+/// Deterministic integration parameters for the FL-0 dynamics.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct IntegratorConfig {
     pub dt: f64,
@@ -11,6 +12,11 @@ pub struct IntegratorConfig {
 }
 
 impl IntegratorConfig {
+    /// Validates the integration parameters.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error when `dt` is not finite and positive or when mobility is non-finite or negative.
     pub fn validate(self) -> Result<Self, DynamicsError> {
         if !self.dt.is_finite() || self.dt <= 0.0 {
             return Err(DynamicsError::InvalidTimeStep);
@@ -22,6 +28,11 @@ impl IntegratorConfig {
     }
 }
 
+/// Advances the projected dissipative field by one explicit Euler step.
+///
+/// # Errors
+///
+/// Returns an error for invalid integration parameters or an incompatible/invalid field state.
 pub fn euler_step(
     state: &FieldState,
     model: &EnergyModel,
@@ -47,6 +58,11 @@ pub fn euler_step(
     Ok(FieldState::new(next)?)
 }
 
+/// Advances the projected dissipative field by one Heun predictor-corrector step.
+///
+/// # Errors
+///
+/// Returns an error for invalid integration parameters or an incompatible/invalid field state.
 pub fn heun_step(
     state: &FieldState,
     model: &EnergyModel,
@@ -101,6 +117,11 @@ pub fn heun_step(
     Ok(FieldState::new(corrected)?)
 }
 
+/// Executes a fixed number of deterministic Heun steps.
+///
+/// # Errors
+///
+/// Returns the first integration/state validation error encountered.
 pub fn run_steps(
     mut state: FieldState,
     model: &EnergyModel,
@@ -122,6 +143,7 @@ fn tangent_velocity(state: &[f64], field: &[f64], mobility: f64) -> Vec<f64> {
         .collect()
 }
 
+/// Errors surfaced by deterministic field integration.
 #[derive(Debug)]
 pub enum DynamicsError {
     InvalidTimeStep,
