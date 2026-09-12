@@ -259,9 +259,9 @@ mod tests {
     }
 
     #[test]
-    fn nearest_neighbor_uses_hamming_distance() {
+    fn nearest_neighbor_uses_hamming_distance_and_bank_order_for_ties() {
         let bank = bank();
-        assert_eq!(bank.nearest_neighbor_index(&[1, 1, -1, 1]).unwrap(), 1);
+        assert_eq!(bank.nearest_neighbor_index(&[1, 1, -1, 1]).unwrap(), 0);
     }
 
     #[test]
