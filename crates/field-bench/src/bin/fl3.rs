@@ -122,11 +122,7 @@ fn run_experiment() -> Result<ExperimentReport, Box<dyn Error>> {
 }
 
 fn evaluate_relay_loops() -> Result<Vec<RelayLoop>, Box<dyn Error>> {
-    THRESHOLDS
-        .iter()
-        .copied()
-        .map(measure_relay_loop)
-        .collect()
+    THRESHOLDS.iter().copied().map(measure_relay_loop).collect()
 }
 
 fn evaluate_thresholds(fixture: &[Observation]) -> Result<Vec<ConditionMetrics>, Box<dyn Error>> {
