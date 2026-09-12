@@ -366,19 +366,16 @@ fn update_metrics(
     metrics.max_tokens = metrics
         .max_tokens
         .max(usize::try_from(observation.tokens).unwrap_or_default());
-    match focus {
-        Some(symbol) => {
-            if symbol != observation.truth {
-                metrics.errors += 1;
-            }
-            if visible_score(observation, symbol).is_some() {
-                metrics.resolved_focus_present += 1;
-            }
-        }
-        None => {
+    if let Some(symbol) = focus {
+        if symbol != observation.truth {
             metrics.errors += 1;
-            metrics.unresolved += 1;
         }
+        if visible_score(observation, symbol).is_some() {
+            metrics.resolved_focus_present += 1;
+        }
+    } else {
+        metrics.errors += 1;
+        metrics.unresolved += 1;
     }
 
     if let (Some(previous), Some(current)) = (previous_focus, focus) {
