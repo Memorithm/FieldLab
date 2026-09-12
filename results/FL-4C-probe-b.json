@@ -1,0 +1,50 @@
+{
+  "crate_src": "external/CCOS-Core/src",
+  "files": 55,
+  "all_src_tokens": 471024,
+  "budget": 2048,
+  "depth": 3,
+  "anchors": {
+    "src/external_memory.rs": {
+      "deps": ["src/compressor.rs", "src/context_region.rs", "src/distributed_event_log.rs", "src/embeddings.rs", "src/event_log.rs", "src/incremental.rs", "src/memory.rs", "src/query.rs", "src/region_engine.rs", "src/sanitizer.rs", "src/util.rs"],
+      "deps_in_window": ["src/compressor.rs", "src/context_region.rs", "src/distributed_event_log.rs", "src/event_log.rs", "src/memory.rs"],
+      "affected": 177,
+      "window_tokens": 2048,
+      "pct_all_src": 0.43,
+      "noise_files": ["src/agent_session.rs", "src/main.rs"]
+    },
+    "src/agent_session.rs": {
+      "deps": ["src/compressor.rs", "src/event_log.rs", "src/external_memory.rs", "src/license.rs", "src/memory.rs", "src/trace.rs"],
+      "deps_in_window": ["src/compressor.rs", "src/event_log.rs", "src/external_memory.rs", "src/memory.rs"],
+      "affected": 170,
+      "window_tokens": 2046,
+      "pct_all_src": 0.43,
+      "noise_files": ["src/main.rs"]
+    },
+    "src/migrate.rs": {
+      "deps": ["src/distributed_event_log.rs", "src/event_log.rs", "src/external_memory.rs", "src/memory.rs", "src/util.rs"],
+      "deps_in_window": ["src/distributed_event_log.rs", "src/event_log.rs", "src/external_memory.rs", "src/memory.rs", "src/util.rs"],
+      "affected": 54,
+      "window_tokens": 2047,
+      "pct_all_src": 0.43,
+      "noise_files": ["src/main.rs"]
+    },
+    "src/region_metrics.rs": {
+      "deps": ["src/event_log.rs", "src/memory.rs", "src/query.rs", "src/region_engine.rs"],
+      "deps_in_window": ["src/event_log.rs", "src/memory.rs", "src/query.rs", "src/region_engine.rs"],
+      "affected": 27,
+      "window_tokens": 2047,
+      "pct_all_src": 0.43,
+      "noise_files": ["src/main.rs"]
+    },
+    "src/region_engine.rs": {
+      "deps": ["src/context_policy.rs", "src/context_region.rs", "src/event_log.rs", "src/memory.rs"],
+      "deps_in_window": ["src/context_policy.rs", "src/context_region.rs", "src/event_log.rs", "src/memory.rs"],
+      "affected": 42,
+      "window_tokens": 2048,
+      "pct_all_src": 0.43,
+      "noise_files": ["src/main.rs"]
+    }
+  },
+  "duplication_factor": 0.792
+}
