@@ -612,9 +612,9 @@ fn validate_square_matrix(matrix: &[Vec<f64>], dimension: usize) -> Result<(), V
 }
 
 fn validate_symmetric_matrix(matrix: &[Vec<f64>]) -> Result<(), ValidationError> {
-    for row in 0..matrix.len() {
-        for column in (row + 1)..matrix.len() {
-            if (matrix[row][column] - matrix[column][row]).abs() > MATRIX_SYMMETRY_TOLERANCE {
+    for (row, row_values) in matrix.iter().enumerate() {
+        for (column, column_values) in matrix.iter().enumerate().skip(row + 1) {
+            if (row_values[column] - column_values[row]).abs() > MATRIX_SYMMETRY_TOLERANCE {
                 return Err(ValidationError::NonSymmetricMatrix { row, column });
             }
         }
