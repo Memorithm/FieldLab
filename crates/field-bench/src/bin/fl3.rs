@@ -53,36 +53,43 @@ struct ConditionMetrics {
     finite: bool,
 }
 
+#[derive(Clone, Debug)]
+struct ExperimentReport {
+    loops: Vec<RelayLoop>,
+    baseline: ConditionMetrics,
+    conditions: Vec<ConditionMetrics>,
+    h3_a1: bool,
+    h3_a2: bool,
+    h3_a3: bool,
+    h3_a4: bool,
+    fixture_valid: bool,
+    relay_reference_valid: bool,
+    replay_equal: bool,
+    protocol_valid: bool,
+    fingerprint: u64,
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
+    let report = run_experiment()?;
+    print_report(&report);
+    if !report.protocol_valid {
+        std::process::exit(1);
+    }
+    Ok(())
+}
+
+fn run_experiment() -> Result<ExperimentReport, Box<dyn Error>> {
     let fixture = context_fixture();
     let fixture_valid = validate_fixture(&fixture);
-
-    let loops = THRESHOLDS
-        .iter()
-        .copied()
-        .map(measure_relay_loop)
-        .collect::<Result<Vec<_>, _>>()?;
-    let loop_reference_valid = loops.iter().all(|loop_result| loop_result.valid);
-    let loop_replay_equal = loops
-        == THRESHOLDS
-            .iter()
-            .copied()
-            .map(measure_relay_loop)
-            .collect::<Result<Vec<_>, _>>()?;
+    let loops = evaluate_relay_loops()?;
+    let relay_reference_valid = loops.iter().all(|loop_result| loop_result.valid);
+    let loop_replay_equal = loops == evaluate_relay_loops()?;
 
     let baseline = evaluate_memoryless(&fixture)?;
-    let conditions = THRESHOLDS
-        .iter()
-        .copied()
-        .map(|threshold| evaluate_hysteretic(&fixture, threshold))
-        .collect::<Result<Vec<_>, _>>()?;
-    let replay_conditions = THRESHOLDS
-        .iter()
-        .copied()
-        .map(|threshold| evaluate_hysteretic(&fixture, threshold))
-        .collect::<Result<Vec<_>, _>>()?;
-    let replay_equal =
-        baseline == evaluate_memoryless(&fixture)? && conditions == replay_conditions;
+    let conditions = evaluate_thresholds(&fixture)?;
+    let replay_equal = baseline == evaluate_memoryless(&fixture)?
+        && conditions == evaluate_thresholds(&fixture)?
+        && loop_replay_equal;
     let finite = baseline.finite && conditions.iter().all(|condition| condition.finite);
 
     let h3_a1 = conditions
@@ -95,6 +102,42 @@ fn main() -> Result<(), Box<dyn Error>> {
         .iter()
         .filter(|condition| condition.contradiction_errors == 0)
         .all(|condition| condition.mean_switch_latency > 0.0);
+    let h3_a4 = lock_in_frontier(&conditions)?;
+    let protocol_valid = fixture_valid && relay_reference_valid && replay_equal && finite;
+
+    Ok(ExperimentReport {
+        loops,
+        baseline,
+        conditions,
+        h3_a1,
+        h3_a2,
+        h3_a3,
+        h3_a4,
+        fixture_valid,
+        relay_reference_valid,
+        replay_equal,
+        protocol_valid,
+        fingerprint: provenance_fingerprint(),
+    })
+}
+
+fn evaluate_relay_loops() -> Result<Vec<RelayLoop>, Box<dyn Error>> {
+    THRESHOLDS
+        .iter()
+        .copied()
+        .map(measure_relay_loop)
+        .collect()
+}
+
+fn evaluate_thresholds(fixture: &[Observation]) -> Result<Vec<ConditionMetrics>, Box<dyn Error>> {
+    THRESHOLDS
+        .iter()
+        .copied()
+        .map(|threshold| evaluate_hysteretic(fixture, threshold))
+        .collect()
+}
+
+fn lock_in_frontier(conditions: &[ConditionMetrics]) -> Result<bool, Box<dyn Error>> {
     let best_lower = conditions
         .iter()
         .filter(|condition| {
@@ -104,26 +147,59 @@ fn main() -> Result<(), Box<dyn Error>> {
         })
         .min_by_key(|condition| condition.total_errors)
         .ok_or("missing lower-threshold condition")?;
-    let h3_a4 = conditions.iter().any(|condition| {
+    Ok(conditions.iter().any(|condition| {
         condition
             .threshold
             .is_some_and(|threshold| threshold > 0.30)
             && condition.lock_in_events > best_lower.lock_in_events
-    });
+    }))
+}
 
-    let protocol_valid =
-        fixture_valid && loop_reference_valid && loop_replay_equal && replay_equal && finite;
-
+fn provenance_fingerprint() -> u64 {
     let manifest = format!(
         "fl3|segments={SEGMENT_COUNT}|segment_len={SEGMENT_LEN}|ramp=0.10,0.20,0.30,0.40,0.55,0.70|contradiction_offsets=9,14|contradiction_mag=0.25|stable_mag=0.55|thresholds=0.10,0.20,0.30,0.40,0.50,0.60|gain={HYSTERESIS_GAIN:.17}|field_steps={FIELD_STEPS}|dt={FIELD_DT:.17}|mobility={FIELD_MOBILITY:.17}|lock_in_limit={LOCK_IN_LIMIT}"
     );
-    let fingerprint = fnv1a64(manifest.as_bytes());
+    fnv1a64(manifest.as_bytes())
+}
 
+fn print_report(report: &ExperimentReport) {
     println!("{{");
     println!("  \"experiment\": \"FL-3\",");
     println!("  \"protocol\": \"hysteresis-context-switch-v1\",");
-    println!("  \"provenance_fingerprint\": \"fnv1a64:{fingerprint:016x}\",");
+    println!(
+        "  \"provenance_fingerprint\": \"fnv1a64:{:016x}\",",
+        report.fingerprint
+    );
     println!("  \"fixture\": {{\"observations\": {OBSERVATION_COUNT}, \"true_transitions\": {TRUE_TRANSITIONS}, \"contradictory_pulses\": {CONTRADICTION_COUNT}}},");
+    print_relay_loops(&report.loops);
+    print_condition("baseline", &report.baseline, true);
+    println!("  \"hysteretic_conditions\": [");
+    for (index, condition) in report.conditions.iter().enumerate() {
+        let suffix = if index + 1 == report.conditions.len() {
+            ""
+        } else {
+            ","
+        };
+        print_condition_entry(condition, suffix);
+    }
+    println!("  ],");
+    println!("  \"hypotheses\": {{");
+    println!("    \"H3_A1_useful_retention\": {},", report.h3_a1);
+    println!("    \"H3_A2_disturbance_rejection\": {},", report.h3_a2);
+    println!("    \"H3_A3_switching_cost\": {},", report.h3_a3);
+    println!("    \"H3_A4_lock_in_frontier\": {}", report.h3_a4);
+    println!("  }},");
+    println!("  \"fixture_valid\": {},", report.fixture_valid);
+    println!(
+        "  \"relay_reference_valid\": {},",
+        report.relay_reference_valid
+    );
+    println!("  \"replay_equal\": {},", report.replay_equal);
+    println!("  \"protocol_valid\": {}", report.protocol_valid);
+    println!("}}");
+}
+
+fn print_relay_loops(loops: &[RelayLoop]) {
     println!("  \"relay_loops\": [");
     for (index, loop_result) in loops.iter().enumerate() {
         let suffix = if index + 1 == loops.len() { "" } else { "," };
@@ -137,33 +213,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         );
     }
     println!("  ],");
-    print_condition("baseline", &baseline, true);
-    println!("  \"hysteretic_conditions\": [");
-    for (index, condition) in conditions.iter().enumerate() {
-        let suffix = if index + 1 == conditions.len() {
-            ""
-        } else {
-            ","
-        };
-        print_condition_entry(condition, suffix);
-    }
-    println!("  ],");
-    println!("  \"hypotheses\": {{");
-    println!("    \"H3_A1_useful_retention\": {h3_a1},");
-    println!("    \"H3_A2_disturbance_rejection\": {h3_a2},");
-    println!("    \"H3_A3_switching_cost\": {h3_a3},");
-    println!("    \"H3_A4_lock_in_frontier\": {h3_a4}");
-    println!("  }},");
-    println!("  \"fixture_valid\": {fixture_valid},");
-    println!("  \"relay_reference_valid\": {loop_reference_valid},");
-    println!("  \"replay_equal\": {},", replay_equal && loop_replay_equal);
-    println!("  \"protocol_valid\": {protocol_valid}");
-    println!("}}");
-
-    if !protocol_valid {
-        std::process::exit(1);
-    }
-    Ok(())
 }
 
 fn context_fixture() -> Vec<Observation> {
@@ -171,10 +220,11 @@ fn context_fixture() -> Vec<Observation> {
     let mut fixture = Vec::with_capacity(OBSERVATION_COUNT);
     for (segment_index, truth) in truths.into_iter().enumerate() {
         for offset in 0..SEGMENT_LEN {
-            let in_transition = segment_index > 0 && offset < TRANSITION_RAMP_LEN;
+            let ramp = RAMP_MAGNITUDES.get(offset).copied();
+            let in_transition = segment_index > 0 && ramp.is_some();
             let contradiction = CONTRADICTION_OFFSETS.contains(&offset);
             let evidence = if in_transition {
-                f64::from(truth) * RAMP_MAGNITUDES[offset]
+                f64::from(truth) * ramp.unwrap_or_default()
             } else if contradiction {
                 -f64::from(truth) * 0.25
             } else {
