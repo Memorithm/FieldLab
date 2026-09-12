@@ -1,0 +1,19 @@
+[workspace]
+members = [
+    "crates/field-core",
+    "crates/field-dynamics",
+    "crates/field-bench",
+]
+resolver = "2"
+
+[workspace.package]
+edition = "2021"
+license = "PolyForm-Noncommercial-1.0.0"
+rust-version = "1.89"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+all = "warn"
+pedantic = "warn"

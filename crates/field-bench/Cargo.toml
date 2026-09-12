@@ -1,0 +1,13 @@
+[package]
+name = "field-bench"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+field-core = { path = "../field-core" }
+field-dynamics = { path = "../field-dynamics" }
+
+[lints]
+workspace = true
