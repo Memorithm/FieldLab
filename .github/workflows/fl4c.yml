@@ -39,7 +39,7 @@ jobs:
 
       - name: Build pinned CCOS runtime
         working-directory: external/CCOS-Core
-        run: cargo +1.89.0 build --release --bin ccos
+        run: cargo +1.89.0 build --release --features llm --bin ccos
 
       - name: Execute external probe twice
         run: |
