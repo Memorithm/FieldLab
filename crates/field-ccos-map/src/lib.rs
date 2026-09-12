@@ -98,13 +98,23 @@ impl ScalarSources {
     }
 }
 
+#[allow(clippy::cast_precision_loss)]
+fn u64_as_f64(value: u64) -> f64 {
+    value as f64
+}
+
+#[allow(clippy::cast_precision_loss)]
+fn usize_as_f64(value: usize) -> f64 {
+    value as f64
+}
+
 /// Exact pinned CCOS score formula, written independently of the field decomposition.
 #[must_use]
 pub fn reference_score(node: &CcosNode, in_degree: u32, weights: ScoringWeights) -> f64 {
     let base = node.base_importance * weights.w_base;
     let failure = node.failure_relevance * weights.w_failure;
     let recency = node.recency * weights.w_recency;
-    let access = (node.access_count.max(1) as f64).ln() * weights.w_access;
+    let access = u64_as_f64(node.access_count.max(1)).ln() * weights.w_access;
     let centrality = if weights.w_centrality == 0.0 {
         0.0
     } else {
@@ -126,7 +136,7 @@ pub fn field_sources(node: &CcosNode, in_degree: u32, weights: ScoringWeights) -
         base: node.base_importance * weights.w_base,
         failure: node.failure_relevance * weights.w_failure,
         recency: node.recency * weights.w_recency,
-        access: (node.access_count.max(1) as f64).ln() * weights.w_access,
+        access: u64_as_f64(node.access_count.max(1)).ln() * weights.w_access,
         centrality: if weights.w_centrality == 0.0 {
             0.0
         } else {
@@ -183,9 +193,9 @@ fn reference_recurse(
         .map(|edge| (edge.target, edge.weight))
         .collect();
     let fanout = weights.failure_fanout.max(1.0);
-    let damp = (fanout / (targets.len() as f64).max(fanout)).min(1.0);
+    let damp = (fanout / usize_as_f64(targets.len()).max(fanout)).min(1.0);
     for (target, edge_weight) in targets {
-        let delta = base * edge_weight * weights.failure_decay.powi(depth as i32) * damp;
+        let delta = base * edge_weight * weights.failure_decay.powi(depth.cast_signed()) * damp;
         if let Some(node) = nodes.get_mut(target) {
             node.failure_relevance = (node.failure_relevance + delta).clamp(0.0, 1.0);
             node.recency = 1.0;
@@ -223,11 +233,12 @@ fn emit_field(
     let source_amplitude = nodes[source].failure_relevance;
     let outgoing: Vec<&CausalEdge> = edges.iter().filter(|edge| edge.source == source).collect();
     let fanout_limit = weights.failure_fanout.max(1.0);
-    let distribution = (fanout_limit / (outgoing.len() as f64).max(fanout_limit)).min(1.0);
+    let distribution =
+        (fanout_limit / usize_as_f64(outgoing.len()).max(fanout_limit)).min(1.0);
     for edge in outgoing {
         let emission = source_amplitude
             * edge.weight
-            * weights.failure_decay.powi(depth as i32)
+            * weights.failure_decay.powi(depth.cast_signed())
             * distribution;
         if let Some(target) = nodes.get_mut(edge.target) {
             target.failure_relevance = (target.failure_relevance + emission).clamp(0.0, 1.0);
@@ -359,10 +370,9 @@ mod tests {
     fn scalar_sources_match_reference_score() {
         let n = node("n");
         let weights = ScoringWeights::default();
-        assert_eq!(
-            reference_score(&n, 2, weights),
-            field_sources(&n, 2, weights).activation()
-        );
+        let reference = reference_score(&n, 2, weights);
+        let field = field_sources(&n, 2, weights).activation();
+        assert!((reference - field).abs() <= f64::EPSILON);
     }
 
     #[test]
@@ -391,7 +401,7 @@ mod tests {
         reference_propagate_failure(&mut a, &edges, 0, 3, 0.1, ScoringWeights::default());
         field_propagate_failure(&mut b, &edges, 0, 3, 0.1, ScoringWeights::default());
         assert_eq!(a, b);
-        assert_eq!(a[1].recency, 1.0);
-        assert_eq!(a[2].recency, 1.0);
+        assert!((a[1].recency - 1.0).abs() <= f64::EPSILON);
+        assert!((a[2].recency - 1.0).abs() <= f64::EPSILON);
     }
 }
