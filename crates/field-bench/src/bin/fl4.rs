@@ -66,22 +66,19 @@ impl NodeSpec {
 
 const fn spec(
     id: &'static str,
-    base: f64,
-    failure: f64,
-    recency: f64,
+    scores: [f64; 4],
     access: u64,
-    trust: f64,
     lifecycle: Lifecycle,
     fill: char,
     chars: usize,
 ) -> NodeSpec {
     NodeSpec {
         id,
-        base,
-        failure,
-        recency,
+        base: scores[0],
+        failure: scores[1],
+        recency: scores[2],
         access,
-        trust,
+        trust: scores[3],
         lifecycle,
         fill,
         chars,
@@ -251,24 +248,19 @@ fn qpage_error() -> f64 {
 }
 
 fn fixture() -> (Vec<CcosNode>, Vec<CausalEdge>) {
-    let rows = [
-        ("file:failure.rs", 0.90, 0.95, 1.00, 8, 1.00, Lifecycle::Working, 'A', 144),
-        ("file:db.rs", 0.80, 0.05, 0.90, 12, 1.00, Lifecycle::Stable, 'B', 120),
-        ("file:api.rs", 0.65, 0.00, 0.70, 3, 0.90, Lifecycle::Stable, 'C', 96),
-        ("file:cache.rs", 0.55, 0.10, 0.60, 2, 0.75, Lifecycle::Stable, 'D', 112),
-        ("file:old.rs", 0.30, 0.00, 0.10, 1, 1.00, Lifecycle::Orphan, 'E', 80),
-        ("file:worker.rs", 0.70, 0.02, 0.85, 20, 0.60, Lifecycle::Stable, 'F', 128),
-        ("file:parser.rs", 0.75, 0.00, 0.50, 5, 0.25, Lifecycle::Stable, 'G', 88),
-        ("dep:std", 0.95, 0.00, 1.00, 30, 1.00, Lifecycle::Stable, 'H', 64),
-        ("file:model.rs", 0.60, 0.15, 0.40, 7, 0.85, Lifecycle::Stable, 'I', 136),
-        ("file:root.rs", 0.85, 0.00, 0.75, 10, 1.00, Lifecycle::Stable, 'J', 104),
+    let specs = [
+        spec("file:failure.rs", [0.90, 0.95, 1.00, 1.00], 8, Lifecycle::Working, 'A', 144),
+        spec("file:db.rs", [0.80, 0.05, 0.90, 1.00], 12, Lifecycle::Stable, 'B', 120),
+        spec("file:api.rs", [0.65, 0.00, 0.70, 0.90], 3, Lifecycle::Stable, 'C', 96),
+        spec("file:cache.rs", [0.55, 0.10, 0.60, 0.75], 2, Lifecycle::Stable, 'D', 112),
+        spec("file:old.rs", [0.30, 0.00, 0.10, 1.00], 1, Lifecycle::Orphan, 'E', 80),
+        spec("file:worker.rs", [0.70, 0.02, 0.85, 0.60], 20, Lifecycle::Stable, 'F', 128),
+        spec("file:parser.rs", [0.75, 0.00, 0.50, 0.25], 5, Lifecycle::Stable, 'G', 88),
+        spec("dep:std", [0.95, 0.00, 1.00, 1.00], 30, Lifecycle::Stable, 'H', 64),
+        spec("file:model.rs", [0.60, 0.15, 0.40, 0.85], 7, Lifecycle::Stable, 'I', 136),
+        spec("file:root.rs", [0.85, 0.00, 0.75, 1.00], 10, Lifecycle::Stable, 'J', 104),
     ];
-    let nodes = rows
-        .into_iter()
-        .map(|(id, base, failure, recency, access, trust, lifecycle, fill, chars)| {
-            spec(id, base, failure, recency, access, trust, lifecycle, fill, chars).build()
-        })
-        .collect();
+    let nodes = specs.into_iter().map(NodeSpec::build).collect();
     let edges = vec![
         edge(0, 1, 0.90),
         edge(0, 2, 0.80),
