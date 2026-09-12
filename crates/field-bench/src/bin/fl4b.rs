@@ -206,7 +206,7 @@ where
 
     for (time, observation) in trace.iter().enumerate() {
         let (selected, tokens) = select(observation, time);
-        let misses = missed_relevant(&selected, &observation.truth);
+        let misses = missed_relevant(&selected, observation.truth);
         let exact = misses == 0 && selected.len() == RELEVANT_COUNT;
         metrics.misses += misses;
         metrics.exact_sets += usize::from(exact);
@@ -256,11 +256,11 @@ fn update_transition_latency(
     }
 }
 
-fn missed_relevant(selected: &[String], truth: &[bool; NODE_COUNT]) -> usize {
+fn missed_relevant(selected: &[String], truth: [bool; NODE_COUNT]) -> usize {
     truth
-        .iter()
+        .into_iter()
         .enumerate()
-        .filter(|(index, relevant)| **relevant && !selected.iter().any(|id| id == IDS[*index]))
+        .filter(|(index, relevant)| *relevant && !selected.iter().any(|id| id == IDS[*index]))
         .count()
 }
 
@@ -350,9 +350,8 @@ const fn disturbance_pair(kind: TraceKind, time: usize) -> Option<(usize, usize)
             12 => Some((2, 5)),
             20 => Some((3, 0)),
             24 => Some((4, 1)),
-            28 => Some((5, 2)),
+            28 | 40 => Some((5, 2)),
             36 => Some((1, 0)),
-            40 => Some((5, 2)),
             44 => Some((6, 3)),
             52 => Some((0, 1)),
             56 => Some((6, 2)),
@@ -360,13 +359,12 @@ const fn disturbance_pair(kind: TraceKind, time: usize) -> Option<(usize, usize)
             _ => None,
         },
         TraceKind::Holdout => match time {
-            3 => Some((0, 1)),
+            3 | 34 => Some((0, 1)),
             7 => Some((3, 2)),
             11 => Some((7, 4)),
             18 => Some((1, 0)),
             22 => Some((2, 3)),
             26 => Some((6, 4)),
-            34 => Some((0, 1)),
             38 => Some((4, 2)),
             42 => Some((5, 3)),
             51 => Some((2, 0)),
