@@ -1,0 +1,33 @@
+{
+  "experiment": "FL-3",
+  "protocol": "hysteresis-context-switch-v1",
+  "provenance_fingerprint": "fnv1a64:906b07d4ebaa6fce",
+  "fixture": {"observations": 80, "true_transitions": 3, "contradictory_pulses": 8},
+  "relay_loops": [
+    {"threshold": 0.10, "down_switch": -0.100000, "up_switch": 0.100000, "width": 0.200000, "valid": true},
+    {"threshold": 0.20, "down_switch": -0.200000, "up_switch": 0.200000, "width": 0.400000, "valid": true},
+    {"threshold": 0.30, "down_switch": -0.300000, "up_switch": 0.300000, "width": 0.600000, "valid": true},
+    {"threshold": 0.40, "down_switch": -0.400000, "up_switch": 0.400000, "width": 0.800000, "valid": true},
+    {"threshold": 0.50, "down_switch": -0.500000, "up_switch": 0.500000, "width": 1.000000, "valid": true},
+    {"threshold": 0.60, "down_switch": -0.600000, "up_switch": 0.600000, "width": 1.200000, "valid": true}
+  ],
+  "baseline": {"total_errors": 8, "contradiction_errors": 8, "transition_errors": 0, "false_context_changes": 16, "switch_latencies": [0, 0, 0], "mean_switch_latency": 0.000000000, "lock_in_events": 0, "finite": true},
+  "hysteretic_conditions": [
+    {"name": "relay-0.10", "threshold": 0.10, "total_errors": 8, "contradiction_errors": 8, "transition_errors": 0, "false_context_changes": 16, "switch_latencies": [0, 0, 0], "mean_switch_latency": 0.000000000, "lock_in_events": 0, "finite": true},
+    {"name": "relay-0.20", "threshold": 0.20, "total_errors": 11, "contradiction_errors": 8, "transition_errors": 3, "false_context_changes": 16, "switch_latencies": [1, 1, 1], "mean_switch_latency": 1.000000000, "lock_in_events": 0, "finite": true},
+    {"name": "relay-0.30", "threshold": 0.30, "total_errors": 6, "contradiction_errors": 0, "transition_errors": 6, "false_context_changes": 0, "switch_latencies": [2, 2, 2], "mean_switch_latency": 2.000000000, "lock_in_events": 0, "finite": true},
+    {"name": "relay-0.40", "threshold": 0.40, "total_errors": 9, "contradiction_errors": 0, "transition_errors": 9, "false_context_changes": 0, "switch_latencies": [3, 3, 3], "mean_switch_latency": 3.000000000, "lock_in_events": 0, "finite": true},
+    {"name": "relay-0.50", "threshold": 0.50, "total_errors": 9, "contradiction_errors": 0, "transition_errors": 9, "false_context_changes": 0, "switch_latencies": [3, 3, 3], "mean_switch_latency": 3.000000000, "lock_in_events": 0, "finite": true},
+    {"name": "relay-0.60", "threshold": 0.60, "total_errors": 9, "contradiction_errors": 0, "transition_errors": 9, "false_context_changes": 0, "switch_latencies": [3, 3, 3], "mean_switch_latency": 3.000000000, "lock_in_events": 0, "finite": true}
+  ],
+  "hypotheses": {
+    "H3_A1_useful_retention": true,
+    "H3_A2_disturbance_rejection": true,
+    "H3_A3_switching_cost": true,
+    "H3_A4_lock_in_frontier": false
+  },
+  "fixture_valid": true,
+  "relay_reference_valid": true,
+  "replay_equal": true,
+  "protocol_valid": true
+}
