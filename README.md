@@ -16,7 +16,7 @@ The **FL series is the authoritative line of development and experimentation for
 | **FL-1** | **Associative recall & attractor memory** | ✅ Completed | Can field attractors recover corrupted memories, and how do they compare with retrieval baselines? | Exhaustive 7,551-case corruption campaign retained with reproducible evidence. |
 | **FL-2** | **Competing hypotheses, signed coupling & frustration** | ✅ Completed | Do attraction and repulsion help resolve controlled contradictory evidence rather than merely creating instability? | Matched competition controls and analytic three-way frustration reference executed. |
 | **FL-3** | **Hysteresis & context switching** | ✅ Completed | Can path dependence retain useful cognitive state without unacceptable lock-in? | Retention benefit and switching cost characterized under a frozen context-switch protocol. |
-| **FL-4** | **CCOS field mapping** | 🟡 In progress — FL-4A/4B validated | Is CCOS causal pressure/heat usefully representable as a discrete field, and do extra field operators improve bounded context selection? | Fixed or externally grounded CCOS traces replayed; native CCOS vs field variants compared at identical budget while preserving auditability. |
+| **FL-4** | **CCOS field mapping** | 🟡 In progress — FL-4A/4B/4C validated; FL-4D next | Is CCOS causal pressure/heat usefully representable as a discrete field, and do extra field operators improve bounded context selection? | Fixed or externally grounded CCOS traces replayed; native CCOS vs field variants compared at identical budget while preserving auditability. |
 | **FL-5** | **Resonance, perturbation & stochastic exploration** | ⚪ Planned | Can controlled perturbation improve basin escape, recall or ambiguity resolution? | Benefit exceeds matched no-noise and surrogate controls under the same compute envelope. |
 | **FL-6** | **Sparse, low-rank & multiscale field scaling** | ⚪ Planned | Can useful dense interaction be retained without assuming scalable `O(N²)` coupling? | Approximation error and interaction/runtime scaling reported separately against a dense reference. |
 | **FL-7** | **Learned fields & adaptive couplings** | ⚪ Planned | Which field parameters can be learned without obscuring reference semantics or provenance? | Explicit train/validation/test split; learned model beats fixed-rule baselines and remains inspectable. |
@@ -34,7 +34,7 @@ FL-2  signed competition / frustration         ✅
   ↓
 FL-3  hysteresis / temporal persistence        ✅
   ↓
-FL-4  CCOS field mapping                       🟡 FL-4A/4B validated; real-trace gate remains
+FL-4  CCOS field mapping                       🟡 FL-4A/4B/4C validated; FL-4D native temporal trace next
   ↓
 FL-5  resonance / noise-assisted exploration
   ↓
@@ -47,7 +47,21 @@ FL-8  bounded cognitive computation
 FL-9  optional physical correspondence
 ```
 
-## Latest completed result: FL-4B hysteretic bounded working-set selection
+## Latest completed result: FL-4C external CCOS runtime replay gate
+
+FL-4C moved the evidence source outside FieldLab-authored fixtures. The workflow compiled the actual pinned `Memorithm/CCOS-Core@a3c4d7e03744430c74dc337463ff3e944b4933ad`, executed CCOS's own campaign probe twice on its real top-level `src/*.rs` corpus, and imported the resulting JSON without reconstructing CCOS scoring inside FieldLab.
+
+Both runs were semantically identical and had the same raw SHA-256 (`90d716fa04f029f1b9d8065a91d045075d46ef13938365103c87ffe5acba76f2`). The corpus contained 55 files and 471,024 unique source tokens. Every returned window respected the same 2,048-token budget and consumed about 0.43% of the corpus.
+
+Four of five preregistered hypotheses were supported. H4-C1 was **not** supported: full direct-dependency coverage held for 3/5 selected anchors, while `external_memory.rs` retained 5/11 direct dependencies and `agent_session.rs` 4/6 at the fixed budget. This negative result is retained rather than converted into a protocol failure.
+
+See [`prereg/FL-4C.md`](prereg/FL-4C.md), [`docs/FL-4C-RESULT.md`](docs/FL-4C-RESULT.md), [`results/FL-4C-external-ccos.json`](results/FL-4C-external-ccos.json), and the two retained raw probes.
+
+FL-4 remains open because FL-4C is a static external replay gate, not a temporal operator comparison. **FL-4D** is preregistered to acquire a native time-ordered CCOS score/window trace on the same real corpus before any external hysteresis claim is attempted.
+
+## Earlier results
+
+### FL-4B — hysteretic bounded working-set selection
 
 FL-4A first established an exact semantic bridge to pinned CCOS scoring, failure propagation, working-set assembly and Q-Page evidence. FL-4B then added one explicit FL-3 relay operator and tested it under the same 48-token budget on separate calibration and holdout traces.
 
@@ -58,11 +72,9 @@ The calibration-only procedure selected `theta = 0.10`. On the untouched holdout
 | Pinned CCOS baseline | 12 | 52 / 64 | 32 | 0 | 48 |
 | **FL-4B relay** | **0** | **64 / 64** | **8** | **0** | **48** |
 
-All five FL-4B hypotheses are supported on this controlled fixture, deterministic replay is exact, and the identical budget is preserved. This is not yet a claim about real repositories or arbitrary CCOS workloads; FL-4 remains open until an externally grounded CCOS trace gate is passed.
+All five FL-4B hypotheses are supported on this controlled fixture, deterministic replay is exact, and the identical budget is preserved. This is not yet a claim about real repositories or arbitrary CCOS workloads.
 
 See [`prereg/FL-4.md`](prereg/FL-4.md), [`prereg/FL-4B.md`](prereg/FL-4B.md), [`docs/FL-4B-RESULT.md`](docs/FL-4B-RESULT.md), and [`results/FL-4B-hysteretic-working-set.json`](results/FL-4B-hysteretic-working-set.json).
-
-## Earlier results
 
 ### FL-4A — lossless CCOS semantic field mapping
 
@@ -143,6 +155,8 @@ cargo run -p field-bench --bin fl2
 cargo run -p field-bench --bin fl3
 cargo run -p field-bench --bin fl4
 cargo run -p field-bench --bin fl4b
+cargo run -p field-bench --bin fl4c -- <probe-a.json> <probe-b.json> <ccos-commit>
+cargo run -p field-bench --bin fl4d -- <trace-a.json> <trace-b.json> <ccos-commit>
 cargo run -p field-bench --bin fle1
 cargo run -p field-bench --bin fle2
 ```
