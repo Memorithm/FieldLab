@@ -34,7 +34,7 @@ fn main() {
         "fl0|dt={:.17}|mobility={:.17}|steps={}|cases=attractive,repulsive|integrator=heun",
         config.dt, config.mobility, config.steps
     );
-    let provenance_hash = fnv1a64(manifest.as_bytes());
+    let provenance_fingerprint = fnv1a64(manifest.as_bytes());
     let passed = attractive.passed && repulsive.passed;
 
     println!(
@@ -45,22 +45,24 @@ fn main() {
             "  \"dt\": {:.17},\n",
             "  \"mobility\": {:.17},\n",
             "  \"steps\": {},\n",
-            "  \"provenance_hash\": \"fnv1a64:{:016x}\",\n",
-            "  \"attractive\": {{\"initial_energy\": {:.17}, \"final_energy\": {:.17}, \"final_dot\": {:.17}, \"max_norm_error\": {:.17}, \"replay_equal\": {}, \"passed\": {}}},\n",
-            "  \"repulsive\": {{\"initial_energy\": {:.17}, \"final_energy\": {:.17}, \"final_dot\": {:.17}, \"max_norm_error\": {:.17}, \"replay_equal\": {}, \"passed\": {}}},\n",
+            "  \"provenance_fingerprint\": \"fnv1a64:{:016x}\",\n",
+            "  \"attractive\": {{\"weight\": {:.17}, \"initial_energy\": {:.17}, \"final_energy\": {:.17}, \"final_dot\": {:.17}, \"max_norm_error\": {:.17}, \"replay_equal\": {}, \"passed\": {}}},\n",
+            "  \"repulsive\": {{\"weight\": {:.17}, \"initial_energy\": {:.17}, \"final_energy\": {:.17}, \"final_dot\": {:.17}, \"max_norm_error\": {:.17}, \"replay_equal\": {}, \"passed\": {}}},\n",
             "  \"passed\": {}\n",
             "}}"
         ),
         config.dt,
         config.mobility,
         config.steps,
-        provenance_hash,
+        provenance_fingerprint,
+        attractive.weight,
         attractive.initial_energy,
         attractive.final_energy,
         attractive.final_dot,
         attractive.max_norm_error,
         attractive.replay_equal,
         attractive.passed,
+        repulsive.weight,
         repulsive.initial_energy,
         repulsive.final_energy,
         repulsive.final_dot,
@@ -155,8 +157,8 @@ mod tests {
     use super::*;
 
     #[test]
-    fn provenance_hash_is_stable() {
-        assert_eq!(fnv1a64(b"FieldLab"), 0x8338f497c6cb4e9f);
+    fn provenance_fingerprint_is_stable() {
+        assert_eq!(fnv1a64(b"FieldLab"), 0x454b_7e1f_3cb9_5cb6);
     }
 
     #[test]
