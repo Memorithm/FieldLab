@@ -93,6 +93,12 @@ struct CalibrationResult {
     metrics: FocusMetrics,
 }
 
+#[derive(Clone, Copy)]
+enum FocusPolicy {
+    Memoryless,
+    Hysteretic(f64),
+}
+
 #[derive(Debug, Serialize)]
 struct ResultReport {
     experiment: &'static str,
@@ -122,17 +128,18 @@ fn main() -> Result<(), Box<dyn Error>> {
     let second: TraceReport = serde_json::from_slice(&second_bytes)?;
     let replay_equal = first == second;
 
-    let baseline_calibration = evaluate_memoryless(&first.calibration);
+    let baseline_calibration = evaluate_policy(&first.calibration, FocusPolicy::Memoryless);
     let mut calibration_grid = Vec::with_capacity(THRESHOLDS.len());
     for threshold in THRESHOLDS {
         calibration_grid.push(CalibrationResult {
             threshold,
-            metrics: evaluate_hysteretic(&first.calibration, threshold),
+            metrics: evaluate_policy(&first.calibration, FocusPolicy::Hysteretic(threshold)),
         });
     }
     let chosen_threshold = select_threshold(&calibration_grid);
-    let baseline_holdout = evaluate_memoryless(&first.holdout);
-    let hysteretic_holdout = evaluate_hysteretic(&first.holdout, chosen_threshold);
+    let baseline_holdout = evaluate_policy(&first.holdout, FocusPolicy::Memoryless);
+    let hysteretic_holdout =
+        evaluate_policy(&first.holdout, FocusPolicy::Hysteretic(chosen_threshold));
     let protocol_valid = validate_protocol(
         &first,
         &external_commit,
@@ -215,9 +222,13 @@ fn validate_protocol(
             &report.anchors,
         )
         && calibration_grid.len() == THRESHOLDS.len()
-        && calibration_grid.iter().zip(THRESHOLDS).all(|(result, expected)| {
-            result.threshold.to_bits() == expected.to_bits() && result.metrics.observability_valid()
-        })
+        && calibration_grid
+            .iter()
+            .zip(THRESHOLDS)
+            .all(|(result, expected)| {
+                result.threshold.to_bits() == expected.to_bits()
+                    && result.metrics.observability_valid()
+            })
         && THRESHOLDS
             .iter()
             .any(|threshold| threshold.to_bits() == chosen_threshold.to_bits())
@@ -260,29 +271,11 @@ fn trace_valid(
         })
 }
 
-fn evaluate_memoryless(trace: &[Observation]) -> FocusMetrics {
-    evaluate_policy(trace, |_| None)
-}
-
-fn evaluate_hysteretic(trace: &[Observation], threshold: f64) -> FocusMetrics {
-    evaluate_policy(trace, |state| choose_hysteretic(state, threshold))
-}
-
-struct PolicyState<'a> {
-    observation: &'a Observation,
-    previous_focus: Option<&'static str>,
-    memoryless_focus: Option<&'static str>,
-}
-
-fn evaluate_policy<F>(trace: &[Observation], mut hysteretic_choice: F) -> FocusMetrics
-where
-    F: FnMut(&PolicyState<'_>) -> Option<&'static str>,
-{
+fn evaluate_policy(trace: &[Observation], policy: FocusPolicy) -> FocusMetrics {
     let memoryless = trace
         .iter()
         .map(memoryless_focus)
         .collect::<Vec<Option<&'static str>>>();
-    let use_memoryless = std::any::type_name::<F>().contains("evaluate_memoryless");
     let mut metrics = FocusMetrics::default();
     let mut previous_focus: Option<&'static str> = None;
     let mut previous_truth: Option<&str> = None;
@@ -290,15 +283,14 @@ where
 
     for (step, observation) in trace.iter().enumerate() {
         let baseline_focus = memoryless[step];
-        let state = PolicyState {
-            observation,
-            previous_focus,
-            memoryless_focus: baseline_focus,
-        };
-        let focus = if use_memoryless {
-            baseline_focus
-        } else {
-            hysteretic_choice(&state)
+        let focus = match policy {
+            FocusPolicy::Memoryless => baseline_focus,
+            FocusPolicy::Hysteretic(threshold) => choose_hysteretic(
+                observation,
+                previous_focus,
+                baseline_focus,
+                threshold,
+            ),
         };
         update_metrics(
             &mut metrics,
@@ -316,19 +308,24 @@ where
     metrics
 }
 
-fn choose_hysteretic(state: &PolicyState<'_>, threshold: f64) -> Option<&'static str> {
-    let candidate = state.memoryless_focus?;
-    let Some(previous) = state.previous_focus else {
+fn choose_hysteretic(
+    observation: &Observation,
+    previous_focus: Option<&'static str>,
+    memoryless_candidate: Option<&'static str>,
+    threshold: f64,
+) -> Option<&'static str> {
+    let candidate = memoryless_candidate?;
+    let Some(previous) = previous_focus else {
         return Some(candidate);
     };
-    let Some(previous_score) = visible_score(state.observation, previous) else {
+    let Some(previous_score) = visible_score(observation, previous) else {
         return Some(candidate);
     };
     if previous == candidate {
         return Some(previous);
     }
-    let candidate_score = visible_score(state.observation, candidate)
-        .expect("memoryless candidate is visible by construction");
+    let candidate_score =
+        visible_score(observation, candidate).expect("memoryless candidate is visible by construction");
     if candidate_score - previous_score >= threshold {
         Some(candidate)
     } else {
@@ -369,7 +366,9 @@ fn update_metrics(
     focus: Option<&str>,
     step: usize,
 ) {
-    metrics.max_tokens = metrics.max_tokens.max(usize::try_from(observation.tokens).unwrap_or(0));
+    metrics.max_tokens = metrics
+        .max_tokens
+        .max(usize::try_from(observation.tokens).unwrap_or_default());
     match focus {
         Some(symbol) => {
             if symbol != observation.truth {
