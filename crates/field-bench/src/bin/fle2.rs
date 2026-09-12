@@ -503,7 +503,7 @@ fn matrix_vector(matrix: Matrix2, vector: [f64; 2]) -> [f64; 2] {
 }
 
 fn matrix_to_vec(matrix: Matrix2) -> Vec<Vec<f64>> {
-    matrix.into_iter().map(<[f64; 2]>::to_vec).collect()
+    matrix.into_iter().map(|row| row.to_vec()).collect()
 }
 
 fn node(degrees: f64) -> Result<NodeState, Box<dyn Error>> {
