@@ -108,7 +108,11 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("  \"provenance_fingerprint\": \"fnv1a64:{fingerprint:016x}\",");
     println!("  \"competition\": [");
     for (index, (condition, result)) in competition.iter().enumerate() {
-        let suffix = if index + 1 == competition.len() { "" } else { "," };
+        let suffix = if index + 1 == competition.len() {
+            ""
+        } else {
+            ","
+        };
         println!(
             "    {{\"condition\": \"{}\", \"coupling\": {:.6}, \"cases\": {}, \"non_tie_cases\": {}, \"correct_winners\": {}, \"winner_rate\": {:.9}, \"mean_useful_separation\": {:.12}, \"min_useful_separation\": {:.12}, \"max_tie_polarization\": {:.12}, \"monotonic_separation\": {}, \"energy_nonincreasing\": {}, \"finite\": {}}}{suffix}",
             condition.name,
@@ -167,12 +171,8 @@ fn run_competition(
         let mut negative = [0.0_f64; 10];
         for differential_step in -10_i32..=10 {
             let differential = f64::from(differential_step) / 10.0;
-            let (margin, initial_energy, final_energy) = run_competition_case(
-                common,
-                differential,
-                condition.coupling,
-                integrator,
-            )?;
+            let (margin, initial_energy, final_energy) =
+                run_competition_case(common, differential, condition.coupling, integrator)?;
             cases += 1;
             finite &= margin.is_finite() && initial_energy.is_finite() && final_energy.is_finite();
             energy_nonincreasing &= final_energy <= initial_energy + ENERGY_TOLERANCE;
