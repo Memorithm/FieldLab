@@ -8,6 +8,7 @@ rust-version.workspace = true
 [dependencies]
 field-core = { path = "../field-core" }
 field-dynamics = { path = "../field-dynamics" }
+field-memory = { path = "../field-memory" }
 
 [lints]
 workspace = true
