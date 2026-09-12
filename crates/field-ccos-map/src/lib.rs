@@ -188,6 +188,7 @@ fn reference_recurse(
         let delta = base * edge_weight * weights.failure_decay.powi(depth as i32) * damp;
         if let Some(node) = nodes.get_mut(target) {
             node.failure_relevance = (node.failure_relevance + delta).clamp(0.0, 1.0);
+            node.recency = 1.0;
         }
         if delta > floor {
             reference_recurse(nodes, edges, target, depth + 1, max_depth, floor, weights);
@@ -230,6 +231,7 @@ fn emit_field(
             * distribution;
         if let Some(target) = nodes.get_mut(edge.target) {
             target.failure_relevance = (target.failure_relevance + emission).clamp(0.0, 1.0);
+            target.recency = 1.0;
         }
         if emission > floor {
             emit_field(
@@ -389,5 +391,7 @@ mod tests {
         reference_propagate_failure(&mut a, &edges, 0, 3, 0.1, ScoringWeights::default());
         field_propagate_failure(&mut b, &edges, 0, 3, 0.1, ScoringWeights::default());
         assert_eq!(a, b);
+        assert_eq!(a[1].recency, 1.0);
+        assert_eq!(a[2].recency, 1.0);
     }
 }
