@@ -18,20 +18,20 @@ const ANCHOR_FILE_URIS: [(&str, &str); 4] = [
     ("D", "file:src/region_metrics.rs"),
 ];
 const CALIBRATION_STIMULUS: [&str; TRACE_LEN] = [
-    "A", "A", "C", "A", "A", "B", "A", "A", "C", "D", "C", "C", "A", "C", "C", "C",
-    "B", "B", "A", "B", "D", "B", "B", "B", "D", "C", "D", "D", "D", "A", "D", "D",
+    "A", "A", "C", "A", "A", "B", "A", "A", "C", "D", "C", "C", "A", "C", "C", "C", "B", "B", "A",
+    "B", "D", "B", "B", "B", "D", "C", "D", "D", "D", "A", "D", "D",
 ];
 const CALIBRATION_TRUTH: [&str; TRACE_LEN] = [
-    "A", "A", "A", "A", "A", "A", "A", "A", "C", "C", "C", "C", "C", "C", "C", "C",
-    "B", "B", "B", "B", "B", "B", "B", "B", "D", "D", "D", "D", "D", "D", "D", "D",
+    "A", "A", "A", "A", "A", "A", "A", "A", "C", "C", "C", "C", "C", "C", "C", "C", "B", "B", "B",
+    "B", "B", "B", "B", "B", "D", "D", "D", "D", "D", "D", "D", "D",
 ];
 const HOLDOUT_STIMULUS: [&str; TRACE_LEN] = [
-    "B", "D", "B", "B", "B", "A", "B", "B", "D", "D", "C", "D", "B", "D", "D", "D",
-    "A", "C", "A", "A", "D", "A", "A", "A", "C", "B", "C", "D", "C", "C", "C", "C",
+    "B", "D", "B", "B", "B", "A", "B", "B", "D", "D", "C", "D", "B", "D", "D", "D", "A", "C", "A",
+    "A", "D", "A", "A", "A", "C", "B", "C", "D", "C", "C", "C", "C",
 ];
 const HOLDOUT_TRUTH: [&str; TRACE_LEN] = [
-    "B", "B", "B", "B", "B", "B", "B", "B", "D", "D", "D", "D", "D", "D", "D", "D",
-    "A", "A", "A", "A", "A", "A", "A", "A", "C", "C", "C", "C", "C", "C", "C", "C",
+    "B", "B", "B", "B", "B", "B", "B", "B", "D", "D", "D", "D", "D", "D", "D", "D", "A", "A", "A",
+    "A", "A", "A", "A", "A", "C", "C", "C", "C", "C", "C", "C", "C",
 ];
 
 #[derive(Clone, Debug, Deserialize, PartialEq)]
@@ -285,12 +285,9 @@ fn evaluate_policy(trace: &[Observation], policy: FocusPolicy) -> FocusMetrics {
         let baseline_focus = memoryless[step];
         let focus = match policy {
             FocusPolicy::Memoryless => baseline_focus,
-            FocusPolicy::Hysteretic(threshold) => choose_hysteretic(
-                observation,
-                previous_focus,
-                baseline_focus,
-                threshold,
-            ),
+            FocusPolicy::Hysteretic(threshold) => {
+                choose_hysteretic(observation, previous_focus, baseline_focus, threshold)
+            }
         };
         update_metrics(
             &mut metrics,
@@ -324,8 +321,8 @@ fn choose_hysteretic(
     if previous == candidate {
         return Some(previous);
     }
-    let candidate_score =
-        visible_score(observation, candidate).expect("memoryless candidate is visible by construction");
+    let candidate_score = visible_score(observation, candidate)
+        .expect("memoryless candidate is visible by construction");
     if candidate_score - previous_score >= threshold {
         Some(candidate)
     } else {
@@ -437,8 +434,8 @@ fn evaluate_hypotheses(
 ) -> BTreeMap<&'static str, bool> {
     let truth_tracking = hysteretic.errors < baseline.errors;
     let anti_thrash = hysteretic.false_switches < baseline.false_switches;
-    let transition_cost = hysteretic.max_transition_latency
-        <= baseline.max_transition_latency.saturating_add(1);
+    let transition_cost =
+        hysteretic.max_transition_latency <= baseline.max_transition_latency.saturating_add(1);
     let observability = baseline.max_tokens <= EXPECTED_BUDGET
         && hysteretic.max_tokens <= EXPECTED_BUDGET
         && hysteretic.observability_valid();
