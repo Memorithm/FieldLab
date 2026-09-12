@@ -4,6 +4,7 @@ members = [
     "crates/field-dynamics",
     "crates/field-memory",
     "crates/field-hysteresis",
+    "crates/field-ccos-map",
     "crates/field-bench",
 ]
 resolver = "2"
