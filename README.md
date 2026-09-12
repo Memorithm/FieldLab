@@ -16,7 +16,7 @@ The **FL series is the authoritative line of development and experimentation for
 | **FL-1** | **Associative recall & attractor memory** | ✅ Completed | Can field attractors recover corrupted memories, and how do they compare with retrieval baselines? | Exhaustive 7,551-case corruption campaign retained with reproducible evidence. |
 | **FL-2** | **Competing hypotheses, signed coupling & frustration** | ✅ Completed | Do attraction and repulsion help resolve controlled contradictory evidence rather than merely creating instability? | Matched competition controls and analytic three-way frustration reference executed. |
 | **FL-3** | **Hysteresis & context switching** | ✅ Completed | Can path dependence retain useful cognitive state without unacceptable lock-in? | Retention benefit and switching cost characterized under a frozen context-switch protocol. |
-| **FL-4** | **CCOS field mapping** | 🟡 In progress — FL-4A/4B/4C validated; FL-4D next | Is CCOS causal pressure/heat usefully representable as a discrete field, and do extra field operators improve bounded context selection? | Fixed or externally grounded CCOS traces replayed; native CCOS vs field variants compared at identical budget while preserving auditability. |
+| **FL-4** | **CCOS field mapping** | 🟡 In progress — FL-4A/4B/4C/4D validated; comparative external ablation next | Is CCOS causal pressure/heat usefully representable as a discrete field, and do extra field operators improve bounded context selection? | Fixed or externally grounded CCOS traces replayed; native CCOS vs field variants compared at identical budget while preserving auditability. |
 | **FL-5** | **Resonance, perturbation & stochastic exploration** | ⚪ Planned | Can controlled perturbation improve basin escape, recall or ambiguity resolution? | Benefit exceeds matched no-noise and surrogate controls under the same compute envelope. |
 | **FL-6** | **Sparse, low-rank & multiscale field scaling** | ⚪ Planned | Can useful dense interaction be retained without assuming scalable `O(N²)` coupling? | Approximation error and interaction/runtime scaling reported separately against a dense reference. |
 | **FL-7** | **Learned fields & adaptive couplings** | ⚪ Planned | Which field parameters can be learned without obscuring reference semantics or provenance? | Explicit train/validation/test split; learned model beats fixed-rule baselines and remains inspectable. |
@@ -34,7 +34,7 @@ FL-2  signed competition / frustration         ✅
   ↓
 FL-3  hysteresis / temporal persistence        ✅
   ↓
-FL-4  CCOS field mapping                       🟡 FL-4A/4B/4C validated; FL-4D native temporal trace next
+FL-4  CCOS field mapping                       🟡 FL-4A/4B/4C/4D validated; external operator ablation next
   ↓
 FL-5  resonance / noise-assisted exploration
   ↓
@@ -47,19 +47,29 @@ FL-8  bounded cognitive computation
 FL-9  optional physical correspondence
 ```
 
-## Latest completed result: FL-4C external CCOS runtime replay gate
+## Latest completed result: FL-4D native temporal CCOS trace acquisition
 
-FL-4C moved the evidence source outside FieldLab-authored fixtures. The workflow compiled the actual pinned `Memorithm/CCOS-Core@a3c4d7e03744430c74dc337463ff3e944b4933ad`, executed CCOS's own campaign probe twice on its real top-level `src/*.rs` corpus, and imported the resulting JSON without reconstructing CCOS scoring inside FieldLab.
+FL-4D acquired time-ordered scored working-set snapshots from the actual pinned `Memorithm/CCOS-Core@a3c4d7e03744430c74dc337463ff3e944b4933ad` runtime on CCOS's real top-level `src/*.rs` corpus. The 24-observation calibration and 24-observation holdout schedules were frozen before execution.
 
-Both runs were semantically identical and had the same raw SHA-256 (`90d716fa04f029f1b9d8065a91d045075d46ef13938365103c87ffe5acba76f2`). The corpus contained 55 files and 471,024 unique source tokens. Every returned window respected the same 2,048-token budget and consumed about 0.43% of the corpus.
+Two complete acquisitions from fresh workspaces were semantically identical and shared the same raw SHA-256 (`4eabc57a1ba9147591d5b4ca63b62a0eaa25d4549d24bc4336bba061e2cfafe4`). Calibration produced 23 distinct snapshots out of 24 and holdout produced 24/24 distinct snapshots. Every native working-set recall stayed below the 2,048-token hard budget.
 
-Four of five preregistered hypotheses were supported. H4-C1 was **not** supported: full direct-dependency coverage held for 3/5 selected anchors, while `external_memory.rs` retained 5/11 direct dependencies and `agent_session.rs` 4/6 at the fixed budget. This negative result is retained rather than converted into a protocol failure.
+All five FL-4D hypotheses are supported: exact temporal replay, stimulus sensitivity, hard-budget preservation, finite native score availability and representation of all four frozen anchors.
 
-See [`prereg/FL-4C.md`](prereg/FL-4C.md), [`docs/FL-4C-RESULT.md`](docs/FL-4C-RESULT.md), [`results/FL-4C-external-ccos.json`](results/FL-4C-external-ccos.json), and the two retained raw probes.
+See [`prereg/FL-4D.md`](prereg/FL-4D.md), [`docs/FL-4D-RESULT.md`](docs/FL-4D-RESULT.md), and [`results/FL-4D-native-temporal-ccos.json`](results/FL-4D-native-temporal-ccos.json).
 
-FL-4 remains open because FL-4C is a static external replay gate, not a temporal operator comparison. **FL-4D** is preregistered to acquire a native time-ordered CCOS score/window trace on the same real corpus before any external hysteresis claim is attempted.
+FL-4 remains open for one reason: a real external **comparative operator ablation** is still required. Any next field variant must calibrate only on a declared calibration trace, freeze its parameters, preserve the native 2,048-token budget and evaluate once on a new untouched holdout workload.
 
 ## Earlier results
+
+### FL-4C — external CCOS runtime replay gate
+
+FL-4C moved the evidence source outside FieldLab-authored fixtures. The workflow compiled the actual pinned CCOS runtime, executed CCOS's own campaign probe twice on its real source corpus, and imported the resulting JSON without reconstructing CCOS scoring inside FieldLab.
+
+Both runs were semantically identical with SHA-256 `90d716fa04f029f1b9d8065a91d045075d46ef13938365103c87ffe5acba76f2`. The corpus contained 55 files and 471,024 unique source tokens. Every returned window respected 2,048 tokens and consumed about 0.43% of the corpus.
+
+Four of five preregistered hypotheses were supported. H4-C1 was **not** supported: full direct-dependency coverage held for 3/5 selected anchors, while `external_memory.rs` retained 5/11 direct dependencies and `agent_session.rs` 4/6 at the fixed budget. This negative result remains part of the evidence record.
+
+See [`prereg/FL-4C.md`](prereg/FL-4C.md), [`docs/FL-4C-RESULT.md`](docs/FL-4C-RESULT.md), and [`results/FL-4C-external-ccos.json`](results/FL-4C-external-ccos.json).
 
 ### FL-4B — hysteretic bounded working-set selection
 
