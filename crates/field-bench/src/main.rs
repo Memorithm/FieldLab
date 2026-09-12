@@ -139,8 +139,7 @@ fn model(weight: f64) -> EnergyModel {
         }],
     )
     .expect("valid FL-0 graph");
-    EnergyModel::new(graph, vec![vec![0.0, 0.0], vec![0.0, 0.0]])
-        .expect("valid FL-0 energy model")
+    EnergyModel::new(graph, vec![vec![0.0, 0.0], vec![0.0, 0.0]]).expect("valid FL-0 energy model")
 }
 
 fn fnv1a64(bytes: &[u8]) -> u64 {
