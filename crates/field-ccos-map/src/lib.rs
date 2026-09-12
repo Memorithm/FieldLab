@@ -233,8 +233,7 @@ fn emit_field(
     let source_amplitude = nodes[source].failure_relevance;
     let outgoing: Vec<&CausalEdge> = edges.iter().filter(|edge| edge.source == source).collect();
     let fanout_limit = weights.failure_fanout.max(1.0);
-    let distribution =
-        (fanout_limit / usize_as_f64(outgoing.len()).max(fanout_limit)).min(1.0);
+    let distribution = (fanout_limit / usize_as_f64(outgoing.len()).max(fanout_limit)).min(1.0);
     for edge in outgoing {
         let emission = source_amplitude
             * edge.weight
