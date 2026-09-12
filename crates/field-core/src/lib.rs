@@ -293,8 +293,16 @@ impl EnergyModel {
             let target = state
                 .node(coupling.target)
                 .ok_or(ValidationError::NodeOutOfBounds)?;
-            add_scaled(&mut result[coupling.source], target.values(), coupling.weight);
-            add_scaled(&mut result[coupling.target], source.values(), coupling.weight);
+            add_scaled(
+                &mut result[coupling.source],
+                target.values(),
+                coupling.weight,
+            );
+            add_scaled(
+                &mut result[coupling.target],
+                source.values(),
+                coupling.weight,
+            );
         }
         Ok(result)
     }
