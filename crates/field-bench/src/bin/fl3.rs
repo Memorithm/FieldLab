@@ -63,11 +63,12 @@ fn main() -> Result<(), Box<dyn Error>> {
         .map(measure_relay_loop)
         .collect::<Result<Vec<_>, _>>()?;
     let loop_reference_valid = loops.iter().all(|loop_result| loop_result.valid);
-    let loop_replay_equal = loops == THRESHOLDS
-        .iter()
-        .copied()
-        .map(measure_relay_loop)
-        .collect::<Result<Vec<_>, _>>()?;
+    let loop_replay_equal = loops
+        == THRESHOLDS
+            .iter()
+            .copied()
+            .map(measure_relay_loop)
+            .collect::<Result<Vec<_>, _>>()?;
 
     let baseline = evaluate_memoryless(&fixture)?;
     let conditions = THRESHOLDS
@@ -80,7 +81,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         .copied()
         .map(|threshold| evaluate_hysteretic(&fixture, threshold))
         .collect::<Result<Vec<_>, _>>()?;
-    let replay_equal = baseline == evaluate_memoryless(&fixture)? && conditions == replay_conditions;
+    let replay_equal =
+        baseline == evaluate_memoryless(&fixture)? && conditions == replay_conditions;
     let finite = baseline.finite && conditions.iter().all(|condition| condition.finite);
 
     let h3_a1 = conditions
@@ -95,19 +97,22 @@ fn main() -> Result<(), Box<dyn Error>> {
         .all(|condition| condition.mean_switch_latency > 0.0);
     let best_lower = conditions
         .iter()
-        .filter(|condition| condition.threshold.is_some_and(|threshold| threshold <= 0.30))
+        .filter(|condition| {
+            condition
+                .threshold
+                .is_some_and(|threshold| threshold <= 0.30)
+        })
         .min_by_key(|condition| condition.total_errors)
         .ok_or("missing lower-threshold condition")?;
     let h3_a4 = conditions.iter().any(|condition| {
-        condition.threshold.is_some_and(|threshold| threshold > 0.30)
+        condition
+            .threshold
+            .is_some_and(|threshold| threshold > 0.30)
             && condition.lock_in_events > best_lower.lock_in_events
     });
 
-    let protocol_valid = fixture_valid
-        && loop_reference_valid
-        && loop_replay_equal
-        && replay_equal
-        && finite;
+    let protocol_valid =
+        fixture_valid && loop_reference_valid && loop_replay_equal && replay_equal && finite;
 
     let manifest = format!(
         "fl3|segments={SEGMENT_COUNT}|segment_len={SEGMENT_LEN}|ramp=0.10,0.20,0.30,0.40,0.55,0.70|contradiction_offsets=9,14|contradiction_mag=0.25|stable_mag=0.55|thresholds=0.10,0.20,0.30,0.40,0.50,0.60|gain={HYSTERESIS_GAIN:.17}|field_steps={FIELD_STEPS}|dt={FIELD_DT:.17}|mobility={FIELD_MOBILITY:.17}|lock_in_limit={LOCK_IN_LIMIT}"
@@ -135,7 +140,11 @@ fn main() -> Result<(), Box<dyn Error>> {
     print_condition("baseline", &baseline, true);
     println!("  \"hysteretic_conditions\": [");
     for (index, condition) in conditions.iter().enumerate() {
-        let suffix = if index + 1 == conditions.len() { "" } else { "," };
+        let suffix = if index + 1 == conditions.len() {
+            ""
+        } else {
+            ","
+        };
         print_condition_entry(condition, suffix);
     }
     println!("  ],");
