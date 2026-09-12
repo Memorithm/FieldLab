@@ -83,21 +83,37 @@ See [`docs/FL-1-RESULT.md`](docs/FL-1-RESULT.md).
 
 ## Foundation
 
-- `field-core` — unit node states, signed coupling graph, external fields, energy and effective-field evaluation;
-- `field-dynamics` — projected deterministic dynamics, explicit Euler and Heun reference integration;
+- `field-core` — unit node states, versioned conservative energy models, signed scalar couplings, operator-valued couplings, local anisotropy and effective-field evaluation;
+- `field-dynamics` — projected deterministic dynamics, explicit Euler and Heun reference integration over the common `FieldModel` contract;
 - `field-memory` — bipolar memory banks, shared Hebbian coupling, cue encoding/decoding and retrieval baselines;
 - `field-hysteresis` — explicit deterministic two-threshold relay/hysteron;
 - `field-bench` — machine-readable FL experiment executables.
 
-The current field energy remains deliberately narrow:
+### Energy-model versions
+
+The historical model used by FL-0 through FL-3 is now explicitly named **FL-E0**:
 
 ```text
-E(M, x) = -Σ_i h_i(x)·m_i - Σ_(i,j) J_ij m_i·m_j
-H_i_eff = -∂E/∂m_i
-ṁ_i = η (I - m_i m_iᵀ) H_i_eff
+E0(M, x) = -Σ_i h_i(x)·m_i - Σ_{ {i,j}∈E } J_ij m_i·m_j
+H_i_eff  = -∂E0/∂m_i
+ṁ_i     = η (I - m_i m_iᵀ) H_i_eff
 ```
 
-Hysteresis is kept as an explicit operator rather than hidden in numerical inertia. Rotational dynamics and stochastic forcing remain separate later mechanisms.
+The pair sum is over **unique undirected edges**. It is not a sum over every ordered matrix index, so no `1/2` factor is required. `CouplingGraph` rejects duplicate pairs, including reversed `(j,i)` duplicates, to make that convention executable rather than implicit.
+
+**FL-E1** is a conservative extension that keeps exactly the same projected dynamics while permitting operator-valued pair interactions and symmetric local anisotropy:
+
+```text
+E1(M, x) = -Σ_i h_i(x)·m_i
+           -Σ_{ {i,j}∈E } m_iᵀ K_ij m_j
+           -1/2 Σ_i m_iᵀ A_i m_i
+```
+
+Every E0 model embeds into E1 through `K_ij = J_ij I` and `A_i = 0`. The preregistered `FL-E1` validation campaign checks that equivalence before accepting the additional expressivity.
+
+See [`docs/ENERGY-MODELS.md`](docs/ENERGY-MODELS.md) and [`prereg/FL-E1.md`](prereg/FL-E1.md).
+
+Hysteresis remains an explicit operator rather than being hidden in numerical inertia. Rotational/non-conservative dynamics, stochastic forcing and higher-order interactions remain separate later mechanisms so their effects can be ablated independently.
 
 ## Relationship to the Memorithm ecosystem
 
@@ -119,6 +135,7 @@ cargo run -p field-bench --bin field-bench
 cargo run -p field-bench --bin fl1
 cargo run -p field-bench --bin fl2
 cargo run -p field-bench --bin fl3
+cargo run -p field-bench --bin fle1
 ```
 
 A comparative hypothesis may fail while its experiment remains scientifically valid. CI failures are reserved for invalid execution, broken invariants, failed reference gates or missing reproducibility evidence.
