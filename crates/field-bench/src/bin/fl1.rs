@@ -52,18 +52,20 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     }
 
-    let aggregate = levels.iter().copied().fold(MethodCounts::default(), add_counts);
+    let aggregate = levels
+        .iter()
+        .copied()
+        .fold(MethodCounts::default(), add_counts);
     let replay_equal = replay_sentinel(&bank, &model, integrator)?;
     let zero_corruption_complete = levels[0].total == bank.patterns().len()
         && levels[0].field == levels[0].total
         && levels[0].hopfield == levels[0].total
         && levels[0].nearest == levels[0].total;
-    let protocol_valid = aggregate.total == EXPECTED_CASES && zero_corruption_complete && replay_equal;
+    let protocol_valid =
+        aggregate.total == EXPECTED_CASES && zero_corruption_complete && replay_equal;
     let field_beats_hopfield = aggregate.field > aggregate.hopfield;
     let field_beats_nearest = aggregate.field > aggregate.nearest;
-    let field_exact_through_three = levels[..=3]
-        .iter()
-        .all(|level| level.field == level.total);
+    let field_exact_through_three = levels[..=3].iter().all(|level| level.field == level.total);
 
     let manifest = format!(
         "fl1|nodes={NODE_COUNT}|patterns=3|max_flips={MAX_FLIPS}|field_steps={FIELD_STEPS}|dt={FIELD_DT:.17}|mobility={FIELD_MOBILITY:.17}|tilt={CUE_TILT_RADIANS:.17}|hopfield_sweeps={HOPFIELD_SWEEPS}|mask_order=ascending|tie_break=bank_order"
