@@ -1,10 +1,10 @@
 #![forbid(unsafe_code)]
 
-use field_core::{dot, EnergyModel, FieldState, NodeState, ValidationError};
+use field_core::{dot, FieldModel, FieldState, NodeState, ValidationError};
 use std::error::Error;
 use std::fmt::{Display, Formatter};
 
-/// Deterministic integration parameters for the FL-0 dynamics.
+/// Deterministic integration parameters for projected dissipative dynamics.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct IntegratorConfig {
     pub dt: f64,
@@ -28,14 +28,14 @@ impl IntegratorConfig {
     }
 }
 
-/// Advances the projected dissipative field by one explicit Euler step.
+/// Advances any conservative [`FieldModel`] by one projected explicit Euler step.
 ///
 /// # Errors
 ///
 /// Returns an error for invalid integration parameters or an incompatible/invalid field state.
-pub fn euler_step(
+pub fn euler_step<M: FieldModel + ?Sized>(
     state: &FieldState,
-    model: &EnergyModel,
+    model: &M,
     config: IntegratorConfig,
 ) -> Result<FieldState, DynamicsError> {
     let config = config.validate()?;
@@ -58,14 +58,14 @@ pub fn euler_step(
     Ok(FieldState::new(next)?)
 }
 
-/// Advances the projected dissipative field by one Heun predictor-corrector step.
+/// Advances any conservative [`FieldModel`] by one projected Heun step.
 ///
 /// # Errors
 ///
 /// Returns an error for invalid integration parameters or an incompatible/invalid field state.
-pub fn heun_step(
+pub fn heun_step<M: FieldModel + ?Sized>(
     state: &FieldState,
-    model: &EnergyModel,
+    model: &M,
     config: IntegratorConfig,
 ) -> Result<FieldState, DynamicsError> {
     let config = config.validate()?;
@@ -117,14 +117,14 @@ pub fn heun_step(
     Ok(FieldState::new(corrected)?)
 }
 
-/// Executes a fixed number of deterministic Heun steps.
+/// Executes a fixed number of deterministic projected Heun steps.
 ///
 /// # Errors
 ///
 /// Returns the first integration/state validation error encountered.
-pub fn run_steps(
+pub fn run_steps<M: FieldModel + ?Sized>(
     mut state: FieldState,
-    model: &EnergyModel,
+    model: &M,
     config: IntegratorConfig,
     steps: usize,
 ) -> Result<FieldState, DynamicsError> {
@@ -172,7 +172,7 @@ impl From<ValidationError> for DynamicsError {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use field_core::{Coupling, CouplingGraph, EnergyModel};
+    use field_core::{Coupling, CouplingGraph, EnergyModel, OperatorCoupling, OperatorEnergyModel};
 
     fn orthogonal_pair(weight: f64) -> (FieldState, EnergyModel) {
         let state = FieldState::new(vec![
@@ -236,6 +236,37 @@ mod tests {
                 final_state.node(1).unwrap().values()
             ) < -0.9
         );
+    }
+
+    #[test]
+    fn e1_operator_flow_decreases_e1_energy() {
+        let state = FieldState::new(vec![
+            NodeState::try_unit(vec![1.0, 0.0], 1.0e-12).unwrap(),
+            NodeState::try_unit(vec![1.0, 0.0], 1.0e-12).unwrap(),
+        ])
+        .unwrap();
+        let model = OperatorEnergyModel::new(
+            vec![vec![0.0, 0.0]; 2],
+            vec![OperatorCoupling {
+                source: 0,
+                target: 1,
+                operator: vec![vec![0.0, -1.0], vec![1.0, 0.0]],
+            }],
+            Vec::new(),
+        )
+        .unwrap();
+        let initial_energy = model.energy(&state).unwrap();
+        let final_state = run_steps(
+            state,
+            &model,
+            IntegratorConfig {
+                dt: 0.01,
+                mobility: 1.0,
+            },
+            256,
+        )
+        .unwrap();
+        assert!(model.energy(&final_state).unwrap() < initial_energy - 0.9);
     }
 
     #[test]

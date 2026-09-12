@@ -1,0 +1,24 @@
+{
+  "experiment": "FL-E1",
+  "protocol": "energy-model-extension-v1",
+  "duplicate_edge_guard": true,
+  "scalar_equivalence": {
+    "max_energy_error": 1.665334536938e-16,
+    "max_field_error": 0.000000000000e0,
+    "valid": true
+  },
+  "operator_expressivity": {
+    "e0_motion": 0.000000000000,
+    "e1_motion": 1.074576914742,
+    "e1_energy_drop": 0.999928531015,
+    "replay_equal": true,
+    "valid": true
+  },
+  "anisotropy": {
+    "alignment_before": 0.707106781187,
+    "alignment_after": 0.999982132594,
+    "energy_drop": 0.499964265508,
+    "valid": true
+  },
+  "protocol_valid": true
+}
