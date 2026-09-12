@@ -51,7 +51,8 @@ impl PatternBank {
     /// Returns an error if the node count cannot be represented safely for the floating-point
     /// normalization factor or if the resulting graph violates `field-core` invariants.
     pub fn hebbian_graph(&self) -> Result<CouplingGraph, MemoryError> {
-        let node_count_u32 = u32::try_from(self.node_count).map_err(|_| MemoryError::TooManyNodes)?;
+        let node_count_u32 =
+            u32::try_from(self.node_count).map_err(|_| MemoryError::TooManyNodes)?;
         let denominator = f64::from(node_count_u32);
         let mut couplings = Vec::new();
 
@@ -108,11 +109,8 @@ impl PatternBank {
         let nodes = cue
             .iter()
             .map(|symbol| {
-                NodeState::try_unit(
-                    vec![f64::from(*symbol) * tilt_cosine, tilt_sine],
-                    1.0e-12,
-                )
-                .map_err(MemoryError::from)
+                NodeState::try_unit(vec![f64::from(*symbol) * tilt_cosine, tilt_sine], 1.0e-12)
+                    .map_err(MemoryError::from)
             })
             .collect::<Result<Vec<_>, _>>()?;
         Ok(FieldState::new(nodes)?)
