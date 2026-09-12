@@ -16,7 +16,7 @@ The **FL series is the authoritative line of development and experimentation for
 | **FL-1** | **Associative recall & attractor memory** | ✅ Completed | Can field attractors recover corrupted memories, and how do they compare with retrieval baselines? | Exhaustive 7,551-case corruption campaign retained with reproducible evidence. |
 | **FL-2** | **Competing hypotheses, signed coupling & frustration** | ✅ Completed | Do attraction and repulsion help resolve controlled contradictory evidence rather than merely creating instability? | Matched competition controls and analytic three-way frustration reference executed. |
 | **FL-3** | **Hysteresis & context switching** | ✅ Completed | Can path dependence retain useful cognitive state without unacceptable lock-in? | Retention benefit and switching cost characterized under a frozen context-switch protocol. |
-| **FL-4** | **CCOS field mapping** | 🟠 Next | Is CCOS causal pressure/heat usefully representable as a discrete field, and do extra field operators improve bounded context selection? | Fixed CCOS traces replayed; current CCOS vs field variants compared at identical budget while preserving auditability. |
+| **FL-4** | **CCOS field mapping** | 🟡 In progress — FL-4A/4B validated | Is CCOS causal pressure/heat usefully representable as a discrete field, and do extra field operators improve bounded context selection? | Fixed or externally grounded CCOS traces replayed; native CCOS vs field variants compared at identical budget while preserving auditability. |
 | **FL-5** | **Resonance, perturbation & stochastic exploration** | ⚪ Planned | Can controlled perturbation improve basin escape, recall or ambiguity resolution? | Benefit exceeds matched no-noise and surrogate controls under the same compute envelope. |
 | **FL-6** | **Sparse, low-rank & multiscale field scaling** | ⚪ Planned | Can useful dense interaction be retained without assuming scalable `O(N²)` coupling? | Approximation error and interaction/runtime scaling reported separately against a dense reference. |
 | **FL-7** | **Learned fields & adaptive couplings** | ⚪ Planned | Which field parameters can be learned without obscuring reference semantics or provenance? | Explicit train/validation/test split; learned model beats fixed-rule baselines and remains inspectable. |
@@ -34,7 +34,7 @@ FL-2  signed competition / frustration         ✅
   ↓
 FL-3  hysteresis / temporal persistence        ✅
   ↓
-FL-4  CCOS field mapping                       ← NEXT
+FL-4  CCOS field mapping                       🟡 FL-4A/4B validated; real-trace gate remains
   ↓
 FL-5  resonance / noise-assisted exploration
   ↓
@@ -47,27 +47,32 @@ FL-8  bounded cognitive computation
 FL-9  optional physical correspondence
 ```
 
-## Latest completed result: FL-3 hysteresis and context switching
+## Latest completed result: FL-4B hysteretic bounded working-set selection
 
-FL-3 introduced an explicit two-threshold relay/hysteron as an ablatable field bias. The protocol was frozen before result inspection. The deterministic fixture contains 80 observations, 3 genuine context transitions and 8 isolated contradictory pulses.
+FL-4A first established an exact semantic bridge to pinned CCOS scoring, failure propagation, working-set assembly and Q-Page evidence. FL-4B then added one explicit FL-3 relay operator and tested it under the same 48-token budget on separate calibration and holdout traces.
 
-| Condition | Total errors | Contradiction errors | False context changes | Mean switch latency | Lock-in events |
+The calibration-only procedure selected `theta = 0.10`. On the untouched holdout trace:
+
+| Condition | Missed relevant slots | Exact sets | Replacements | Max transition latency | Max tokens |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Memoryless | 8 | 8 | 16 | 0 | 0 |
-| relay 0.10 | 8 | 8 | 16 | 0 | 0 |
-| relay 0.20 | 11 | 8 | 16 | 1 | 0 |
-| **relay 0.30** | **6** | **0** | **0** | 2 | 0 |
-| relay 0.40 | 9 | 0 | 0 | 3 | 0 |
-| relay 0.50 | 9 | 0 | 0 | 3 | 0 |
-| relay 0.60 | 9 | 0 | 0 | 3 | 0 |
+| Pinned CCOS baseline | 12 | 52 / 64 | 32 | 0 | 48 |
+| **FL-4B relay** | **0** | **64 / 64** | **8** | **0** | **48** |
 
-Within this fixture, threshold `0.30` provides the best preregistered total-error trade-off: it rejects all eight contradictory pulses and removes the 16 false context changes of the memoryless response while adding two observations of switching latency. Higher thresholds retain disturbance rejection but increase transition cost.
+All five FL-4B hypotheses are supported on this controlled fixture, deterministic replay is exact, and the identical budget is preserved. This is not yet a claim about real repositories or arbitrary CCOS workloads; FL-4 remains open until an externally grounded CCOS trace gate is passed.
 
-Three preregistered hypotheses are supported in this fixture: useful retention, disturbance rejection and a positive switching cost. The lock-in-frontier hypothesis is **not supported**: no tested threshold exceeds the preregistered `>3` observation lock-in boundary. This negative result is retained unchanged.
-
-See [`prereg/FL-3.md`](prereg/FL-3.md), [`docs/FL-3-RESULT.md`](docs/FL-3-RESULT.md), and [`results/FL-3-hysteresis-context.json`](results/FL-3-hysteresis-context.json).
+See [`prereg/FL-4.md`](prereg/FL-4.md), [`prereg/FL-4B.md`](prereg/FL-4B.md), [`docs/FL-4B-RESULT.md`](docs/FL-4B-RESULT.md), and [`results/FL-4B-hysteretic-working-set.json`](results/FL-4B-hysteretic-working-set.json).
 
 ## Earlier results
+
+### FL-4A — lossless CCOS semantic field mapping
+
+On the fixed FL-4A fixture, the independent field representation matched the pinned CCOS reference exactly: score error `0`, propagated-pressure error `0`, Q-Page error `0`, identical ordered working-set selection, identical 92-token use and deterministic replay. FL-4A is an equivalence gate, not an improvement claim.
+
+### FL-3 — hysteresis and context switching
+
+FL-3 introduced an explicit two-threshold relay/hysteron as an ablatable field bias. The frozen deterministic fixture contained 80 observations, 3 genuine context transitions and 8 isolated contradictory pulses. Threshold `0.30` rejected all eight contradictory pulses and removed the 16 false context changes of the memoryless response while adding two observations of switching latency. The lock-in-frontier hypothesis was not supported and remains recorded as a negative result.
+
+See [`prereg/FL-3.md`](prereg/FL-3.md), [`docs/FL-3-RESULT.md`](docs/FL-3-RESULT.md), and [`results/FL-3-hysteresis-context.json`](results/FL-3-hysteresis-context.json).
 
 ### FL-2 — signed competition and frustration
 
@@ -87,6 +92,7 @@ See [`docs/FL-1-RESULT.md`](docs/FL-1-RESULT.md).
 - `field-dynamics` — projected deterministic dynamics, explicit Euler and Heun reference integration over the common `FieldModel` contract;
 - `field-memory` — bipolar memory banks, shared Hebbian coupling, cue encoding/decoding and retrieval baselines;
 - `field-hysteresis` — explicit deterministic two-threshold relay/hysteron;
+- `field-ccos-map` — lossless reference/field mapping for pinned CCOS scoring, pressure propagation, working-set selection and Q-Page evidence;
 - `field-bench` — machine-readable FL experiment executables.
 
 ### Energy-model versions
@@ -109,9 +115,9 @@ E1(M, x) = -Σ_i h_i(x)·m_i
            -1/2 Σ_i m_iᵀ A_i m_i
 ```
 
-Every E0 model embeds into E1 through `K_ij = J_ij I` and `A_i = 0`. The preregistered `FL-E1` validation campaign checks that equivalence before accepting the additional expressivity.
+Every E0 model embeds into E1 through `K_ij = J_ij I` and `A_i = 0`. The preregistered FL-E1 validation campaign checks that equivalence before accepting the additional expressivity. FL-E2 then established controlled direct transport and two-edge composition for the tested orthogonal operators. Its strongest scalar-chain insufficiency hypothesis was false on one composition fixture (`best E0 cosine = 0.734158103318`), and that negative result is retained unchanged.
 
-See [`docs/ENERGY-MODELS.md`](docs/ENERGY-MODELS.md) and [`prereg/FL-E1.md`](prereg/FL-E1.md).
+See [`docs/ENERGY-MODELS.md`](docs/ENERGY-MODELS.md), [`prereg/FL-E1.md`](prereg/FL-E1.md), and [`prereg/FL-E2.md`](prereg/FL-E2.md).
 
 Hysteresis remains an explicit operator rather than being hidden in numerical inertia. Rotational/non-conservative dynamics, stochastic forcing and higher-order interactions remain separate later mechanisms so their effects can be ablated independently.
 
@@ -135,7 +141,10 @@ cargo run -p field-bench --bin field-bench
 cargo run -p field-bench --bin fl1
 cargo run -p field-bench --bin fl2
 cargo run -p field-bench --bin fl3
+cargo run -p field-bench --bin fl4
+cargo run -p field-bench --bin fl4b
 cargo run -p field-bench --bin fle1
+cargo run -p field-bench --bin fle2
 ```
 
 A comparative hypothesis may fail while its experiment remains scientifically valid. CI failures are reserved for invalid execution, broken invariants, failed reference gates or missing reproducibility evidence.
