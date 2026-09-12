@@ -243,10 +243,7 @@ fn print_report(report: &ExperimentReport) {
         "  \"relay_reference_valid\": {},",
         report.validity.relay_reference.as_bool()
     );
-    println!(
-        "  \"replay_equal\": {},",
-        report.validity.replay.as_bool()
-    );
+    println!("  \"replay_equal\": {},", report.validity.replay.as_bool());
     println!(
         "  \"protocol_valid\": {}",
         report.validity.protocol.as_bool()
