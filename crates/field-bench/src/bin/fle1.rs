@@ -18,10 +18,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let scalar_equivalence_valid =
         scalar_energy_error <= TOLERANCE && scalar_field_error <= TOLERANCE;
     let (e0_motion, e1_motion, e1_energy_drop, replay_equal) = operator_expressivity()?;
-    let operator_expressivity_valid = e0_motion <= TOLERANCE
-        && e1_motion > 0.5
-        && e1_energy_drop > 0.9
-        && replay_equal;
+    let operator_expressivity_valid =
+        e0_motion <= TOLERANCE && e1_motion > 0.5 && e1_energy_drop > 0.9 && replay_equal;
     let (anisotropy_alignment_before, anisotropy_alignment_after, anisotropy_energy_drop) =
         anisotropy_case()?;
     let anisotropy_valid = anisotropy_alignment_after > anisotropy_alignment_before
@@ -188,7 +186,11 @@ fn anisotropy_case() -> Result<(f64, f64, f64), Box<dyn Error>> {
     )?;
     let final_energy = model.energy(&final_state)?;
     let axis = [1.0, 0.0];
-    let before = dot(initial.node(0).ok_or("missing initial node")?.values(), &axis).abs();
+    let before = dot(
+        initial.node(0).ok_or("missing initial node")?.values(),
+        &axis,
+    )
+    .abs();
     let after = dot(
         final_state.node(0).ok_or("missing final node")?.values(),
         &axis,
