@@ -4,17 +4,17 @@
 
 The project begins from magnetic-field-inspired mathematics — attraction, repulsion, orientation, energy landscapes, hysteresis, resonance, metastability and collective transitions — without claiming that cognitive state is physically magnetic. Physical spintronic or skyrmion correspondence is a later research question, not an assumption.
 
-> **Scientific rule:** every claimed benefit must survive a declared baseline, matched resource budget, reproducible protocol and explicit failure criterion. A lower energy is not automatically better cognition; a stable attractor is not automatically a correct answer.
+> **Scientific rule:** every claimed benefit must survive a declared baseline, matched resource budget where applicable, reproducible protocol and explicit failure criterion. A lower energy is not automatically better cognition; a stable attractor is not automatically a correct answer.
 
 ## FL research series — primary roadmap
 
-The **FL series is the authoritative line of development and experimentation for FieldLab**. Work should advance this sequence rather than accumulate unrelated features. Exploratory code may support a later series, but a series is promoted only when its protocol, controls and evidence boundary are explicit.
+The **FL series is the authoritative line of development and experimentation for FieldLab**. Work advances this sequence rather than accumulating unrelated features. Negative results remain part of the evidence record and constrain the next series.
 
 | Series | Research line | Status | Primary question | Exit criterion |
 | --- | --- | --- | --- | --- |
-| **FL-0** | **Mathematical sanity & deterministic field kernel** | 🟠 Active bootstrap | Do the state, energy, effective-field and integration primitives obey their declared invariants? | Analytic/tiny reference cases pass; deterministic replay holds; invalid states fail closed; numerical policy documented. |
-| **FL-1** | **Associative recall & attractor memory** | ⚪ Planned | Can field attractors recover corrupted memories better than declared retrieval baselines at matched state size? | Pre-registered recall/corruption metrics and baselines executed with reproducible evidence. |
-| **FL-2** | **Competing hypotheses, signed coupling & frustration** | ⚪ Planned | Do attraction and repulsion help resolve controlled contradictory evidence rather than merely creating instability? | Separation/calibration benefit measured against unsigned/diffusion controls; oscillation and failure regimes reported. |
+| **FL-0** | **Mathematical sanity & deterministic field kernel** | ✅ Completed | Do state, energy, effective-field and integration primitives obey their declared invariants? | Tiny reference cases pass; deterministic replay holds; invalid states fail closed; CI executes the reference experiment. |
+| **FL-1** | **Associative recall & attractor memory** | ✅ Completed | Can field attractors recover corrupted memories, and how do they compare with Hopfield and nearest-template retrieval? | Exhaustive 7,551-case campaign executed and retained with reproducible comparative evidence. |
+| **FL-2** | **Competing hypotheses, signed coupling & frustration** | ⚪ Next | Do attraction and repulsion help resolve controlled contradictory evidence rather than merely creating instability? | Separation/calibration benefit measured against unsigned/diffusion controls; oscillation and failure regimes reported. |
 | **FL-3** | **Hysteresis & context switching** | ⚪ Planned | Can path dependence retain useful cognitive state without unacceptable lock-in? | Retention benefit and switching cost jointly characterized; lock-in frontier measured. |
 | **FL-4** | **CCOS field mapping** | ⚪ Planned | Is CCOS causal pressure/heat usefully representable as a discrete field, and do extra field operators improve bounded context selection? | Fixed CCOS traces replayed; current CCOS vs field variants compared at identical token budget while preserving auditability. |
 | **FL-5** | **Resonance, perturbation & stochastic exploration** | ⚪ Planned | Can controlled perturbation improve basin escape, recall or ambiguity resolution? | Benefit exceeds matched no-noise and surrogate controls under the same compute envelope. |
@@ -26,11 +26,11 @@ The **FL series is the authoritative line of development and experimentation for
 ### Direction of travel
 
 ```text
-FL-0  mathematical correctness
+FL-0  mathematical correctness                 ✅
   ↓
-FL-1  attractor memory
+FL-1  attractor memory                         ✅
   ↓
-FL-2  signed competition / frustration
+FL-2  signed competition / frustration         ← NEXT
   ↓
 FL-3  hysteresis / temporal persistence
   ↓
@@ -47,19 +47,30 @@ FL-8  bounded cognitive computation
 FL-9  optional physical correspondence
 ```
 
-Negative results do not break the roadmap. They constrain the next series and remain part of the evidence record.
+## Latest completed result: FL-1 associative recall
 
-## Current bootstrap: FL-0
+FL-1 executed every zero-to-four-bit corruption of three fixed orthogonal 16-symbol bipolar memories: **7,551 deterministic cases**.
 
-FL-0 implements the smallest falsifiable kernel before any learned model, GPU optimization or active CCOS integration:
+| Method | Exact recoveries | Aggregate rate |
+| --- | ---: | ---: |
+| Continuous field dynamics | **6,723 / 7,551** | **89.0345650%** |
+| Deterministic asynchronous Hopfield | 6,303 / 7,551 | 83.4723878% |
+| Nearest-template retrieval | 7,342 / 7,551 | **97.2321547%** |
 
-- `field-core` — unit/bounded node states, signed coupling graph, external fields, energy and effective-field evaluation;
+The narrow result is positive against the shared-coupling Hopfield baseline and negative against direct nearest-template retrieval. The field method recovered every case through three flipped bits; at four flips it recovered 84.8351648%, versus 80% for Hopfield and 96.1721612% for nearest-template retrieval.
+
+See [`prereg/FL-1.md`](prereg/FL-1.md), [`docs/FL-1-RESULT.md`](docs/FL-1-RESULT.md), and [`results/FL-1-associative-recall.json`](results/FL-1-associative-recall.json).
+
+## FL-0 foundation
+
+FL-0 established the smallest falsifiable field kernel:
+
+- `field-core` — unit node states, signed coupling graph, external fields, energy and effective-field evaluation;
 - `field-dynamics` — projected deterministic dynamics, explicit Euler and Heun reference integration;
-- `field-bench` — reproducible FL-0 executable and machine-readable result output;
-- `prereg/FL-0.md` — frozen scope, controls and acceptance criteria;
-- GitHub CI — format, lint, tests and execution of the FL-0 reference experiment.
+- `field-bench` — machine-readable experiment executables;
+- `field-memory` — bipolar memory banks, shared Hebbian coupling, cue encoding/decoding and declared retrieval baselines.
 
-The initial energy model is deliberately narrow:
+The current energy model is deliberately narrow:
 
 ```text
 E(M, x) = -Σ_i h_i(x)·m_i - Σ_(i,j) J_ij m_i·m_j
@@ -71,13 +82,13 @@ with effective field
 H_i_eff = -∂E/∂m_i
 ```
 
-and high-dimensional norm-preserving dissipative motion approximated by
+and norm-preserving dissipative motion approximated by
 
 ```text
 ṁ_i = η (I - m_i m_iᵀ) H_i_eff
 ```
 
-Later anisotropy, explicit repulsion terms, hysteresis, rotational/non-conservative dynamics and stochastic forcing must be added as independently ablatable operators rather than hidden inside one monolithic update rule.
+FL-2 will introduce controlled signed competition and frustration as explicit, ablatable mechanisms. Hysteresis, rotational dynamics and stochastic forcing remain reserved for later series.
 
 ## Relationship to the Memorithm ecosystem
 
@@ -89,16 +100,17 @@ Later anisotropy, explicit repulsion terms, hysteresis, rotational/non-conservat
 
 **SciRust supplies reusable mathematics.** General-purpose graph, ODE/SDE, spectral, sparse/low-rank and deterministic simulation primitives that mature in FieldLab should move upstream rather than become permanent duplicate infrastructure.
 
-## Reproduce FL-0
+## Reproduce the completed experiments
 
 ```bash
 cargo fmt --all -- --check
 cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace
-cargo run -p field-bench
+cargo run -p field-bench --bin field-bench
+cargo run -p field-bench --bin fl1
 ```
 
-The executable exits non-zero if an FL-0 acceptance criterion fails.
+FL-0 exits non-zero if a mathematical acceptance criterion fails. FL-1 exits non-zero only when its evidence protocol is structurally invalid; a negative comparative result remains a valid scientific result.
 
 ## Non-claims
 

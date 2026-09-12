@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   fl0:
-    name: FL-0 validation
+    name: FL-0 foundation validation
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -33,7 +33,7 @@ jobs:
       - name: Execute FL-0
         run: |
           mkdir -p results/ci
-          cargo run -p field-bench > results/ci/fl0.json
+          cargo run -p field-bench --bin field-bench > results/ci/fl0.json
           cat results/ci/fl0.json
 
       - name: Retain FL-0 evidence
@@ -41,4 +41,29 @@ jobs:
         with:
           name: fieldlab-fl0-${{ github.sha }}
           path: results/ci/fl0.json
+          if-no-files-found: error
+
+  fl1:
+    name: FL-1 associative recall
+    needs: fl0
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pinned Rust toolchain
+        run: |
+          rustup toolchain install nightly-2026-07-02 --profile minimal
+          rustup override set nightly-2026-07-02
+
+      - name: Execute FL-1 exhaustive campaign
+        run: |
+          mkdir -p results/ci
+          cargo run -p field-bench --bin fl1 > results/ci/fl1.json
+          cat results/ci/fl1.json
+
+      - name: Retain FL-1 evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: fieldlab-fl1-${{ github.sha }}
+          path: results/ci/fl1.json
           if-no-files-found: error

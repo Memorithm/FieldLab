@@ -1,0 +1,38 @@
+{
+  "experiment": "FL-1",
+  "protocol": "associative-recall-v1",
+  "source_head_sha": "37920212af7b8d4280f6b61fbd83a498066e5270",
+  "ci_run_id": 34694622340,
+  "artifact_id": 10298044011,
+  "artifact_zip_sha256": "60b7a70837ba78e12780f3780dbb9e5819cdd82558d6a8389a5ba8dabc6a34e6",
+  "provenance_fingerprint": "fnv1a64:bd77cc7f608935b6",
+  "node_count": 16,
+  "stored_patterns": 3,
+  "max_flips": 4,
+  "total_cases": 7551,
+  "field_steps": 128,
+  "field_dt": 0.05,
+  "cue_tilt_radians": 0.15,
+  "hopfield_sweeps": 32,
+  "levels": [
+    {"flips": 0, "cases": 3, "field_exact": 3, "field_rate": 1.0, "hopfield_exact": 3, "hopfield_rate": 1.0, "nearest_exact": 3, "nearest_rate": 1.0},
+    {"flips": 1, "cases": 48, "field_exact": 48, "field_rate": 1.0, "hopfield_exact": 48, "hopfield_rate": 1.0, "nearest_exact": 48, "nearest_rate": 1.0},
+    {"flips": 2, "cases": 360, "field_exact": 360, "field_rate": 1.0, "hopfield_exact": 360, "hopfield_rate": 1.0, "nearest_exact": 360, "nearest_rate": 1.0},
+    {"flips": 3, "cases": 1680, "field_exact": 1680, "field_rate": 1.0, "hopfield_exact": 1524, "hopfield_rate": 0.907142857, "nearest_exact": 1680, "nearest_rate": 1.0},
+    {"flips": 4, "cases": 5460, "field_exact": 4632, "field_rate": 0.848351648, "hopfield_exact": 4368, "hopfield_rate": 0.8, "nearest_exact": 5251, "nearest_rate": 0.961721612}
+  ],
+  "aggregate": {
+    "field_exact": 6723,
+    "field_rate": 0.890345650,
+    "hopfield_exact": 6303,
+    "hopfield_rate": 0.834723878,
+    "nearest_exact": 7342,
+    "nearest_rate": 0.972321547
+  },
+  "replay_equal": true,
+  "zero_corruption_complete": true,
+  "field_beats_hopfield_aggregate": true,
+  "field_beats_nearest_aggregate": false,
+  "field_exact_through_three_flips": true,
+  "protocol_valid": true
+}

@@ -2,6 +2,7 @@
 members = [
     "crates/field-core",
     "crates/field-dynamics",
+    "crates/field-memory",
     "crates/field-bench",
 ]
 resolver = "2"
