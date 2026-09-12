@@ -3,12 +3,18 @@
 use std::error::Error;
 use std::fmt::{Display, Formatter};
 
+/// Unit-vector state carried by one field node.
 #[derive(Clone, Debug, PartialEq)]
 pub struct NodeState {
     values: Vec<f64>,
 }
 
 impl NodeState {
+    /// Builds a state that is already unit length within `tolerance`.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error for empty, non-finite or non-unit input, or for an invalid tolerance.
     pub fn try_unit(values: Vec<f64>, tolerance: f64) -> Result<Self, ValidationError> {
         if values.is_empty() {
             return Err(ValidationError::EmptyVector);
@@ -26,6 +32,11 @@ impl NodeState {
         Ok(Self { values })
     }
 
+    /// Normalizes a finite non-zero vector into a node state.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error for empty, non-finite or effectively zero input.
     pub fn from_normalized(values: Vec<f64>) -> Result<Self, ValidationError> {
         if values.is_empty() {
             return Err(ValidationError::EmptyVector);
@@ -43,15 +54,20 @@ impl NodeState {
         })
     }
 
+    /// Returns the state components.
+    #[must_use]
     pub fn values(&self) -> &[f64] {
         &self.values
     }
 
+    /// Returns the vector dimension.
+    #[must_use]
     pub fn dimension(&self) -> usize {
         self.values.len()
     }
 }
 
+/// Complete field state with homogeneous node dimension.
 #[derive(Clone, Debug, PartialEq)]
 pub struct FieldState {
     nodes: Vec<NodeState>,
@@ -59,6 +75,11 @@ pub struct FieldState {
 }
 
 impl FieldState {
+    /// Builds a non-empty homogeneous field state.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error for an empty state or mixed node dimensions.
     pub fn new(nodes: Vec<NodeState>) -> Result<Self, ValidationError> {
         let first = nodes.first().ok_or(ValidationError::EmptyState)?;
         let dimension = first.dimension();
@@ -68,23 +89,32 @@ impl FieldState {
         Ok(Self { nodes, dimension })
     }
 
+    /// Returns all nodes in stable index order.
+    #[must_use]
     pub fn nodes(&self) -> &[NodeState] {
         &self.nodes
     }
 
+    /// Returns one node by index.
+    #[must_use]
     pub fn node(&self, index: usize) -> Option<&NodeState> {
         self.nodes.get(index)
     }
 
+    /// Returns the number of nodes.
+    #[must_use]
     pub fn node_count(&self) -> usize {
         self.nodes.len()
     }
 
+    /// Returns the common node dimension.
+    #[must_use]
     pub fn dimension(&self) -> usize {
         self.dimension
     }
 }
 
+/// Signed undirected pair coupling used by the FL-0 energy model.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Coupling {
     pub source: usize,
@@ -92,6 +122,7 @@ pub struct Coupling {
     pub weight: f64,
 }
 
+/// Validated finite graph of signed pair couplings.
 #[derive(Clone, Debug, PartialEq)]
 pub struct CouplingGraph {
     node_count: usize,
@@ -99,6 +130,11 @@ pub struct CouplingGraph {
 }
 
 impl CouplingGraph {
+    /// Builds a graph whose endpoints all refer to distinct valid nodes.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error for zero nodes, invalid endpoints, self-coupling or non-finite weights.
     pub fn new(node_count: usize, couplings: Vec<Coupling>) -> Result<Self, ValidationError> {
         if node_count == 0 {
             return Err(ValidationError::EmptyState);
@@ -120,15 +156,20 @@ impl CouplingGraph {
         })
     }
 
+    /// Returns the declared graph node count.
+    #[must_use]
     pub fn node_count(&self) -> usize {
         self.node_count
     }
 
+    /// Returns couplings in deterministic insertion order.
+    #[must_use]
     pub fn couplings(&self) -> &[Coupling] {
         &self.couplings
     }
 }
 
+/// FL-0 energy model containing graph couplings and external fields.
 #[derive(Clone, Debug, PartialEq)]
 pub struct EnergyModel {
     graph: CouplingGraph,
@@ -137,6 +178,11 @@ pub struct EnergyModel {
 }
 
 impl EnergyModel {
+    /// Builds an energy model with one external vector field per graph node.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error for count/dimension mismatches, empty vectors or non-finite fields.
     pub fn new(
         graph: CouplingGraph,
         external_fields: Vec<Vec<f64>>,
@@ -166,14 +212,23 @@ impl EnergyModel {
         })
     }
 
+    /// Returns the coupling graph.
+    #[must_use]
     pub fn graph(&self) -> &CouplingGraph {
         &self.graph
     }
 
+    /// Returns the field vector dimension.
+    #[must_use]
     pub fn dimension(&self) -> usize {
         self.dimension
     }
 
+    /// Validates compatibility between a state and this energy model.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error when node count or vector dimension differs.
     pub fn validate_state(&self, state: &FieldState) -> Result<(), ValidationError> {
         if state.node_count() != self.graph.node_count() {
             return Err(ValidationError::NodeCountMismatch);
@@ -184,6 +239,11 @@ impl EnergyModel {
         Ok(())
     }
 
+    /// Evaluates `-Σ h_i·m_i - Σ J_ij m_i·m_j`.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error when the supplied state is incompatible with the model.
     pub fn energy(&self, state: &FieldState) -> Result<f64, ValidationError> {
         self.validate_state(state)?;
         let external = state
@@ -192,39 +252,53 @@ impl EnergyModel {
             .zip(&self.external_fields)
             .map(|(node, field)| -dot(node.values(), field))
             .sum::<f64>();
-        let interaction = self
-            .graph
-            .couplings()
-            .iter()
-            .map(|coupling| {
-                let source = state.node(coupling.source).expect("validated source index");
-                let target = state.node(coupling.target).expect("validated target index");
-                -coupling.weight * dot(source.values(), target.values())
-            })
-            .sum::<f64>();
+        let mut interaction = 0.0;
+        for coupling in self.graph.couplings() {
+            let source = state
+                .node(coupling.source)
+                .ok_or(ValidationError::NodeOutOfBounds)?;
+            let target = state
+                .node(coupling.target)
+                .ok_or(ValidationError::NodeOutOfBounds)?;
+            interaction -= coupling.weight * dot(source.values(), target.values());
+        }
         Ok(external + interaction)
     }
 
+    /// Computes the effective vector field at every node.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error when the supplied state is incompatible or a graph endpoint is invalid.
     pub fn effective_fields(&self, state: &FieldState) -> Result<Vec<Vec<f64>>, ValidationError> {
         self.validate_state(state)?;
         let mut result = self.external_fields.clone();
         for coupling in self.graph.couplings() {
-            let source = state.node(coupling.source).expect("validated source index");
-            let target = state.node(coupling.target).expect("validated target index");
-            for axis in 0..self.dimension {
-                result[coupling.source][axis] += coupling.weight * target.values()[axis];
-                result[coupling.target][axis] += coupling.weight * source.values()[axis];
+            let source = state
+                .node(coupling.source)
+                .ok_or(ValidationError::NodeOutOfBounds)?;
+            let target = state
+                .node(coupling.target)
+                .ok_or(ValidationError::NodeOutOfBounds)?;
+            for (axis, target_value) in target.values().iter().enumerate() {
+                result[coupling.source][axis] += coupling.weight * target_value;
+            }
+            for (axis, source_value) in source.values().iter().enumerate() {
+                result[coupling.target][axis] += coupling.weight * source_value;
             }
         }
         Ok(result)
     }
 }
 
+/// Computes a dot product for equal-length vectors.
+#[must_use]
 pub fn dot(left: &[f64], right: &[f64]) -> f64 {
     debug_assert_eq!(left.len(), right.len());
     left.iter().zip(right).map(|(a, b)| a * b).sum()
 }
 
+/// Validation failures surfaced by the deterministic field kernel.
 #[derive(Clone, Debug, PartialEq)]
 pub enum ValidationError {
     EmptyState,
