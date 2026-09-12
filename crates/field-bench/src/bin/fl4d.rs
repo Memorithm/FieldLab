@@ -11,12 +11,12 @@ const EXPECTED_BUDGET: usize = 2048;
 const EXPECTED_DEPTH: usize = 3;
 const TRACE_LEN: usize = 24;
 const CALIBRATION: [&str; TRACE_LEN] = [
-    "A", "A", "A", "B", "A", "A", "A", "A", "B", "B", "B", "C", "B", "B", "B",
-    "B", "C", "C", "C", "D", "C", "C", "C", "C",
+    "A", "A", "A", "B", "A", "A", "A", "A", "B", "B", "B", "C", "B", "B", "B", "B", "C", "C", "C",
+    "D", "C", "C", "C", "C",
 ];
 const HOLDOUT: [&str; TRACE_LEN] = [
-    "C", "C", "A", "C", "C", "C", "C", "C", "A", "A", "D", "A", "A", "A", "A",
-    "A", "D", "D", "B", "D", "D", "D", "D", "D",
+    "C", "C", "A", "C", "C", "C", "C", "C", "A", "A", "D", "A", "A", "A", "A", "A", "D", "D", "B",
+    "D", "D", "D", "D", "D",
 ];
 
 #[derive(Clone, Debug, Deserialize, PartialEq)]
@@ -152,34 +152,33 @@ fn trace_valid(
                 && observation.stimulus == expected_stimulus
                 && expected_anchor.is_some_and(|anchor| observation.anchor == *anchor)
                 && observation.affected >= 0
-                && (0..=i64::try_from(EXPECTED_BUDGET).expect("budget fits i64"))
-                    .contains(&observation.tokens)
+                && tokens_within_budget(observation.tokens)
                 && observation.items.iter().all(|item| {
                     !item.uri.is_empty() && !item.kind.is_empty() && item.score.is_finite()
                 })
         })
 }
 
-fn evaluate_hypotheses(
-    report: &TraceReport,
-    replay_equal: bool,
-) -> BTreeMap<&'static str, bool> {
+fn evaluate_hypotheses(report: &TraceReport, replay_equal: bool) -> BTreeMap<&'static str, bool> {
     let all_observations = report.calibration.iter().chain(&report.holdout);
     let hard_budget = all_observations
         .clone()
-        .all(|observation| observation.tokens >= 0 && observation.tokens as usize <= EXPECTED_BUDGET);
+        .all(|observation| tokens_within_budget(observation.tokens));
     let scored_evidence = all_observations.clone().all(|observation| {
         observation
             .items
             .iter()
             .all(|item| item.score.is_finite() && !item.uri.is_empty() && !item.kind.is_empty())
     });
-    let stimulus_sensitivity = has_stimulus_sensitivity(&report.calibration)
-        || has_stimulus_sensitivity(&report.holdout);
+    let stimulus_sensitivity =
+        has_stimulus_sensitivity(&report.calibration) || has_stimulus_sensitivity(&report.holdout);
     let anchor_diversity = report.anchors.values().all(|anchor| {
-        all_observations
-            .clone()
-            .any(|observation| observation.items.iter().any(|item| item.uri.contains(anchor)))
+        all_observations.clone().any(|observation| {
+            observation
+                .items
+                .iter()
+                .any(|item| item.uri.contains(anchor))
+        })
     });
     BTreeMap::from([
         ("H4_D1_deterministic_native_temporal_replay", replay_equal),
@@ -190,9 +189,14 @@ fn evaluate_hypotheses(
     ])
 }
 
+fn tokens_within_budget(tokens: i64) -> bool {
+    usize::try_from(tokens).is_ok_and(|tokens| tokens <= EXPECTED_BUDGET)
+}
+
 fn has_stimulus_sensitivity(trace: &[Observation]) -> bool {
     trace.windows(2).any(|pair| {
-        pair[0].stimulus != pair[1].stimulus && snapshot_signature(&pair[0]) != snapshot_signature(&pair[1])
+        pair[0].stimulus != pair[1].stimulus
+            && snapshot_signature(&pair[0]) != snapshot_signature(&pair[1])
     })
 }
 
