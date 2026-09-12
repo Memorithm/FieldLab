@@ -1,0 +1,26 @@
+{
+  "experiment": "FL-4B",
+  "protocol": "hysteretic-bounded-working-set-v1",
+  "pinned_ccos_commit": "a3c4d7e03744430c74dc337463ff3e944b4933ad",
+  "provenance_fingerprint": "fnv1a64:425409037e66ebe4",
+  "baseline_calibration": {"misses": 12, "exact_sets": 52, "exact_accuracy": 0.812500000000, "replacements": 31, "max_transition_latency": 0, "max_tokens": 48, "total_tokens": 3072, "cardinality_ok": true, "budget_ok": true},
+  "calibration_grid": [
+    {"threshold": 0.05, "misses": 12, "exact_sets": 52, "exact_accuracy": 0.812500000000, "replacements": 31, "max_transition_latency": 0, "max_tokens": 48, "total_tokens": 3072, "cardinality_ok": true, "budget_ok": true},
+    {"threshold": 0.10, "misses": 0, "exact_sets": 64, "exact_accuracy": 1.000000000000, "replacements": 7, "max_transition_latency": 0, "max_tokens": 48, "total_tokens": 3072, "cardinality_ok": true, "budget_ok": true},
+    {"threshold": 0.15, "misses": 0, "exact_sets": 64, "exact_accuracy": 1.000000000000, "replacements": 7, "max_transition_latency": 0, "max_tokens": 48, "total_tokens": 3072, "cardinality_ok": true, "budget_ok": true},
+    {"threshold": 0.20, "misses": 0, "exact_sets": 64, "exact_accuracy": 1.000000000000, "replacements": 7, "max_transition_latency": 0, "max_tokens": 48, "total_tokens": 3072, "cardinality_ok": true, "budget_ok": true},
+    {"threshold": 0.25, "misses": 0, "exact_sets": 64, "exact_accuracy": 1.000000000000, "replacements": 7, "max_transition_latency": 0, "max_tokens": 48, "total_tokens": 3072, "cardinality_ok": true, "budget_ok": true}
+  ],
+  "chosen_threshold": 0.10,
+  "baseline_holdout": {"misses": 12, "exact_sets": 52, "exact_accuracy": 0.812500000000, "replacements": 32, "max_transition_latency": 0, "max_tokens": 48, "total_tokens": 3072, "cardinality_ok": true, "budget_ok": true},
+  "hysteretic_holdout": {"misses": 0, "exact_sets": 64, "exact_accuracy": 1.000000000000, "replacements": 8, "max_transition_latency": 0, "max_tokens": 48, "total_tokens": 3072, "cardinality_ok": true, "budget_ok": true},
+  "replay_equal": true,
+  "hypotheses": {
+    "H4_B1_holdout_quality": true,
+    "H4_B2_anti_thrash": true,
+    "H4_B3_bounded_switching_cost": true,
+    "H4_B4_exact_budget_preservation": true,
+    "H4_B5_calibration_transfer": true
+  },
+  "protocol_valid": true
+}
