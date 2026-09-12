@@ -345,9 +345,8 @@ fn run_e1_composition_case(
     let middle_cosine = dot(final_middle, &expected_middle);
     let target_cosine = dot(final_target, &expected_target);
     let source_fidelity = dot(final_source, &source);
-    let finite = middle_cosine.is_finite()
-        && target_cosine.is_finite()
-        && source_fidelity.is_finite();
+    let finite =
+        middle_cosine.is_finite() && target_cosine.is_finite() && source_fidelity.is_finite();
 
     Ok(CompositionCase {
         middle_cosine,
@@ -358,9 +357,7 @@ fn run_e1_composition_case(
     })
 }
 
-fn best_e0_composition(
-    fixture: CompositionFixture,
-) -> Result<(f64, f64, f64), Box<dyn Error>> {
+fn best_e0_composition(fixture: CompositionFixture) -> Result<(f64, f64, f64), Box<dyn Error>> {
     let mut best_first = SCALAR_GRID[0];
     let mut best_second = SCALAR_GRID[0];
     let mut best_score = f64::NEG_INFINITY;
@@ -489,10 +486,7 @@ fn rotation(degrees: f64) -> Matrix2 {
 }
 
 fn transpose(matrix: Matrix2) -> Matrix2 {
-    [
-        [matrix[0][0], matrix[1][0]],
-        [matrix[0][1], matrix[1][1]],
-    ]
+    [[matrix[0][0], matrix[1][0]], [matrix[0][1], matrix[1][1]]]
 }
 
 fn matrix_vector(matrix: Matrix2, vector: [f64; 2]) -> [f64; 2] {
@@ -549,7 +543,10 @@ fn print_report(
     println!("    \"H_E2_A2_operator_transport\": {},", hypotheses[1]);
     println!("    \"H_E2_A3_scalar_insufficiency\": {},", hypotheses[2]);
     println!("    \"H_E2_B1_composition\": {},", hypotheses[3]);
-    println!("    \"H_E2_B2_scalar_chain_insufficiency\": {}", hypotheses[4]);
+    println!(
+        "    \"H_E2_B2_scalar_chain_insufficiency\": {}",
+        hypotheses[4]
+    );
     println!("  }},");
     println!("  \"protocol_valid\": {protocol_valid}");
     println!("}}");
