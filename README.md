@@ -14,7 +14,7 @@ The **FL series is the authoritative line of development and experimentation for
 | --- | --- | --- | --- | --- |
 | **FL-0** | **Mathematical sanity & deterministic field kernel** | ✅ Completed | Do state, energy, effective-field and integration primitives obey their declared invariants? | Tiny reference cases pass; deterministic replay holds; invalid states fail closed; CI executes the reference experiment. |
 | **FL-1** | **Associative recall & attractor memory** | ✅ Completed | Can field attractors recover corrupted memories, and how do they compare with Hopfield and nearest-template retrieval? | Exhaustive 7,551-case campaign executed and retained with reproducible comparative evidence. |
-| **FL-2** | **Competing hypotheses, signed coupling & frustration** | ⚪ Next | Do attraction and repulsion help resolve controlled contradictory evidence rather than merely creating instability? | Separation/calibration benefit measured against unsigned/diffusion controls; oscillation and failure regimes reported. |
+| **FL-2** | **Competing hypotheses, signed coupling & frustration** | 🟠 Active | Do attraction and repulsion help resolve controlled contradictory evidence rather than merely creating instability? | Separation benefit measured against uncoupled/attractive controls and the three-way frustrated reference converges within frozen tolerances. |
 | **FL-3** | **Hysteresis & context switching** | ⚪ Planned | Can path dependence retain useful cognitive state without unacceptable lock-in? | Retention benefit and switching cost jointly characterized; lock-in frontier measured. |
 | **FL-4** | **CCOS field mapping** | ⚪ Planned | Is CCOS causal pressure/heat usefully representable as a discrete field, and do extra field operators improve bounded context selection? | Fixed CCOS traces replayed; current CCOS vs field variants compared at identical token budget while preserving auditability. |
 | **FL-5** | **Resonance, perturbation & stochastic exploration** | ⚪ Planned | Can controlled perturbation improve basin escape, recall or ambiguity resolution? | Benefit exceeds matched no-noise and surrogate controls under the same compute envelope. |
@@ -30,7 +30,7 @@ FL-0  mathematical correctness                 ✅
   ↓
 FL-1  attractor memory                         ✅
   ↓
-FL-2  signed competition / frustration         ← NEXT
+FL-2  signed competition / frustration         🟠
   ↓
 FL-3  hysteresis / temporal persistence
   ↓
@@ -47,6 +47,12 @@ FL-8  bounded cognitive computation
 FL-9  optional physical correspondence
 ```
 
+## Current frontier: FL-2 signed competition and frustration
+
+FL-2 separates two questions. First, two hypothesis vectors receive common-mode and differential evidence while their mutual coupling is repulsive (`J=-0.5`), absent (`J=0`) or attractive (`J=+0.5`). The fixed 84-case evidence grid measures winner correctness, useful separation, tie polarization, monotonicity and energy behavior under matched dynamics.
+
+Second, a three-node triangle with equal repulsive couplings tests genuine geometric frustration. In the planar equal-coupling reference, the analytic compromise is 120° separation: all pairwise dot products are `-0.5` and the total interaction energy is `-1.5`. A matched attractive triangle must converge to alignment. The complete frozen protocol is in [`prereg/FL-2.md`](prereg/FL-2.md).
+
 ## Latest completed result: FL-1 associative recall
 
 FL-1 executed every zero-to-four-bit corruption of three fixed orthogonal 16-symbol bipolar memories: **7,551 deterministic cases**.
@@ -61,34 +67,22 @@ The narrow result is positive against the shared-coupling Hopfield baseline and 
 
 See [`prereg/FL-1.md`](prereg/FL-1.md), [`docs/FL-1-RESULT.md`](docs/FL-1-RESULT.md), and [`results/FL-1-associative-recall.json`](results/FL-1-associative-recall.json).
 
-## FL-0 foundation
-
-FL-0 established the smallest falsifiable field kernel:
+## Foundation
 
 - `field-core` — unit node states, signed coupling graph, external fields, energy and effective-field evaluation;
 - `field-dynamics` — projected deterministic dynamics, explicit Euler and Heun reference integration;
-- `field-bench` — machine-readable experiment executables;
-- `field-memory` — bipolar memory banks, shared Hebbian coupling, cue encoding/decoding and declared retrieval baselines.
+- `field-memory` — bipolar memory banks, shared Hebbian coupling, cue encoding/decoding and declared retrieval baselines;
+- `field-bench` — machine-readable FL experiment executables.
 
-The current energy model is deliberately narrow:
+The current energy model remains deliberately narrow:
 
 ```text
 E(M, x) = -Σ_i h_i(x)·m_i - Σ_(i,j) J_ij m_i·m_j
-```
-
-with effective field
-
-```text
 H_i_eff = -∂E/∂m_i
-```
-
-and norm-preserving dissipative motion approximated by
-
-```text
 ṁ_i = η (I - m_i m_iᵀ) H_i_eff
 ```
 
-FL-2 will introduce controlled signed competition and frustration as explicit, ablatable mechanisms. Hysteresis, rotational dynamics and stochastic forcing remain reserved for later series.
+Hysteresis, rotational dynamics and stochastic forcing remain reserved for later FL series rather than being hidden inside FL-2.
 
 ## Relationship to the Memorithm ecosystem
 
@@ -100,7 +94,7 @@ FL-2 will introduce controlled signed competition and frustration as explicit, a
 
 **SciRust supplies reusable mathematics.** General-purpose graph, ODE/SDE, spectral, sparse/low-rank and deterministic simulation primitives that mature in FieldLab should move upstream rather than become permanent duplicate infrastructure.
 
-## Reproduce the completed experiments
+## Reproduce experiments
 
 ```bash
 cargo fmt --all -- --check
@@ -108,9 +102,10 @@ cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace
 cargo run -p field-bench --bin field-bench
 cargo run -p field-bench --bin fl1
+cargo run -p field-bench --bin fl2
 ```
 
-FL-0 exits non-zero if a mathematical acceptance criterion fails. FL-1 exits non-zero only when its evidence protocol is structurally invalid; a negative comparative result remains a valid scientific result.
+A comparative hypothesis may fail while its experiment remains scientifically valid. CI failures are reserved for invalid execution, broken invariants, failed reference gates or missing reproducibility evidence.
 
 ## Non-claims
 
