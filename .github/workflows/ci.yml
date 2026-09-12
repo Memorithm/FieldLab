@@ -15,27 +15,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Install pinned Rust toolchain
         run: |
           rustup toolchain install nightly-2026-07-02 --profile minimal --component rustfmt --component clippy
           rustup override set nightly-2026-07-02
-
       - name: Format
         run: cargo fmt --all -- --check
-
       - name: Clippy
         run: cargo clippy --workspace --all-targets -- -D warnings
-
       - name: Test
         run: cargo test --workspace
-
       - name: Execute FL-0
         run: |
           mkdir -p results/ci
           cargo run -p field-bench --bin field-bench > results/ci/fl0.json
           cat results/ci/fl0.json
-
       - name: Retain FL-0 evidence
         uses: actions/upload-artifact@v4
         with:
@@ -49,18 +43,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Install pinned Rust toolchain
         run: |
           rustup toolchain install nightly-2026-07-02 --profile minimal
           rustup override set nightly-2026-07-02
-
       - name: Execute FL-1 exhaustive campaign
         run: |
           mkdir -p results/ci
           cargo run -p field-bench --bin fl1 > results/ci/fl1.json
           cat results/ci/fl1.json
-
       - name: Retain FL-1 evidence
         uses: actions/upload-artifact@v4
         with:
@@ -74,18 +65,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Install pinned Rust toolchain
         run: |
           rustup toolchain install nightly-2026-07-02 --profile minimal
           rustup override set nightly-2026-07-02
-
       - name: Execute FL-2 campaign
         run: |
           mkdir -p results/ci
           cargo run -p field-bench --bin fl2 > results/ci/fl2.json
           cat results/ci/fl2.json
-
       - name: Retain FL-2 evidence
         uses: actions/upload-artifact@v4
         with:
@@ -99,21 +87,40 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Install pinned Rust toolchain
         run: |
           rustup toolchain install nightly-2026-07-02 --profile minimal
           rustup override set nightly-2026-07-02
-
       - name: Execute FL-3 campaign
         run: |
           mkdir -p results/ci
           cargo run -p field-bench --bin fl3 > results/ci/fl3.json
           cat results/ci/fl3.json
-
       - name: Retain FL-3 evidence
         uses: actions/upload-artifact@v4
         with:
           name: fieldlab-fl3-${{ github.sha }}
           path: results/ci/fl3.json
+          if-no-files-found: error
+
+  fl4:
+    name: FL-4A CCOS semantic field mapping
+    needs: fl3
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Rust toolchain
+        run: |
+          rustup toolchain install nightly-2026-07-02 --profile minimal
+          rustup override set nightly-2026-07-02
+      - name: Execute FL-4A campaign
+        run: |
+          mkdir -p results/ci
+          cargo run -p field-bench --bin fl4 > results/ci/fl4.json
+          cat results/ci/fl4.json
+      - name: Retain FL-4A evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: fieldlab-fl4-${{ github.sha }}
+          path: results/ci/fl4.json
           if-no-files-found: error
