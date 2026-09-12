@@ -9,6 +9,7 @@ rust-version.workspace = true
 field-core = { path = "../field-core" }
 field-dynamics = { path = "../field-dynamics" }
 field-memory = { path = "../field-memory" }
+field-hysteresis = { path = "../field-hysteresis" }
 
 [lints]
 workspace = true
