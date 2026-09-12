@@ -247,6 +247,7 @@ fn qpage_error() -> f64 {
     .fold(0.0_f64, f64::max)
 }
 
+#[rustfmt::skip]
 fn fixture() -> (Vec<CcosNode>, Vec<CausalEdge>) {
     let specs = [
         spec("file:failure.rs", [0.90, 0.95, 1.00, 1.00], 8, Lifecycle::Working, 'A', 144),
