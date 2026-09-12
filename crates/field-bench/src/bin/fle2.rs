@@ -55,7 +55,17 @@ struct DirectResult {
     energy_nonincreasing: bool,
     replay_equal: bool,
     finite: bool,
-    protocol_valid: bool,
+}
+
+impl DirectResult {
+    fn protocol_valid(&self) -> bool {
+        self.finite
+            && self.replay_equal
+            && self.energy_nonincreasing
+            && self.e1_mean_target_cosine >= 0.999
+            && self.e1_min_target_cosine >= 0.99
+            && self.e1_min_source_fidelity >= 0.995
+    }
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -95,24 +105,24 @@ fn main() -> Result<(), Box<dyn Error>> {
         .map(run_composition_fixture)
         .collect::<Result<Vec<_>, _>>()?;
 
-    let direct_protocol_valid = direct.iter().all(|result| result.protocol_valid);
+    let direct_protocol_valid = direct.iter().all(DirectResult::protocol_valid);
     let composition_protocol_valid = composition.iter().all(|result| result.protocol_valid);
     let protocol_valid = direct_protocol_valid && composition_protocol_valid;
 
-    let h_a1 = direct
+    let control_preservation = direct
         .iter()
         .take(2)
         .all(|result| result.best_e0_mean_target_cosine >= 0.999);
-    let h_a2 = direct
+    let operator_transport = direct
         .iter()
         .skip(2)
         .all(|result| result.e1_mean_target_cosine >= 0.999);
-    let h_a3 = direct
+    let scalar_insufficiency = direct
         .iter()
         .skip(2)
         .all(|result| result.best_e0_mean_target_cosine <= 0.05);
-    let h_b1 = composition.iter().all(|result| result.protocol_valid);
-    let h_b2 = composition
+    let composition_transport = composition.iter().all(|result| result.protocol_valid);
+    let scalar_chain_insufficiency = composition
         .iter()
         .all(|result| result.best_e0_mean_target_cosine <= 0.05);
     let fingerprint = fnv1a64(manifest().as_bytes());
@@ -120,7 +130,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     print_report(
         &direct,
         &composition,
-        [h_a1, h_a2, h_a3, h_b1, h_b2],
+        [
+            control_preservation,
+            operator_transport,
+            scalar_insufficiency,
+            composition_transport,
+            scalar_chain_insufficiency,
+        ],
         protocol_valid,
         fingerprint,
     );
@@ -155,12 +171,6 @@ fn run_direct_relation(relation: &Relation) -> Result<DirectResult, Box<dyn Erro
     let mean_target = target_sum / count;
     let mean_source = source_sum / count;
     let (best_e0_coupling, best_e0_mean_target_cosine) = best_e0_direct(*relation)?;
-    let protocol_valid = finite
-        && replay_equal
-        && energy_nonincreasing
-        && mean_target >= 0.999
-        && min_target >= 0.99
-        && min_source >= 0.995;
 
     Ok(DirectResult {
         relation: relation.name,
@@ -173,7 +183,6 @@ fn run_direct_relation(relation: &Relation) -> Result<DirectResult, Box<dyn Erro
         energy_nonincreasing,
         replay_equal,
         finite,
-        protocol_valid,
     })
 }
 
@@ -568,7 +577,7 @@ fn print_direct_results(results: &[DirectResult]) {
             result.energy_nonincreasing,
             result.replay_equal,
             result.finite,
-            result.protocol_valid,
+            result.protocol_valid(),
         );
     }
     println!("  ],");
