@@ -1,0 +1,27 @@
+{
+  "experiment": "FL-E2",
+  "protocol": "relational-transport-composition-v1",
+  "provenance_fingerprint": "fnv1a64:97e776ad561b2c16",
+  "direct": [
+    {"relation": "identity", "e1_mean_target_cosine": 0.999998629884, "e1_min_target_cosine": 0.999986530405, "e1_mean_source_fidelity": 0.999999923646, "e1_min_source_fidelity": 0.999999249368, "best_e0_mean_target_cosine": 0.999999999875, "best_e0_coupling": 2.000000, "energy_nonincreasing": true, "replay_equal": true, "finite": true, "protocol_valid": true},
+    {"relation": "inversion", "e1_mean_target_cosine": 0.999998629884, "e1_min_target_cosine": 0.999986530405, "e1_mean_source_fidelity": 0.999999923646, "e1_min_source_fidelity": 0.999999249368, "best_e0_mean_target_cosine": 0.999999999875, "best_e0_coupling": -2.000000, "energy_nonincreasing": true, "replay_equal": true, "finite": true, "protocol_valid": true},
+    {"relation": "rotate_plus_90", "e1_mean_target_cosine": 0.999998629884, "e1_min_target_cosine": 0.999986530405, "e1_mean_source_fidelity": 0.999999923646, "e1_min_source_fidelity": 0.999999249368, "best_e0_mean_target_cosine": 0.011073216268, "best_e0_coupling": 0.500000, "energy_nonincreasing": true, "replay_equal": true, "finite": true, "protocol_valid": true},
+    {"relation": "rotate_minus_90", "e1_mean_target_cosine": 0.999998629884, "e1_min_target_cosine": 0.999986530405, "e1_mean_source_fidelity": 0.999999923646, "e1_min_source_fidelity": 0.999999249368, "best_e0_mean_target_cosine": 0.011073216268, "best_e0_coupling": -0.500000, "energy_nonincreasing": true, "replay_equal": true, "finite": true, "protocol_valid": true},
+    {"relation": "reflect_x", "e1_mean_target_cosine": 0.999998629884, "e1_min_target_cosine": 0.999986530405, "e1_mean_source_fidelity": 0.999999923646, "e1_min_source_fidelity": 0.999999249368, "best_e0_mean_target_cosine": 0.020181834751, "best_e0_coupling": -0.500000, "energy_nonincreasing": true, "replay_equal": true, "finite": true, "protocol_valid": true},
+    {"relation": "swap_xy", "e1_mean_target_cosine": 0.999998629884, "e1_min_target_cosine": 0.999986530405, "e1_mean_source_fidelity": 0.999999923646, "e1_min_source_fidelity": 0.999999249368, "best_e0_mean_target_cosine": 0.000495134236, "best_e0_coupling": -0.500000, "energy_nonincreasing": true, "replay_equal": true, "finite": true, "protocol_valid": true}
+  ],
+  "composition": [
+    {"fixture": "rotate_plus_90_then_reflect_x", "e1_mean_middle_cosine": 0.999997754487, "e1_min_middle_cosine": 0.999981161397, "e1_mean_target_cosine": 0.999994704854, "e1_min_target_cosine": 0.999955576796, "e1_min_source_fidelity": 0.999999748294, "best_e0_mean_target_cosine": 0.071276908940, "best_e0_first_coupling": 0.500000, "best_e0_second_coupling": 1.000000, "replay_equal": true, "finite": true, "protocol_valid": true},
+    {"fixture": "reflect_x_then_rotate_plus_90", "e1_mean_middle_cosine": 0.999998239974, "e1_min_middle_cosine": 0.999988637898, "e1_mean_target_cosine": 0.999995849673, "e1_min_target_cosine": 0.999973207014, "e1_min_source_fidelity": 0.999999848189, "best_e0_mean_target_cosine": 0.071276908940, "best_e0_first_coupling": -0.500000, "best_e0_second_coupling": 1.000000, "replay_equal": true, "finite": true, "protocol_valid": true},
+    {"fixture": "rotate_plus_45_then_rotate_plus_90", "e1_mean_middle_cosine": 0.999998239974, "e1_min_middle_cosine": 0.999988637898, "e1_mean_target_cosine": 0.999995849673, "e1_min_target_cosine": 0.999973207014, "e1_min_source_fidelity": 0.999999848189, "best_e0_mean_target_cosine": 0.734158103318, "best_e0_first_coupling": 0.500000, "best_e0_second_coupling": -0.500000, "replay_equal": true, "finite": true, "protocol_valid": true},
+    {"fixture": "swap_then_rotate_minus_45", "e1_mean_middle_cosine": 0.999998125820, "e1_min_middle_cosine": 0.999990159815, "e1_mean_target_cosine": 0.999995580487, "e1_min_target_cosine": 0.999976795835, "e1_min_source_fidelity": 0.999999868523, "best_e0_mean_target_cosine": 0.043392491070, "best_e0_first_coupling": 0.500000, "best_e0_second_coupling": -0.500000, "replay_equal": true, "finite": true, "protocol_valid": true}
+  ],
+  "hypotheses": {
+    "H_E2_A1_control_preservation": true,
+    "H_E2_A2_operator_transport": true,
+    "H_E2_A3_scalar_insufficiency": true,
+    "H_E2_B1_composition": true,
+    "H_E2_B2_scalar_chain_insufficiency": false
+  },
+  "protocol_valid": true
+}
