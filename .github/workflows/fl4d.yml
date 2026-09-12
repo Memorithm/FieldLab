@@ -1,0 +1,79 @@
+name: FieldLab FL-4D Native CCOS Temporal Trace
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  CCOS_COMMIT: a3c4d7e03744430c74dc337463ff3e944b4933ad
+
+jobs:
+  fl4d:
+    name: FL-4D native CCOS temporal trace
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout FieldLab
+        uses: actions/checkout@v4
+
+      - name: Checkout pinned CCOS-Core
+        uses: actions/checkout@v4
+        with:
+          repository: Memorithm/CCOS-Core
+          ref: a3c4d7e03744430c74dc337463ff3e944b4933ad
+          path: external/CCOS-Core
+
+      - name: Verify external provenance
+        run: |
+          test "$(git -C external/CCOS-Core rev-parse HEAD)" = "$CCOS_COMMIT"
+          test "$(grep -c 'channel = \"1.89.0\"' external/CCOS-Core/rust-toolchain.toml)" -eq 1
+
+      - name: Install toolchains
+        run: |
+          rustup toolchain install 1.89.0 --profile minimal
+          rustup toolchain install nightly-2026-07-02 --profile minimal
+
+      - name: Build pinned CCOS runtime
+        working-directory: external/CCOS-Core
+        run: cargo +1.89.0 build --release --features llm --bin ccos
+
+      - name: Execute native temporal acquisition twice
+        run: |
+          mkdir -p results/ci
+          python3 scripts/fl4d_ccos_temporal_trace.py \
+            external/CCOS-Core/src \
+            --ccos external/CCOS-Core/target/release/ccos \
+            --commit "$CCOS_COMMIT" \
+            --budget 2048 \
+            --depth 3 \
+            --out results/ci/fl4d-trace-a.json
+          python3 scripts/fl4d_ccos_temporal_trace.py \
+            external/CCOS-Core/src \
+            --ccos external/CCOS-Core/target/release/ccos \
+            --commit "$CCOS_COMMIT" \
+            --budget 2048 \
+            --depth 3 \
+            --out results/ci/fl4d-trace-b.json
+
+      - name: Validate and import temporal evidence
+        run: |
+          cargo +nightly-2026-07-02 run -p field-bench --bin fl4d -- \
+            results/ci/fl4d-trace-a.json \
+            results/ci/fl4d-trace-b.json \
+            "$CCOS_COMMIT" \
+            > results/ci/fl4d.json
+          cat results/ci/fl4d.json
+
+      - name: Retain FL-4D evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: fieldlab-fl4d-${{ github.sha }}
+          path: |
+            results/ci/fl4d-trace-a.json
+            results/ci/fl4d-trace-b.json
+            results/ci/fl4d.json
+          if-no-files-found: error

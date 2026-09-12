@@ -1,0 +1,74 @@
+{
+  "experiment": "FL-4C",
+  "protocol": "external-ccos-runtime-replay-v1",
+  "ccos_commit": "a3c4d7e03744430c74dc337463ff3e944b4933ad",
+  "probe_a_sha256": "90d716fa04f029f1b9d8065a91d045075d46ef13938365103c87ffe5acba76f2",
+  "probe_b_sha256": "90d716fa04f029f1b9d8065a91d045075d46ef13938365103c87ffe5acba76f2",
+  "source_path": "external/CCOS-Core/src",
+  "files": 55,
+  "all_src_tokens": 471024,
+  "budget": 2048,
+  "depth": 3,
+  "duplication_factor": 0.792,
+  "anchors": [
+    {
+      "anchor": "src/agent_session.rs",
+      "direct_dependencies": 6,
+      "covered_dependencies": 4,
+      "affected": 170,
+      "window_tokens": 2046,
+      "pct_all_src": 0.43,
+      "noise_files": 1,
+      "full_dependency_coverage": false
+    },
+    {
+      "anchor": "src/external_memory.rs",
+      "direct_dependencies": 11,
+      "covered_dependencies": 5,
+      "affected": 177,
+      "window_tokens": 2048,
+      "pct_all_src": 0.43,
+      "noise_files": 2,
+      "full_dependency_coverage": false
+    },
+    {
+      "anchor": "src/migrate.rs",
+      "direct_dependencies": 5,
+      "covered_dependencies": 5,
+      "affected": 54,
+      "window_tokens": 2047,
+      "pct_all_src": 0.43,
+      "noise_files": 1,
+      "full_dependency_coverage": true
+    },
+    {
+      "anchor": "src/region_engine.rs",
+      "direct_dependencies": 4,
+      "covered_dependencies": 4,
+      "affected": 42,
+      "window_tokens": 2048,
+      "pct_all_src": 0.43,
+      "noise_files": 1,
+      "full_dependency_coverage": true
+    },
+    {
+      "anchor": "src/region_metrics.rs",
+      "direct_dependencies": 4,
+      "covered_dependencies": 4,
+      "affected": 27,
+      "window_tokens": 2047,
+      "pct_all_src": 0.43,
+      "noise_files": 1,
+      "full_dependency_coverage": true
+    }
+  ],
+  "hypotheses": {
+    "H4_C1_direct_dependency_coverage": false,
+    "H4_C2_nontrivial_causal_pressure": true,
+    "H4_C3_bounded_external_recall": true,
+    "H4_C4_low_noise_majority": true,
+    "H4_C5_deterministic_external_replay": true
+  },
+  "replay_equal": true,
+  "protocol_valid": true
+}

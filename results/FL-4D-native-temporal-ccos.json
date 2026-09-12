@@ -1,0 +1,24 @@
+{
+  "experiment": "FL-4D",
+  "protocol": "native-temporal-ccos-trace-v1",
+  "ccos_commit": "a3c4d7e03744430c74dc337463ff3e944b4933ad",
+  "trace_a_sha256": "4eabc57a1ba9147591d5b4ca63b62a0eaa25d4549d24bc4336bba061e2cfafe4",
+  "trace_b_sha256": "4eabc57a1ba9147591d5b4ca63b62a0eaa25d4549d24bc4336bba061e2cfafe4",
+  "source_path": "external/CCOS-Core/src",
+  "files": 55,
+  "budget": 2048,
+  "depth": 3,
+  "calibration_observations": 24,
+  "holdout_observations": 24,
+  "calibration_distinct_snapshots": 23,
+  "holdout_distinct_snapshots": 24,
+  "hypotheses": {
+    "H4_D1_deterministic_native_temporal_replay": true,
+    "H4_D2_stimulus_sensitivity": true,
+    "H4_D3_hard_budget_preservation": true,
+    "H4_D4_scored_evidence_availability": true,
+    "H4_D5_anchor_diversity": true
+  },
+  "replay_equal": true,
+  "protocol_valid": true
+}
