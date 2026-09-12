@@ -1,0 +1,32 @@
+name: FieldLab FL-4B Validation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  fl4b:
+    name: FL-4B hysteretic bounded working set
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Rust toolchain
+        run: |
+          rustup toolchain install nightly-2026-07-02 --profile minimal
+          rustup override set nightly-2026-07-02
+      - name: Execute FL-4B campaign
+        run: |
+          mkdir -p results/ci
+          cargo run -p field-bench --bin fl4b > results/ci/fl4b.json
+          cat results/ci/fl4b.json
+      - name: Retain FL-4B evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: fieldlab-fl4b-${{ github.sha }}
+          path: results/ci/fl4b.json
+          if-no-files-found: error
