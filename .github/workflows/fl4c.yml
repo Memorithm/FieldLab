@@ -1,0 +1,77 @@
+name: FieldLab FL-4C External CCOS Replay
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  CCOS_COMMIT: a3c4d7e03744430c74dc337463ff3e944b4933ad
+
+jobs:
+  fl4c:
+    name: FL-4C external CCOS runtime replay
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout FieldLab
+        uses: actions/checkout@v4
+
+      - name: Checkout pinned CCOS-Core
+        uses: actions/checkout@v4
+        with:
+          repository: Memorithm/CCOS-Core
+          ref: a3c4d7e03744430c74dc337463ff3e944b4933ad
+          path: external/CCOS-Core
+
+      - name: Verify external provenance
+        run: |
+          test "$(git -C external/CCOS-Core rev-parse HEAD)" = "$CCOS_COMMIT"
+          test "$(cat external/CCOS-Core/rust-toolchain.toml | grep 'channel = \"1.89.0\"' | wc -l)" -eq 1
+
+      - name: Install toolchains
+        run: |
+          rustup toolchain install 1.89.0 --profile minimal
+          rustup toolchain install nightly-2026-07-02 --profile minimal
+
+      - name: Build pinned CCOS runtime
+        working-directory: external/CCOS-Core
+        run: cargo +1.89.0 build --release --features llm --bin ccos
+
+      - name: Execute external probe twice
+        run: |
+          mkdir -p results/ci
+          python3 external/CCOS-Core/scripts/ccos_campaign_probe.py \
+            external/CCOS-Core/src \
+            --budget 2048 \
+            --depth 3 \
+            --ccos external/CCOS-Core/target/release/ccos \
+            --out results/ci/fl4c-probe-a.json
+          python3 external/CCOS-Core/scripts/ccos_campaign_probe.py \
+            external/CCOS-Core/src \
+            --budget 2048 \
+            --depth 3 \
+            --ccos external/CCOS-Core/target/release/ccos \
+            --out results/ci/fl4c-probe-b.json
+
+      - name: Validate and import external evidence
+        run: |
+          cargo +nightly-2026-07-02 run -p field-bench --bin fl4c -- \
+            results/ci/fl4c-probe-a.json \
+            results/ci/fl4c-probe-b.json \
+            "$CCOS_COMMIT" \
+            > results/ci/fl4c.json
+          cat results/ci/fl4c.json
+
+      - name: Retain FL-4C evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: fieldlab-fl4c-${{ github.sha }}
+          path: |
+            results/ci/fl4c-probe-a.json
+            results/ci/fl4c-probe-b.json
+            results/ci/fl4c.json
+          if-no-files-found: error
