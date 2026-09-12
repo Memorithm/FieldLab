@@ -22,6 +22,26 @@ const THRESHOLDS: [f64; 6] = [0.10, 0.20, 0.30, 0.40, 0.50, 0.60];
 const RAMP_MAGNITUDES: [f64; TRANSITION_RAMP_LEN] = [0.10, 0.20, 0.30, 0.40, 0.55, 0.70];
 const CONTRADICTION_OFFSETS: [usize; 2] = [9, 14];
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum Check {
+    Fail,
+    Pass,
+}
+
+impl Check {
+    const fn from_bool(value: bool) -> Self {
+        if value {
+            Self::Pass
+        } else {
+            Self::Fail
+        }
+    }
+
+    const fn as_bool(self) -> bool {
+        matches!(self, Self::Pass)
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 struct Observation {
     truth: i8,
@@ -53,26 +73,36 @@ struct ConditionMetrics {
     finite: bool,
 }
 
+#[derive(Clone, Copy, Debug)]
+struct HypothesisOutcomes {
+    useful_retention: Check,
+    disturbance_rejection: Check,
+    switching_cost: Check,
+    lock_in_frontier: Check,
+}
+
+#[derive(Clone, Copy, Debug)]
+struct EvidenceValidity {
+    fixture: Check,
+    relay_reference: Check,
+    replay: Check,
+    protocol: Check,
+}
+
 #[derive(Clone, Debug)]
 struct ExperimentReport {
     loops: Vec<RelayLoop>,
     baseline: ConditionMetrics,
     conditions: Vec<ConditionMetrics>,
-    h3_a1: bool,
-    h3_a2: bool,
-    h3_a3: bool,
-    h3_a4: bool,
-    fixture_valid: bool,
-    relay_reference_valid: bool,
-    replay_equal: bool,
-    protocol_valid: bool,
+    hypotheses: HypothesisOutcomes,
+    validity: EvidenceValidity,
     fingerprint: u64,
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
     let report = run_experiment()?;
     print_report(&report);
-    if !report.protocol_valid {
+    if !report.validity.protocol.as_bool() {
         std::process::exit(1);
     }
     Ok(())
@@ -92,31 +122,39 @@ fn run_experiment() -> Result<ExperimentReport, Box<dyn Error>> {
         && loop_replay_equal;
     let finite = baseline.finite && conditions.iter().all(|condition| condition.finite);
 
-    let h3_a1 = conditions
-        .iter()
-        .any(|condition| condition.total_errors < baseline.total_errors);
-    let h3_a2 = conditions
-        .iter()
-        .any(|condition| condition.contradiction_errors == 0);
-    let h3_a3 = conditions
-        .iter()
-        .filter(|condition| condition.contradiction_errors == 0)
-        .all(|condition| condition.mean_switch_latency > 0.0);
-    let h3_a4 = lock_in_frontier(&conditions)?;
+    let hypotheses = HypothesisOutcomes {
+        useful_retention: Check::from_bool(
+            conditions
+                .iter()
+                .any(|condition| condition.total_errors < baseline.total_errors),
+        ),
+        disturbance_rejection: Check::from_bool(
+            conditions
+                .iter()
+                .any(|condition| condition.contradiction_errors == 0),
+        ),
+        switching_cost: Check::from_bool(
+            conditions
+                .iter()
+                .filter(|condition| condition.contradiction_errors == 0)
+                .all(|condition| condition.mean_switch_latency > 0.0),
+        ),
+        lock_in_frontier: Check::from_bool(lock_in_frontier(&conditions)?),
+    };
     let protocol_valid = fixture_valid && relay_reference_valid && replay_equal && finite;
+    let validity = EvidenceValidity {
+        fixture: Check::from_bool(fixture_valid),
+        relay_reference: Check::from_bool(relay_reference_valid),
+        replay: Check::from_bool(replay_equal),
+        protocol: Check::from_bool(protocol_valid),
+    };
 
     Ok(ExperimentReport {
         loops,
         baseline,
         conditions,
-        h3_a1,
-        h3_a2,
-        h3_a3,
-        h3_a4,
-        fixture_valid,
-        relay_reference_valid,
-        replay_equal,
-        protocol_valid,
+        hypotheses,
+        validity,
         fingerprint: provenance_fingerprint(),
     })
 }
@@ -180,18 +218,39 @@ fn print_report(report: &ExperimentReport) {
     }
     println!("  ],");
     println!("  \"hypotheses\": {{");
-    println!("    \"H3_A1_useful_retention\": {},", report.h3_a1);
-    println!("    \"H3_A2_disturbance_rejection\": {},", report.h3_a2);
-    println!("    \"H3_A3_switching_cost\": {},", report.h3_a3);
-    println!("    \"H3_A4_lock_in_frontier\": {}", report.h3_a4);
+    println!(
+        "    \"H3_A1_useful_retention\": {},",
+        report.hypotheses.useful_retention.as_bool()
+    );
+    println!(
+        "    \"H3_A2_disturbance_rejection\": {},",
+        report.hypotheses.disturbance_rejection.as_bool()
+    );
+    println!(
+        "    \"H3_A3_switching_cost\": {},",
+        report.hypotheses.switching_cost.as_bool()
+    );
+    println!(
+        "    \"H3_A4_lock_in_frontier\": {}",
+        report.hypotheses.lock_in_frontier.as_bool()
+    );
     println!("  }},");
-    println!("  \"fixture_valid\": {},", report.fixture_valid);
+    println!(
+        "  \"fixture_valid\": {},",
+        report.validity.fixture.as_bool()
+    );
     println!(
         "  \"relay_reference_valid\": {},",
-        report.relay_reference_valid
+        report.validity.relay_reference.as_bool()
     );
-    println!("  \"replay_equal\": {},", report.replay_equal);
-    println!("  \"protocol_valid\": {}", report.protocol_valid);
+    println!(
+        "  \"replay_equal\": {},",
+        report.validity.replay.as_bool()
+    );
+    println!(
+        "  \"protocol_valid\": {}",
+        report.validity.protocol.as_bool()
+    );
     println!("}}");
 }
 
