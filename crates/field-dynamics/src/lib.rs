@@ -187,10 +187,12 @@ mod tests {
         .unwrap();
         let final_energy = model.energy(&final_state).unwrap();
         assert!(final_energy < initial);
-        assert!(field_core::dot(
-            final_state.node(0).unwrap().values(),
-            final_state.node(1).unwrap().values()
-        ) > 0.9);
+        assert!(
+            field_core::dot(
+                final_state.node(0).unwrap().values(),
+                final_state.node(1).unwrap().values()
+            ) > 0.9
+        );
     }
 
     #[test]
@@ -206,10 +208,12 @@ mod tests {
             100,
         )
         .unwrap();
-        assert!(field_core::dot(
-            final_state.node(0).unwrap().values(),
-            final_state.node(1).unwrap().values()
-        ) < -0.9);
+        assert!(
+            field_core::dot(
+                final_state.node(0).unwrap().values(),
+                final_state.node(1).unwrap().values()
+            ) < -0.9
+        );
     }
 
     #[test]
