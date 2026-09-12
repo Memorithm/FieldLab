@@ -5,7 +5,6 @@ use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
 use std::error::Error;
 use std::fs;
-use std::path::Path;
 
 const PINNED_CCOS_COMMIT: &str = "a3c4d7e03744430c74dc337463ff3e944b4933ad";
 const EXPECTED_BUDGET: usize = 2048;
@@ -188,9 +187,4 @@ fn evaluate_hypotheses(
 
 fn sha256_hex(bytes: &[u8]) -> String {
     format!("{:x}", Sha256::digest(bytes))
-}
-
-#[allow(dead_code)]
-fn _path_exists(path: &str) -> bool {
-    Path::new(path).exists()
 }
