@@ -172,9 +172,7 @@ impl From<ValidationError> for DynamicsError {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use field_core::{
-        Coupling, CouplingGraph, EnergyModel, OperatorCoupling, OperatorEnergyModel,
-    };
+    use field_core::{Coupling, CouplingGraph, EnergyModel, OperatorCoupling, OperatorEnergyModel};
 
     fn orthogonal_pair(weight: f64) -> (FieldState, EnergyModel) {
         let state = FieldState::new(vec![
