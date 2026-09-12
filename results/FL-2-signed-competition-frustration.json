@@ -1,0 +1,25 @@
+{
+  "experiment": "FL-2",
+  "protocol": "signed-competition-frustration-v1",
+  "source_head_sha": "f061c947f3b59f14d49edcd07e7cafb7162c25b3",
+  "ci_run_id": 34695053966,
+  "artifact_id": 10298364188,
+  "artifact_zip_sha256": "012d6db7e06230833c0d2beee6436765abbee3df49eae313c335a15a462a0130",
+  "provenance_fingerprint": "fnv1a64:f4dbeb6be77671e0",
+  "competition": [
+    {"condition": "repulsive", "coupling": -0.5, "cases": 84, "non_tie_cases": 80, "correct_winners": 80, "winner_rate": 1.0, "mean_useful_separation": 0.829983940213, "min_useful_separation": 0.006103795044, "max_tie_polarization": 0.0, "monotonic_separation": true, "energy_nonincreasing": true, "finite": true},
+    {"condition": "uncoupled", "coupling": 0.0, "cases": 84, "non_tie_cases": 80, "correct_winners": 80, "winner_rate": 1.0, "mean_useful_separation": 0.584645449903, "min_useful_separation": 0.000086637677, "max_tie_polarization": 0.0, "monotonic_separation": true, "energy_nonincreasing": true, "finite": true},
+    {"condition": "attractive", "coupling": 0.5, "cases": 84, "non_tie_cases": 80, "correct_winners": 80, "winner_rate": 1.0, "mean_useful_separation": 0.265158394256, "min_useful_separation": 0.000015236695, "max_tie_polarization": 0.0, "monotonic_separation": true, "energy_nonincreasing": true, "finite": true}
+  ],
+  "repulsive_triangle": {"final_energy": -1.5, "pairwise_dots": [-0.499999721746, -0.500000132586, -0.500000145668], "max_dot_error": 0.000000278254, "energy_error": 0.0, "replay_equal": true, "finite": true},
+  "attractive_triangle": {"final_energy": -3.0, "pairwise_dots": [1.0, 1.0, 1.0], "max_dot_error": 0.0, "energy_error": 0.0, "replay_equal": true, "finite": true},
+  "hypotheses": {
+    "H2_A1_repulsive_winner_correctness": true,
+    "H2_A2_repulsive_gt_uncoupled_separation": true,
+    "H2_A3_repulsive_gt_attractive_separation": true,
+    "H2_A4_no_false_tie_polarization": true
+  },
+  "replay_equal": true,
+  "triangle_reference_valid": true,
+  "protocol_valid": true
+}
