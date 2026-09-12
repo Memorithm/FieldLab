@@ -140,8 +140,8 @@ fn hypotheses(campaign: &Campaign) -> [bool; 5] {
     let hysteretic = campaign.hysteretic_holdout;
     let quality = hysteretic.misses < baseline.misses;
     let anti_thrash = hysteretic.replacements < baseline.replacements;
-    let switching_cost = hysteretic.max_transition_latency
-        <= baseline.max_transition_latency.saturating_add(1);
+    let switching_cost =
+        hysteretic.max_transition_latency <= baseline.max_transition_latency.saturating_add(1);
     let budget = baseline.budget_ok && hysteretic.budget_ok;
     let transfer = quality && anti_thrash;
     [quality, anti_thrash, switching_cost, budget, transfer]
@@ -185,8 +185,7 @@ fn evaluate_hysteretic(trace: &[Observation], threshold: f64) -> Result<Metrics,
             let state = relay
                 .update(observation.evidence[index] - 0.5)
                 .expect("finite preregistered FL-4B evidence");
-            adjusted[index] =
-                (observation.evidence[index] + GAIN * state.signed()).clamp(0.0, 1.0);
+            adjusted[index] = (observation.evidence[index] + GAIN * state.signed()).clamp(0.0, 1.0);
         }
         let nodes = nodes_from_scores(adjusted);
         field_working_set(&nodes, &[], BUDGET_TOKENS, score_weights())
@@ -217,10 +216,7 @@ where
         metrics.budget_ok &= tokens <= BUDGET_TOKENS;
 
         if let Some(prior) = &previous {
-            metrics.replacements += prior
-                .iter()
-                .filter(|id| !selected.contains(id))
-                .count();
+            metrics.replacements += prior.iter().filter(|id| !selected.contains(id)).count();
         }
 
         update_transition_latency(
@@ -445,7 +441,10 @@ fn print_report(
     println!("    \"H4_B1_holdout_quality\": {},", hypotheses[0]);
     println!("    \"H4_B2_anti_thrash\": {},", hypotheses[1]);
     println!("    \"H4_B3_bounded_switching_cost\": {},", hypotheses[2]);
-    println!("    \"H4_B4_exact_budget_preservation\": {},", hypotheses[3]);
+    println!(
+        "    \"H4_B4_exact_budget_preservation\": {},",
+        hypotheses[3]
+    );
     println!("    \"H4_B5_calibration_transfer\": {}", hypotheses[4]);
     println!("  }},");
     println!("  \"protocol_valid\": {protocol_valid}");
