@@ -144,9 +144,7 @@ impl EnergyModel {
         if external_fields.len() != graph.node_count() {
             return Err(ValidationError::NodeCountMismatch);
         }
-        let first = external_fields
-            .first()
-            .ok_or(ValidationError::EmptyState)?;
+        let first = external_fields.first().ok_or(ValidationError::EmptyState)?;
         if first.is_empty() {
             return Err(ValidationError::EmptyVector);
         }
