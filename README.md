@@ -12,9 +12,9 @@ The **FL series is the authoritative line of development and experimentation for
 
 | Series | Research line | Status | Primary question | Exit criterion |
 | --- | --- | --- | --- | --- |
-| **FL-0** | **Mathematical sanity & deterministic field kernel** | ✅ Completed bootstrap | Do state, energy, effective-field and integration primitives obey their declared invariants? | Tiny reference cases pass; deterministic replay holds; invalid states fail closed; CI executes the reference experiment. |
-| **FL-1** | **Associative recall & attractor memory** | 🟠 Active | Can field attractors recover corrupted memories, and how do they compare with Hopfield and nearest-template retrieval? | Frozen exhaustive corruption campaign executes with reproducible evidence and explicit comparative outcomes. |
-| **FL-2** | **Competing hypotheses, signed coupling & frustration** | ⚪ Planned | Do attraction and repulsion help resolve controlled contradictory evidence rather than merely creating instability? | Separation/calibration benefit measured against unsigned/diffusion controls; oscillation and failure regimes reported. |
+| **FL-0** | **Mathematical sanity & deterministic field kernel** | ✅ Completed | Do state, energy, effective-field and integration primitives obey their declared invariants? | Tiny reference cases pass; deterministic replay holds; invalid states fail closed; CI executes the reference experiment. |
+| **FL-1** | **Associative recall & attractor memory** | ✅ Completed | Can field attractors recover corrupted memories, and how do they compare with Hopfield and nearest-template retrieval? | Exhaustive 7,551-case campaign executed and retained with reproducible comparative evidence. |
+| **FL-2** | **Competing hypotheses, signed coupling & frustration** | ⚪ Next | Do attraction and repulsion help resolve controlled contradictory evidence rather than merely creating instability? | Separation/calibration benefit measured against unsigned/diffusion controls; oscillation and failure regimes reported. |
 | **FL-3** | **Hysteresis & context switching** | ⚪ Planned | Can path dependence retain useful cognitive state without unacceptable lock-in? | Retention benefit and switching cost jointly characterized; lock-in frontier measured. |
 | **FL-4** | **CCOS field mapping** | ⚪ Planned | Is CCOS causal pressure/heat usefully representable as a discrete field, and do extra field operators improve bounded context selection? | Fixed CCOS traces replayed; current CCOS vs field variants compared at identical token budget while preserving auditability. |
 | **FL-5** | **Resonance, perturbation & stochastic exploration** | ⚪ Planned | Can controlled perturbation improve basin escape, recall or ambiguity resolution? | Benefit exceeds matched no-noise and surrogate controls under the same compute envelope. |
@@ -28,9 +28,9 @@ The **FL series is the authoritative line of development and experimentation for
 ```text
 FL-0  mathematical correctness                 ✅
   ↓
-FL-1  attractor memory                         🟠
+FL-1  attractor memory                         ✅
   ↓
-FL-2  signed competition / frustration
+FL-2  signed competition / frustration         ← NEXT
   ↓
 FL-3  hysteresis / temporal persistence
   ↓
@@ -47,17 +47,19 @@ FL-8  bounded cognitive computation
 FL-9  optional physical correspondence
 ```
 
-## Current frontier: FL-1 associative recall
+## Latest completed result: FL-1 associative recall
 
-FL-1 introduces the first actual memory task. Three fixed bipolar patterns of width 16 are stored with a shared Hebbian coupling matrix. Every corruption mask containing zero through four flipped bits is enumerated exactly, for **7,551 deterministic cases**.
+FL-1 executed every zero-to-four-bit corruption of three fixed orthogonal 16-symbol bipolar memories: **7,551 deterministic cases**.
 
-Three retrieval mechanisms are compared:
+| Method | Exact recoveries | Aggregate rate |
+| --- | ---: | ---: |
+| Continuous field dynamics | **6,723 / 7,551** | **89.0345650%** |
+| Deterministic asynchronous Hopfield | 6,303 / 7,551 | 83.4723878% |
+| Nearest-template retrieval | 7,342 / 7,551 | **97.2321547%** |
 
-- **Field dynamics** — each cue bit becomes a tilted two-dimensional unit vector and evolves for 128 Heun steps under the continuous projected field;
-- **Hopfield** — deterministic asynchronous updates using exactly the same Hebbian matrix;
-- **Nearest-template** — direct Hamming-distance retrieval with deterministic tie-breaking, retained as a strong template-access reference.
+The narrow result is positive against the shared-coupling Hopfield baseline and negative against direct nearest-template retrieval. The field method recovered every case through three flipped bits; at four flips it recovered 84.8351648%, versus 80% for Hopfield and 96.1721612% for nearest-template retrieval.
 
-The FL-1 protocol is frozen in [`prereg/FL-1.md`](prereg/FL-1.md). A green experiment means the evidence is complete and reproducible; it does **not** imply that the field method wins.
+See [`prereg/FL-1.md`](prereg/FL-1.md), [`docs/FL-1-RESULT.md`](docs/FL-1-RESULT.md), and [`results/FL-1-associative-recall.json`](results/FL-1-associative-recall.json).
 
 ## FL-0 foundation
 
@@ -66,9 +68,9 @@ FL-0 established the smallest falsifiable field kernel:
 - `field-core` — unit node states, signed coupling graph, external fields, energy and effective-field evaluation;
 - `field-dynamics` — projected deterministic dynamics, explicit Euler and Heun reference integration;
 - `field-bench` — machine-readable experiment executables;
-- `prereg/FL-0.md` — frozen mathematical sanity protocol.
+- `field-memory` — bipolar memory banks, shared Hebbian coupling, cue encoding/decoding and declared retrieval baselines.
 
-Its initial energy model is deliberately narrow:
+The current energy model is deliberately narrow:
 
 ```text
 E(M, x) = -Σ_i h_i(x)·m_i - Σ_(i,j) J_ij m_i·m_j
@@ -86,7 +88,7 @@ and norm-preserving dissipative motion approximated by
 ṁ_i = η (I - m_i m_iᵀ) H_i_eff
 ```
 
-FL-1 adds `field-memory`, which owns bipolar pattern validation, Hebbian coupling construction, cue encoding/decoding and declared retrieval baselines. Later anisotropy, explicit repulsion terms, hysteresis, rotational dynamics and stochastic forcing remain separate ablatable operators.
+FL-2 will introduce controlled signed competition and frustration as explicit, ablatable mechanisms. Hysteresis, rotational dynamics and stochastic forcing remain reserved for later series.
 
 ## Relationship to the Memorithm ecosystem
 
@@ -98,7 +100,7 @@ FL-1 adds `field-memory`, which owns bipolar pattern validation, Hebbian couplin
 
 **SciRust supplies reusable mathematics.** General-purpose graph, ODE/SDE, spectral, sparse/low-rank and deterministic simulation primitives that mature in FieldLab should move upstream rather than become permanent duplicate infrastructure.
 
-## Reproduce the current experiments
+## Reproduce the completed experiments
 
 ```bash
 cargo fmt --all -- --check
