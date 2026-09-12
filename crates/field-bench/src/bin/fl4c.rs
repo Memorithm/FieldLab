@@ -57,18 +57,9 @@ struct ResultReport {
     depth: usize,
     duplication_factor: f64,
     anchors: Vec<ImportedAnchor>,
-    hypotheses: Hypotheses,
+    hypotheses: BTreeMap<&'static str, bool>,
     replay_equal: bool,
     protocol_valid: bool,
-}
-
-#[derive(Debug, Serialize)]
-struct Hypotheses {
-    h4_c1_direct_dependency_coverage: bool,
-    h4_c2_nontrivial_causal_pressure: bool,
-    h4_c3_bounded_external_recall: bool,
-    h4_c4_low_noise_majority: bool,
-    h4_c5_deterministic_external_replay: bool,
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -165,7 +156,7 @@ fn evaluate_hypotheses(
     report: &ProbeReport,
     anchors: &[ImportedAnchor],
     replay_equal: bool,
-) -> Hypotheses {
+) -> BTreeMap<&'static str, bool> {
     let full_coverage = anchors.iter().all(|anchor| anchor.full_dependency_coverage);
     let causal_pressure = anchors.iter().all(|anchor| anchor.affected > 1);
     let bounded_recall = anchors
@@ -176,13 +167,13 @@ fn evaluate_hypotheses(
         .filter(|anchor| anchor.noise_files <= anchor.covered_dependencies)
         .count();
     let low_noise_majority = low_noise_count > anchors.len() / 2;
-    Hypotheses {
-        h4_c1_direct_dependency_coverage: full_coverage,
-        h4_c2_nontrivial_causal_pressure: causal_pressure,
-        h4_c3_bounded_external_recall: bounded_recall,
-        h4_c4_low_noise_majority: low_noise_majority,
-        h4_c5_deterministic_external_replay: replay_equal,
-    }
+    BTreeMap::from([
+        ("H4_C1_direct_dependency_coverage", full_coverage),
+        ("H4_C2_nontrivial_causal_pressure", causal_pressure),
+        ("H4_C3_bounded_external_recall", bounded_recall),
+        ("H4_C4_low_noise_majority", low_noise_majority),
+        ("H4_C5_deterministic_external_replay", replay_equal),
+    ])
 }
 
 fn sha256_hex(bytes: &[u8]) -> String {
