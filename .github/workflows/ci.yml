@@ -20,19 +20,7 @@ jobs:
           rustup toolchain install nightly-2026-07-02 --profile minimal --component rustfmt --component clippy
           rustup override set nightly-2026-07-02
       - name: Format
-        run: |
-          if ! cargo fmt --all -- --check; then
-            cargo fmt --all
-            git diff -- crates/field-bench/src/bin/fl5_partition.rs > rustfmt.diff
-            exit 1
-          fi
-      - name: Retain rustfmt diff on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: fieldlab-rustfmt-${{ github.sha }}
-          path: rustfmt.diff
-          if-no-files-found: ignore
+        run: cargo fmt --all -- --check
       - name: Clippy
         run: cargo clippy --workspace --all-targets -- -D warnings
       - name: Test
