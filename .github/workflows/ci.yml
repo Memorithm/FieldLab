@@ -22,7 +22,19 @@ jobs:
       - name: Format
         run: cargo fmt --all -- --check
       - name: Clippy
-        run: cargo clippy --workspace --all-targets -- -D warnings
+        run: |
+          set +e
+          cargo clippy --workspace --all-targets -- -D warnings > clippy.log 2>&1
+          rc=$?
+          cat clippy.log
+          exit $rc
+      - name: Retain Clippy diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fieldlab-clippy-${{ github.sha }}
+          path: clippy.log
+          if-no-files-found: ignore
       - name: Test
         run: cargo test --workspace
       - name: Execute FL-0
