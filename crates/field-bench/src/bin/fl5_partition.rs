@@ -48,9 +48,7 @@ fn partition_case(case_id: &str) -> Result<PartitionRecord, &'static str> {
 fn main() {
     let case_ids: Vec<String> = env::args().skip(1).collect();
     if case_ids.is_empty() {
-        eprintln!(
-            "usage: cargo run -p field-bench --bin fl5_partition -- <case-id> [case-id ...]"
-        );
+        eprintln!("usage: cargo run -p field-bench --bin fl5_partition -- <case-id> [case-id ...]");
         std::process::exit(2);
     }
 
