@@ -166,7 +166,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     let second = run_campaign()?;
     let replay_equal = first == second;
     let protocol_valid = first.case_set_exact
-        && first.cases.iter().all(|case| case.case_id.starts_with("fl5f|"))
+        && first
+            .cases
+            .iter()
+            .all(|case| case.case_id.starts_with("fl5f|"))
         && first.h5f_0_reference_128
         && first.all_checkpoints_present
         && first.all_numeric_finite
@@ -199,7 +202,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         validity: ValidityReport {
             frozen_case_set_exact: Check::from_bool(first.case_set_exact),
             new_case_namespace: Check::from_bool(
-                first.cases.iter().all(|case| case.case_id.starts_with("fl5f|")),
+                first
+                    .cases
+                    .iter()
+                    .all(|case| case.case_id.starts_with("fl5f|")),
             ),
             reference_128_gate: Check::from_bool(first.h5f_0_reference_128),
             checkpoints_complete: Check::from_bool(first.all_checkpoints_present),
@@ -239,7 +245,10 @@ fn run_campaign() -> Result<Campaign, Box<dyn Error>> {
     let clean_common_stable_through = cases
         .iter()
         .filter(|case| case.kind == "clean")
-        .map(|case| case.first_clean_exit.map_or(MAX_STEPS, |step| step.saturating_sub(1)))
+        .map(|case| {
+            case.first_clean_exit
+                .map_or(MAX_STEPS, |step| step.saturating_sub(1))
+        })
         .min()
         .unwrap_or(0);
 
@@ -353,9 +362,8 @@ fn run_case(
     } else {
         None
     };
-    let first_clean_return = first_clean_exit.and_then(|exit| {
-        first_step_with_label(&labels, &target_label, exit.saturating_add(1))
-    });
+    let first_clean_return = first_clean_exit
+        .and_then(|exit| first_step_with_label(&labels, &target_label, exit.saturating_add(1)));
 
     let first_competitor_entry = competitor_label
         .as_ref()
@@ -366,9 +374,7 @@ fn run_case(
     };
     let first_target_entry = first_step_with_label(&labels, &target_label, 0);
     let first_competitor_return = match (competitor_label.as_ref(), first_competitor_exit) {
-        (Some(label), Some(exit)) => {
-            first_step_with_label(&labels, label, exit.saturating_add(1))
-        }
+        (Some(label), Some(exit)) => first_step_with_label(&labels, label, exit.saturating_add(1)),
         _ => None,
     };
 
@@ -395,7 +401,10 @@ fn run_case(
         target_index: spec.target,
         competitor_index: spec.competitor,
         cue: spec.cue.to_vec(),
-        initial_label: labels.first().cloned().unwrap_or_else(|| "other".to_owned()),
+        initial_label: labels
+            .first()
+            .cloned()
+            .unwrap_or_else(|| "other".to_owned()),
         final_label: labels.last().cloned().unwrap_or_else(|| "other".to_owned()),
         first_clean_exit,
         first_clean_return,
@@ -509,7 +518,10 @@ fn checkpoint_label(case: &CaseReport, step: usize) -> String {
     case.checkpoints
         .iter()
         .find(|record| record.step == step)
-        .map_or_else(|| "missing".to_owned(), |record| record.decoded_label.clone())
+        .map_or_else(
+            || "missing".to_owned(),
+            |record| record.decoded_label.clone(),
+        )
 }
 
 fn mean_angle_error(state: &FieldState, target: &FieldState) -> f64 {
