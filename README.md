@@ -17,7 +17,7 @@ The **FL series is the authoritative line of development and experimentation for
 | **FL-2** | **Competing hypotheses, signed coupling & frustration** | ✅ Completed | Do attraction and repulsion help resolve controlled contradictory evidence rather than merely creating instability? | Matched competition controls and analytic three-way frustration reference executed. |
 | **FL-3** | **Hysteresis & context switching** | ✅ Completed | Can path dependence retain useful cognitive state without unacceptable lock-in? | Retention benefit and switching cost characterized under a frozen context-switch protocol. |
 | **FL-4** | **CCOS field mapping** | ✅ First external comparative gate completed through FL-4E | Is CCOS causal pressure/heat usefully representable as a discrete field, and do extra field operators improve bounded context selection? | Fixed or externally grounded CCOS traces replayed; native CCOS vs field variants compared at identical budget while preserving auditability. |
-| **FL-5** | **Resonance, perturbation & stochastic exploration** | ⚪ Planned | Can controlled perturbation improve basin escape, recall or ambiguity resolution? | Benefit exceeds matched no-noise and surrogate controls under the same compute envelope. |
+| **FL-5** | **Resonance, perturbation & stochastic exploration** | ✅ First gate completed | Can controlled perturbation improve basin escape, recall or ambiguity resolution? | Benefit exceeds matched no-noise and surrogate controls under the same compute envelope; clean-cue and structured-noise controls reported. |
 | **FL-6** | **Sparse, low-rank & multiscale field scaling** | ⚪ Planned | Can useful dense interaction be retained without assuming scalable `O(N²)` coupling? | Approximation error and interaction/runtime scaling reported separately against a dense reference. |
 | **FL-7** | **Learned fields & adaptive couplings** | ⚪ Planned | Which field parameters can be learned without obscuring reference semantics or provenance? | Explicit train/validation/test split; learned model beats fixed-rule baselines and remains inspectable. |
 | **FL-8** | **Bounded cognitive tasks** | ⚪ Planned | Do validated field primitives improve memory/reasoning tasks rather than only toy energy objectives? | Pre-registered synthetic cognitive tasks pass matched-baseline criteria before LLM-agent claims are allowed. |
@@ -36,7 +36,7 @@ FL-3  hysteresis / temporal persistence        ✅
   ↓
 FL-4  CCOS field mapping                       ✅ FL-4A/4B/4C/4D/4E validated; wider external replication remains optional
   ↓
-FL-5  resonance / noise-assisted exploration
+FL-5  resonance / noise-assisted exploration   ✅ first gate
   ↓
 FL-6  scalable coupling structures
   ↓
@@ -47,7 +47,13 @@ FL-8  bounded cognitive computation
 FL-9  optional physical correspondence
 ```
 
-## Latest completed result: FL-4E external native-window focus hysteresis
+## Latest completed result: FL-5 noise-assisted basin escape
+
+FL-5 executed the first noise-assisted basin-escape gate on a frozen 8-node / 3-pattern FL-1-style Hebbian bank. Calibration (holdout-blind) selected OU amplitude `1.5` with θ `2.0`. On untouched holdout wrong-basin cases, D0 recovered `0` targets while the selected OU arm recovered `≈ 2.68%`; the PERM-OU surrogate recovered `≈ 3.57%`. Clean-cue holdout recall fell from `1.0` under D0 to `0.25` under the selected arm, so H5-2 failed. H5-1 and H5-4 were supported; H5-0, H5-2 and H5-3 were not. No biology, hardware or LLM claim is made.
+
+See [`docs/FL-5-RESULT.md`](docs/FL-5-RESULT.md). Continuation of FL-5 must keep the calibration/holdout partition and must not retune on this holdout.
+
+## Earlier completed result: FL-4E external native-window focus hysteresis
 
 FL-4E executed the first external comparative focus-ablation gate against the pinned `Memorithm/CCOS-Core@a3c4d7e03744430c74dc337463ff3e944b4933ad` runtime. Calibration and untouched holdout remained separate, the native working-set budget stayed fixed at 2,048 tokens, and two complete acquisitions were replay-identical.
 
@@ -55,7 +61,7 @@ The frozen calibration grid selected `theta = 0.01` using calibration only. On t
 
 All five preregistered FL-4E hypotheses were reported as supported for this declared workload. This result is scoped to the pinned runtime, corpus, schedules, budget and protocol. It does **not** establish downstream LLM-task improvement, universal cognitive advantage or physical magnetic equivalence, and it does not alter CCOS working-set membership.
 
-See [`docs/FL-4E-RESULT.md`](docs/FL-4E-RESULT.md). FieldLab may now widen external FL-4 replication or begin FL-5 only with explicit NoiseLab-compatible perturbation baselines and without reusing this holdout for tuning.
+See [`docs/FL-4E-RESULT.md`](docs/FL-4E-RESULT.md). FL-4E holdout remains unused for FL-5 tuning.
 
 ## Earlier results
 
@@ -157,7 +163,7 @@ Hysteresis remains an explicit operator rather than being hidden in numerical in
 
 **TDI supplies evidence discipline.** Mature architectural or information-theoretic claims should be promoted to TDI only after FieldLab exploratory protocols stabilize.
 
-**NoiseLab supplies perturbation methodology.** FL-5 should reuse compatible seeded noise/process definitions and resonance controls rather than duplicate them.
+**NoiseLab supplies perturbation methodology.** FL-5 records NoiseLab `@8cd8f23eea2f5f0b6e4b52b6240241d9cbee4a4e` and uses compatible seeded Gaussian / OU / temporal-permutation definitions without copying NoiseLab code.
 
 **SciRust supplies reusable mathematics.** General-purpose graph, ODE/SDE, spectral, sparse/low-rank and deterministic simulation primitives that mature in FieldLab should move upstream rather than become permanent duplicate infrastructure.
 
@@ -175,6 +181,7 @@ cargo run -p field-bench --bin fl4
 cargo run -p field-bench --bin fl4b
 cargo run -p field-bench --bin fl4c -- <probe-a.json> <probe-b.json> <ccos-commit>
 cargo run -p field-bench --bin fl4d -- <trace-a.json> <trace-b.json> <ccos-commit>
+cargo run -p field-bench --bin fl5
 cargo run -p field-bench --bin fle1
 cargo run -p field-bench --bin fle2
 ```

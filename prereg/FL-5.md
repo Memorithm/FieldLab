@@ -1,6 +1,6 @@
 # FL-5 — Noise-assisted basin escape and recall
 
-Status: **preregistered before FL-5 execution**.
+Status: **preregistered before FL-5 execution**; first-gate constants and fixture frozen with the introducing executable.
 
 ## Question
 
@@ -61,14 +61,22 @@ Holdout outcomes may not choose perturbation family, amplitude, OU correlation p
 
 ## Frozen calibration grid
 
-The first implementation must expose the grid as explicit machine-readable constants before execution. The grid contains:
+The first implementation exposes the grid as explicit machine-readable constants in `crates/field-bench/src/bin/fl5.rs` before execution:
 
-- perturbation family: Gaussian or OU;
-- finite amplitude values including exactly zero as the reference;
-- a finite OU correlation grid;
-- a fixed seed list with at least 8 independent seeds per non-zero condition.
+| Constant | Frozen value |
+| --- | --- |
+| `NODE_COUNT` | `8` |
+| `FIELD_STEPS` | `128` |
+| `FIELD_DT` | `0.05` |
+| `FIELD_MOBILITY` | `1.0` |
+| `CUE_TILT_RADIANS` | `0.15` |
+| `AMPLITUDES` | `[0.0, 0.5, 1.0, 1.5, 2.0]` (exactly zero retained as reference) |
+| `OU_THETAS` | `[0.5, 2.0, 8.0]` |
+| `SEEDS` | `[1, 2, 3, 5, 8, 13, 21, 34]` (8 independent seeds) |
+| `PERM_SEED` | `0x0F15_05ED` |
+| NoiseLab commit | `8cd8f23eea2f5f0b6e4b52b6240241d9cbee4a4e` |
 
-No numeric amplitude or correlation values are asserted in this preregistration until the executable defines them in the same PR. The PR that introduces the executable must update this document with those constants before producing the first result artifact.
+Perturbation families on the grid are Gaussian and OU. Non-zero amplitudes are evaluated for both families; OU additionally sweeps `OU_THETAS`. Surrogate arms reuse the same samples under the frozen temporal permutation derived from `PERM_SEED`.
 
 Calibration selects one non-zero condition lexicographically by:
 
@@ -77,6 +85,21 @@ Calibration selects one non-zero condition lexicographically by:
 3. lowest median terminal target-angle error;
 4. lowest perturbation amplitude;
 5. Gaussian before OU only as the final deterministic tie-break.
+
+
+## Frozen first-gate fixture
+
+The first FL-5 executable uses a small FL-1-style Hebbian associative-memory bank rather than the full FL-1 7,551-case campaign:
+
+- patterns (8 bipolar symbols):
+  - `P0 = [+1,+1,+1,+1,+1,+1,+1,+1]`
+  - `P1 = [+1,+1,+1,+1,-1,-1,-1,-1]`
+  - `P2 = [+1,+1,-1,-1,+1,+1,-1,-1]`
+- **wrong-basin panel:** for every ordered pair `(target, competitor)` with `target != competitor`, include the exact competitor cue and each single differing-bit flip of the competitor toward the target (`k0..k4`). Case ids are `wb|t{target}|c{competitor}|k{variant}`. Only trajectories whose zero-noise terminal decode equals the declared competitor are eligible; ineligible ids are reported and never counted as escapes.
+- **clean-cue panel:** exact stored patterns with ids `clean|t{index}`, partitioned independently and required to be disjoint from the wrong-basin panel.
+- Partitioning uses the frozen `fl5_partition` SHA-256 rule on the exact UTF-8 case-id bytes.
+
+This fixture is sized for CI while still producing a non-empty eligible wrong-basin set under D0.
 
 ## Metrics
 

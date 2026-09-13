@@ -1,0 +1,44 @@
+name: FieldLab FL-5 Validation
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fl5:
+    name: FL-5 noise-assisted basin escape
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pinned Rust toolchain
+        run: |
+          rustup toolchain install nightly-2026-07-02 --profile minimal --component rustfmt --component clippy
+          rustup override set nightly-2026-07-02
+
+      - name: Format
+        run: cargo fmt --all -- --check
+
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: Test
+        run: cargo test --workspace
+
+      - name: Execute FL-5 campaign
+        run: |
+          mkdir -p results/ci
+          cargo run -p field-bench --bin fl5 > results/ci/fl5.json
+          cat results/ci/fl5.json
+
+      - name: Retain FL-5 evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: fieldlab-fl5-${{ github.sha }}
+          path: results/ci/fl5.json
+          if-no-files-found: error
