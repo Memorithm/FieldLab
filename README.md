@@ -16,7 +16,7 @@ The **FL series is the authoritative line of development and experimentation for
 | **FL-1** | **Associative recall & attractor memory** | ✅ Completed | Can field attractors recover corrupted memories, and how do they compare with retrieval baselines? | Exhaustive 7,551-case corruption campaign retained with reproducible evidence. |
 | **FL-2** | **Competing hypotheses, signed coupling & frustration** | ✅ Completed | Do attraction and repulsion help resolve controlled contradictory evidence rather than merely creating instability? | Matched competition controls and analytic three-way frustration reference executed. |
 | **FL-3** | **Hysteresis & context switching** | ✅ Completed | Can path dependence retain useful cognitive state without unacceptable lock-in? | Retention benefit and switching cost characterized under a frozen context-switch protocol. |
-| **FL-4** | **CCOS field mapping** | 🟡 In progress — FL-4A/4B/4C/4D validated; comparative external ablation next | Is CCOS causal pressure/heat usefully representable as a discrete field, and do extra field operators improve bounded context selection? | Fixed or externally grounded CCOS traces replayed; native CCOS vs field variants compared at identical budget while preserving auditability. |
+| **FL-4** | **CCOS field mapping** | ✅ First external comparative gate completed through FL-4E | Is CCOS causal pressure/heat usefully representable as a discrete field, and do extra field operators improve bounded context selection? | Fixed or externally grounded CCOS traces replayed; native CCOS vs field variants compared at identical budget while preserving auditability. |
 | **FL-5** | **Resonance, perturbation & stochastic exploration** | ⚪ Planned | Can controlled perturbation improve basin escape, recall or ambiguity resolution? | Benefit exceeds matched no-noise and surrogate controls under the same compute envelope. |
 | **FL-6** | **Sparse, low-rank & multiscale field scaling** | ⚪ Planned | Can useful dense interaction be retained without assuming scalable `O(N²)` coupling? | Approximation error and interaction/runtime scaling reported separately against a dense reference. |
 | **FL-7** | **Learned fields & adaptive couplings** | ⚪ Planned | Which field parameters can be learned without obscuring reference semantics or provenance? | Explicit train/validation/test split; learned model beats fixed-rule baselines and remains inspectable. |
@@ -34,7 +34,7 @@ FL-2  signed competition / frustration         ✅
   ↓
 FL-3  hysteresis / temporal persistence        ✅
   ↓
-FL-4  CCOS field mapping                       🟡 FL-4A/4B/4C/4D validated; external operator ablation next
+FL-4  CCOS field mapping                       ✅ FL-4A/4B/4C/4D/4E validated; wider external replication remains optional
   ↓
 FL-5  resonance / noise-assisted exploration
   ↓
@@ -47,7 +47,19 @@ FL-8  bounded cognitive computation
 FL-9  optional physical correspondence
 ```
 
-## Latest completed result: FL-4D native temporal CCOS trace acquisition
+## Latest completed result: FL-4E external native-window focus hysteresis
+
+FL-4E executed the first external comparative focus-ablation gate against the pinned `Memorithm/CCOS-Core@a3c4d7e03744430c74dc337463ff3e944b4933ad` runtime. Calibration and untouched holdout remained separate, the native working-set budget stayed fixed at 2,048 tokens, and two complete acquisitions were replay-identical.
+
+The frozen calibration grid selected `theta = 0.01` using calibration only. On the untouched holdout, the memoryless baseline recorded 25 truth errors, 3 false switches and 4 switches; the hysteretic focus annotation recorded 22 truth errors, 1 false switch and 1 switch. Both arms had maximum observed transition latency 8 and maximum token count 2,042, within the 2,048-token budget.
+
+All five preregistered FL-4E hypotheses were reported as supported for this declared workload. This result is scoped to the pinned runtime, corpus, schedules, budget and protocol. It does **not** establish downstream LLM-task improvement, universal cognitive advantage or physical magnetic equivalence, and it does not alter CCOS working-set membership.
+
+See [`docs/FL-4E-RESULT.md`](docs/FL-4E-RESULT.md). FieldLab may now widen external FL-4 replication or begin FL-5 only with explicit NoiseLab-compatible perturbation baselines and without reusing this holdout for tuning.
+
+## Earlier results
+
+### FL-4D — native temporal CCOS trace acquisition
 
 FL-4D acquired time-ordered scored working-set snapshots from the actual pinned `Memorithm/CCOS-Core@a3c4d7e03744430c74dc337463ff3e944b4933ad` runtime on CCOS's real top-level `src/*.rs` corpus. The 24-observation calibration and 24-observation holdout schedules were frozen before execution.
 
@@ -56,10 +68,6 @@ Two complete acquisitions from fresh workspaces were semantically identical and 
 All five FL-4D hypotheses are supported: exact temporal replay, stimulus sensitivity, hard-budget preservation, finite native score availability and representation of all four frozen anchors.
 
 See [`prereg/FL-4D.md`](prereg/FL-4D.md), [`docs/FL-4D-RESULT.md`](docs/FL-4D-RESULT.md), and [`results/FL-4D-native-temporal-ccos.json`](results/FL-4D-native-temporal-ccos.json).
-
-FL-4 remains open for one reason: a real external **comparative operator ablation** is still required. Any next field variant must calibrate only on a declared calibration trace, freeze its parameters, preserve the native 2,048-token budget and evaluate once on a new untouched holdout workload.
-
-## Earlier results
 
 ### FL-4C — external CCOS runtime replay gate
 
@@ -122,7 +130,7 @@ See [`docs/FL-1-RESULT.md`](docs/FL-1-RESULT.md).
 The historical model used by FL-0 through FL-3 is now explicitly named **FL-E0**:
 
 ```text
-E0(M, x) = -Σ_i h_i(x)·m_i - Σ_{ {i,j}∈E } J_ij m_i·m_j
+E0(M, x) = -Σ_i h_i(x)·m_i -Σ_{ {i,j}∈E } J_ij m_i·m_j
 H_i_eff  = -∂E0/∂m_i
 ṁ_i     = η (I - m_i m_iᵀ) H_i_eff
 ```
