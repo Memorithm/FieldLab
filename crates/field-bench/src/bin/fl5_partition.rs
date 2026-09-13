@@ -9,7 +9,7 @@ enum Partition {
     Holdout,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, PartialEq, Eq, Serialize)]
 struct PartitionRecord {
     case_id: String,
     sha256: String,
