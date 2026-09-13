@@ -1,6 +1,6 @@
 use serde::Serialize;
 use sha2::{Digest, Sha256};
-use std::env;
+use std::{collections::BTreeSet, env};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -45,6 +45,20 @@ fn partition_case(case_id: &str) -> Result<PartitionRecord, &'static str> {
     })
 }
 
+fn partition_cases(case_ids: &[String]) -> Result<Vec<PartitionRecord>, &'static str> {
+    let mut seen = BTreeSet::new();
+    let mut records = Vec::with_capacity(case_ids.len());
+
+    for case_id in case_ids {
+        if !seen.insert(case_id.as_str()) {
+            return Err("duplicate case identifier is not allowed");
+        }
+        records.push(partition_case(case_id)?);
+    }
+
+    Ok(records)
+}
+
 fn main() {
     let case_ids: Vec<String> = env::args().skip(1).collect();
     if case_ids.is_empty() {
@@ -52,16 +66,13 @@ fn main() {
         std::process::exit(2);
     }
 
-    let mut records = Vec::with_capacity(case_ids.len());
-    for case_id in case_ids {
-        match partition_case(&case_id) {
-            Ok(record) => records.push(record),
-            Err(message) => {
-                eprintln!("invalid case identifier: {message}");
-                std::process::exit(2);
-            }
+    let records = match partition_cases(&case_ids) {
+        Ok(records) => records,
+        Err(message) => {
+            eprintln!("invalid FL-5 case set: {message}");
+            std::process::exit(2);
         }
-    }
+    };
 
     match serde_json::to_string_pretty(&records) {
         Ok(json) => println!("{json}"),
@@ -74,7 +85,7 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
-    use super::{partition_case, Partition};
+    use super::{partition_case, partition_cases, Partition};
 
     #[test]
     fn partition_is_stable_for_known_case_ids() {
@@ -96,5 +107,26 @@ mod tests {
     #[test]
     fn empty_case_id_is_rejected() {
         assert_eq!(partition_case(""), Err("case identifier must not be empty"));
+    }
+
+    #[test]
+    fn duplicate_case_ids_are_rejected_fail_closed() {
+        let cases = vec![
+            "case-a".to_owned(),
+            "case-b".to_owned(),
+            "case-a".to_owned(),
+        ];
+        assert_eq!(
+            partition_cases(&cases),
+            Err("duplicate case identifier is not allowed")
+        );
+    }
+
+    #[test]
+    fn unique_case_set_preserves_declared_order() {
+        let cases = vec!["case-b".to_owned(), "case-a".to_owned()];
+        let records = partition_cases(&cases).unwrap();
+        assert_eq!(records[0].case_id, "case-b");
+        assert_eq!(records[1].case_id, "case-a");
     }
 }
