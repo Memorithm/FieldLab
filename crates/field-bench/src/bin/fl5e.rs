@@ -184,6 +184,7 @@ struct FixtureInfo {
 }
 
 #[derive(Clone, Debug, Serialize)]
+#[allow(clippy::struct_field_names)]
 struct HypothesisReport {
     h5e_0_selective_gate: Check,
     h5e_1_safe_escape: Check,
@@ -234,6 +235,7 @@ struct ExperimentArtifact {
 }
 
 #[derive(Clone, Debug)]
+#[allow(clippy::struct_excessive_bools)]
 struct TrialResult {
     terminal_pattern: Vec<i8>,
     target_angle_error: f64,
@@ -825,7 +827,7 @@ fn ambiguity_summary(
     Ok((angles[0].0, angles[1].1 - angles[0].1))
 }
 
-#[allow(clippy::too_many_arguments)]
+#[allow(clippy::too_many_arguments, clippy::too_many_lines)]
 fn evaluate_arm(
     bank: &PatternBank,
     model: &EnergyModel,
@@ -956,6 +958,7 @@ fn evaluate_arm(
     Ok(aggregate)
 }
 
+#[allow(clippy::needless_range_loop)]
 fn run_two_stage_trial(
     bank: &PatternBank,
     model: &EnergyModel,
@@ -1234,6 +1237,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::float_cmp)]
     fn frozen_grid_matches_preregistration() {
         assert_eq!(AMPLITUDES, [0.25, 0.50]);
         assert_eq!(OU_THETAS, [0.5, 2.0]);
