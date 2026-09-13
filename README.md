@@ -17,7 +17,7 @@ The **FL series is the authoritative line of development and experimentation for
 | **FL-2** | **Competing hypotheses, signed coupling & frustration** | ✅ Completed | Do attraction and repulsion help resolve controlled contradictory evidence rather than merely creating instability? | Matched competition controls and analytic three-way frustration reference executed. |
 | **FL-3** | **Hysteresis & context switching** | ✅ Completed | Can path dependence retain useful cognitive state without unacceptable lock-in? | Retention benefit and switching cost characterized under a frozen context-switch protocol. |
 | **FL-4** | **CCOS field mapping** | ✅ First external comparative gate completed through FL-4E | Is CCOS causal pressure/heat usefully representable as a discrete field, and do extra field operators improve bounded context selection? | Fixed or externally grounded CCOS traces replayed; native CCOS vs field variants compared at identical budget while preserving auditability. |
-| **FL-5** | **Resonance, perturbation & stochastic exploration** | 🟡 FL-5 through FL-5E executed; deterministic basin-lifetime gate next | Can controlled perturbation improve basin escape, recall or ambiguity resolution under clean-cue safety? | A stable deterministic evaluation horizon must first be characterized; only then may perturbation efficacy be judged against matched no-noise and surrogate controls. |
+| **FL-5** | **Resonance, perturbation & stochastic exploration** | 🟡 FL-5 through FL-5F executed; deterministic horizon drift characterized | Can controlled perturbation improve basin escape, recall or ambiguity resolution under clean-cue safety? | Future stochastic gates must declare horizon semantics explicitly and separate perturbation effects from deterministic basin drift. |
 | **FL-6** | **Sparse, low-rank & multiscale field scaling** | ⚪ Planned — not authorized by FL-5 efficacy | Can useful dense interaction be retained without assuming scalable `O(N²)` coupling? | Approximation error and interaction/runtime scaling reported separately against a dense reference. |
 | **FL-7** | **Learned fields & adaptive couplings** | ⚪ Planned | Which field parameters can be learned without obscuring reference semantics or provenance? | Explicit train/validation/test split; learned model beats fixed-rule baselines and remains inspectable. |
 | **FL-8** | **Bounded cognitive tasks** | ⚪ Planned | Do validated field primitives improve memory/reasoning tasks rather than only toy energy objectives? | Pre-registered synthetic cognitive tasks pass matched-baseline criteria before LLM-agent claims are allowed. |
@@ -36,9 +36,9 @@ FL-3  hysteresis / temporal persistence        ✅
   ↓
 FL-4  CCOS field mapping                       ✅ FL-4A/4B/4C/4D/4E validated; wider external replication remains optional
   ↓
-FL-5  resonance / noise-assisted exploration   🟡 FL-5/5B/5C/5D/5E executed; deterministic basin-lifetime characterization next
+FL-5  resonance / noise-assisted exploration   🟡 FL-5/5B/5C/5D/5E/5F executed; horizon drift must constrain the next gate
   ↓
-FL-6  scalable coupling structures             ⚪ blocked as an efficacy progression until FL-5's horizon semantics are stable
+FL-6  scalable coupling structures             ⚪ blocked as an efficacy progression until FL-5 demonstrates a qualified benefit under stable horizon semantics
   ↓
 FL-7  learned field parameters
   ↓
@@ -47,13 +47,23 @@ FL-8  bounded cognitive computation
 FL-9  optional physical correspondence
 ```
 
-## Latest completed result: FL-5E ambiguity-gated strong perturbation
+## Latest completed result: FL-5F deterministic basin-lifetime and horizon stability
+
+FL-5F executed the preregistered deterministic horizon audit on the frozen 8-node fixture through 1,024 field steps. The three clean cases and six frozen wrong-basin cases were evaluated at checkpoints from step 0 through 1,024 with exact deterministic replay, finite metrics, unit-norm validation and complete checkpoint coverage.
+
+The common clean and wrong-basin stability interval extends through step `144`, so the largest common preregistered stable checkpoint is `128`. H5F-0 (the 128-step reference gate) and H5F-4 (deterministic replay) are supported. H5F-1 (clean permanence), H5F-2 (wrong-basin permanence), and H5F-3 (128→256 invariance) are **not supported**. Clean non-P0 cases and the exact P1/P2 wrong-basin cases targeting P0 change basin at step `145`; the remaining wrong-basin fixtures enter P0 by step `61`.
+
+The result constrains the interpretation of FL-5E and future stochastic gates: a 128-step endpoint is valid for this fixture but is not a permanence guarantee. Future perturbation experiments must either preregister and verify deterministic residence semantics for their selected horizon or measure residence/transition time directly. FL-5F does not establish stochastic efficacy, noise benefit, hardware performance, biological correspondence, LLM quality or FL-6 authorization.
+
+See [`docs/FL-5F-RESULT.md`](docs/FL-5F-RESULT.md), [`prereg/FL-5F.md`](prereg/FL-5F.md), and [`results/FL-5F-deterministic-basin-lifetime.json`](results/FL-5F-deterministic-basin-lifetime.json).
+
+## Earlier completed result: FL-5E ambiguity-gated strong perturbation
 
 FL-5E preregistered a target-agnostic state-dependent perturbation gate intended to test whether strong OU noise could be restricted to intrinsically ambiguous states and thereby avoid the global safety/escape trade-off observed in FL-5B/C/D. The gate uses only the angular gap between the two nearest stored templates after a 128-step deterministic Stage A; it does not read the declared target label. Every arm then receives a matched 128-step continuation.
 
 Calibration selected OU amplitude `0.25`, theta `2.0`, ambiguity threshold `tau=0.35`. On untouched holdout, D0, selected GATED-OU, PERM-GATED-OU and GLOBAL-OU all recovered exactly `1/3` of wrong-basin targets. Selected GATED-OU preserved matched D0 clean recall (`0.25`) and reduced median target-angle error (`0.710378 -> 0.689126`), but it did **not** improve terminal recovery, did not beat the temporal-permutation control, and did not beat global OU on the declared terminal metrics. H5E-0 and H5E-4 were supported; H5E-1, H5E-2 and H5E-3 were not.
 
-The more important finding is deterministic horizon dependence. FL-5D used 128 total field steps; FL-5E uses `128 + 128` matched steps. At the 128-step boundary all six wrong-basin cases still end in their declared competitor, but over the second deterministic stage D0 itself recovers `1/3` of holdout wrong-basin cases, while exact clean-cue holdout recall falls to `0.25`. The H=2/2/4 fixture is therefore not an indefinitely stable discrete-attractor benchmark over this longer horizon. The next FL-5 gate must characterize deterministic basin residence times and transition structure before another stochastic efficacy sweep.
+The more important finding is deterministic horizon dependence. FL-5D used 128 total field steps; FL-5E uses `128 + 128` matched steps. At the 128-step boundary all six wrong-basin cases still end in their declared competitor, but over the second deterministic stage D0 itself recovers `1/3` of holdout wrong-basin cases, while exact clean-cue holdout recall falls to `0.25`. The H=2/2/4 fixture is therefore not an indefinitely stable discrete-attractor benchmark over this longer horizon. FL-5F subsequently characterized this deterministic basin-residence behavior directly.
 
 See [`docs/FL-5E-RESULT.md`](docs/FL-5E-RESULT.md), [`prereg/FL-5E.md`](prereg/FL-5E.md), and [`results/FL-5E-ambiguity-gated-strong-perturbation.json`](results/FL-5E-ambiguity-gated-strong-perturbation.json).
 
@@ -214,6 +224,7 @@ cargo run -p field-bench --bin fl5b
 cargo run -p field-bench --bin fl5c
 cargo run -p field-bench --bin fl5d
 cargo run -p field-bench --bin fl5e
+cargo run -p field-bench --bin fl5f
 cargo run -p field-bench --bin fle1
 cargo run -p field-bench --bin fle2
 ```

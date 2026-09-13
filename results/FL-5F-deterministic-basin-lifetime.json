@@ -1,0 +1,54 @@
+{
+  "schema_version": "fieldlab.fl5f.result.v1",
+  "experiment": "FL-5F",
+  "status": "QUALIFIED_DETERMINISTIC_HORIZON_AUDIT",
+  "scope": "frozen 8-node deterministic basin-lifetime fixture",
+  "provenance": {
+    "qualified_pr_head_sha": "53bae819cb42a633fd9447288d68bfdd0ca4eb51",
+    "merged_main_sha": "38f26de6b453332daf2d759548d08f5ecf483ca6",
+    "ci_merge_ref_sha": "eae00c9cf0b3d9f1d1ec53fb7ba212709614b2e6",
+    "artifact_name": "fieldlab-fl5f-eae00c9cf0b3d9f1d1ec53fb7ba212709614b2e6",
+    "artifact_sha256": "0371bf17f0e3b92f3146261eb50eccbe706c774c61a6a5ad8c662c1f8cb4e8c8"
+  },
+  "frozen_constants": {
+    "node_count": 8,
+    "max_steps": 1024,
+    "field_dt": 0.05,
+    "field_mobility": 1.0,
+    "cue_tilt_radians": 0.15,
+    "checkpoints": [0, 16, 32, 64, 96, 128, 160, 192, 224, 256, 320, 384, 512, 768, 1024]
+  },
+  "aggregate": {
+    "clean_common_stable_through": 144,
+    "wrong_common_competitor_through": 144,
+    "benchmark_common_stable_through": 144,
+    "largest_stable_checkpoint": 128,
+    "all_numeric_finite": true,
+    "all_unit_norm_valid": true,
+    "all_checkpoints_present": true,
+    "case_set_exact": true,
+    "replay_equal": true,
+    "protocol_valid": true
+  },
+  "hypotheses": {
+    "H5F-0_reference_128": "SUPPORTED",
+    "H5F-1_clean_permanence": "NOT_SUPPORTED",
+    "H5F-2_wrong_basin_permanence": "NOT_SUPPORTED",
+    "H5F-3_128_256_invariance": "NOT_SUPPORTED",
+    "H5F-4_deterministic_replay": "SUPPORTED"
+  },
+  "observed_transition_summary": {
+    "clean_non_p0_exit_step": 145,
+    "exact_wrong_basin_p0_target_competitor_exit_step": 145,
+    "other_wrong_basin_p0_entry_step": 61
+  },
+  "claims_excluded": [
+    "stochastic efficacy",
+    "noise-assisted improvement",
+    "hardware performance",
+    "biological correspondence",
+    "LLM quality",
+    "FL-6 authorization",
+    "generalization beyond the frozen fixture"
+  ]
+}
