@@ -1,0 +1,123 @@
+{
+  "experiment": "FL-5E",
+  "protocol": "ambiguity-gated-strong-perturbation-v1",
+  "source": {
+    "branch_head": "3ab5eaa770bdf2d09dd92081512e581cc8ce2de2",
+    "actions_pull_merge_sha": "fef4833eed06ba1eb89a936b54896444635ecd14",
+    "raw_actions_json_sha256": "b7fe0ec5b3a0e21639d2719b99cac9b11857c1d7a9602de20d6aa957a3cdae0c",
+    "actions_artifact_id": 10323731305,
+    "actions_zip_digest": "sha256:d71e93187e27cd69e6c3461c0f5442147f9a985cbe09c384ba3fff2bf5cfc6b7",
+    "noiselab_commit": "8cd8f23eea2f5f0b6e4b52b6240241d9cbee4a4e",
+    "provenance_fingerprint": "fnv1a64:0bd63c7aa45e0f8a"
+  },
+  "fixture": {
+    "patterns": "correlated H=2/2/4 three-pattern bank",
+    "stage_a_steps": 128,
+    "stage_b_steps": 128,
+    "total_steps": 256,
+    "wrong_basin_cases": 6,
+    "clean_cue_cases": 6,
+    "calibration_wrong_basin": 3,
+    "holdout_wrong_basin": 3,
+    "calibration_clean": 2,
+    "holdout_clean": 4,
+    "all_wrong_stage_a_end_competitor": true,
+    "calibration_gate_constructible": true,
+    "holdout_gate_constructible": true
+  },
+  "selected_condition": {
+    "amplitude": 0.25,
+    "ou_theta": 2.0,
+    "gate_threshold": 0.35
+  },
+  "calibration": {
+    "d0": {
+      "target_recovery_fraction": 0.3333333333333333,
+      "left_wrong_basin_fraction": 0.3333333333333333,
+      "clean_recall_fraction": 0.5,
+      "median_target_angle_error": 0.7103778934176321,
+      "mean_first_passage_time": 145.0
+    },
+    "selected_gated_ou": {
+      "target_recovery_fraction": 0.3333333333333333,
+      "left_wrong_basin_fraction": 0.3333333333333333,
+      "clean_recall_fraction": 0.5,
+      "gate_on_wrong_fraction": 1.0,
+      "gate_on_clean_fraction": 0.5,
+      "median_target_angle_error": 0.6982042440803067,
+      "mean_first_passage_time": 158.625
+    }
+  },
+  "holdout": {
+    "d0": {
+      "target_recovery_fraction": 0.3333333333333333,
+      "competing_terminal_fraction": 0.6666666666666666,
+      "left_wrong_basin_fraction": 0.3333333333333333,
+      "clean_recall_fraction": 0.25,
+      "gate_on_wrong_fraction": 0.0,
+      "gate_on_clean_fraction": 0.0,
+      "median_target_angle_error": 0.7103778934176319,
+      "mean_first_passage_time": 145.0
+    },
+    "selected_gated_ou": {
+      "target_recovery_fraction": 0.3333333333333333,
+      "competing_terminal_fraction": 0.6666666666666666,
+      "left_wrong_basin_fraction": 0.3333333333333333,
+      "clean_recall_fraction": 0.25,
+      "clean_degradation_vs_d0": 0.0,
+      "gate_on_wrong_fraction": 1.0,
+      "gate_on_clean_fraction": 0.75,
+      "noise_applied_wrong_fraction": 1.0,
+      "noise_applied_clean_fraction": 0.75,
+      "median_target_angle_error": 0.6891259694914537,
+      "mean_first_passage_time": 147.125
+    },
+    "perm_gated_ou": {
+      "target_recovery_fraction": 0.3333333333333333,
+      "clean_recall_fraction": 0.25,
+      "gate_on_wrong_fraction": 1.0,
+      "gate_on_clean_fraction": 0.75,
+      "median_target_angle_error": 0.7082406854086367,
+      "mean_first_passage_time": 153.25
+    },
+    "global_ou": {
+      "target_recovery_fraction": 0.3333333333333333,
+      "clean_recall_fraction": 0.25,
+      "noise_applied_wrong_fraction": 1.0,
+      "noise_applied_clean_fraction": 1.0,
+      "median_target_angle_error": 0.6891259694914537,
+      "mean_first_passage_time": 147.125
+    }
+  },
+  "hypotheses": {
+    "H5E_0_selective_gate": true,
+    "H5E_1_safe_escape": false,
+    "H5E_2_gating_benefit": false,
+    "H5E_3_temporal_structure": false,
+    "H5E_4_reproducibility": true
+  },
+  "validity": {
+    "preregistered_grid_used": true,
+    "holdout_excluded_from_selection": true,
+    "hard_clean_cue_filter_applied": true,
+    "target_label_not_used_by_gate": true,
+    "matched_two_stage_budget": true,
+    "new_case_namespace": true,
+    "panels_disjoint": true,
+    "both_partitions_wrong_nonempty": true,
+    "both_partitions_clean_nonempty": true,
+    "wrong_stage_a_competitor_gate": true,
+    "gate_constructible_both_partitions": true,
+    "all_metrics_finite": true,
+    "replay_exact": true,
+    "protocol_valid": true
+  },
+  "interpretation": {
+    "terminal_recovery_improved_over_d0": false,
+    "structured_ou_outperformed_permutation": false,
+    "gating_outperformed_global_ou_on_declared_terminal_metrics": false,
+    "median_target_angle_improved_vs_d0": true,
+    "horizon_dependence_observed": true,
+    "note": "FL-5D used 128 total field steps; FL-5E uses a matched 128-step deterministic Stage A plus 128-step continuation. At 256 total steps D0 already recovers one third of holdout wrong-basin cases and retains only one quarter of holdout exact clean cues. This exposes deterministic basin-lifetime/horizon instability that must be characterized before another stochastic efficacy claim."
+  }
+}
