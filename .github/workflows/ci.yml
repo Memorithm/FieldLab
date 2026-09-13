@@ -124,3 +124,25 @@ jobs:
           name: fieldlab-fl4-${{ github.sha }}
           path: results/ci/fl4.json
           if-no-files-found: error
+
+  fl5e:
+    name: FL-5E ambiguity-gated strong perturbation
+    needs: fl0
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Rust toolchain
+        run: |
+          rustup toolchain install nightly-2026-07-02 --profile minimal
+          rustup override set nightly-2026-07-02
+      - name: Execute FL-5E campaign
+        run: |
+          mkdir -p results/ci
+          cargo run -p field-bench --bin fl5e > results/ci/fl5e.json
+          cat results/ci/fl5e.json
+      - name: Retain FL-5E evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: fieldlab-fl5e-${{ github.sha }}
+          path: results/ci/fl5e.json
+          if-no-files-found: error
