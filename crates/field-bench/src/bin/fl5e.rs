@@ -528,8 +528,7 @@ fn run_experiment() -> Result<ExperimentArtifact, Box<dyn Error>> {
             selected.clean_recall_fraction > global.clean_recall_fraction
                 && selected.target_recovery_fraction + f64::EPSILON
                     >= global.target_recovery_fraction,
-            selected.target_recovery_fraction
-                > perm.target_recovery_fraction + f64::EPSILON,
+            selected.target_recovery_fraction > perm.target_recovery_fraction + f64::EPSILON,
         ),
         _ => (false, false, false, false),
     };
@@ -792,11 +791,9 @@ fn panels_disjoint(wrong: &[CaseRecord], clean: &[CaseRecord]) -> bool {
 }
 
 fn gate_constructible(cases: &[CaseRecord]) -> bool {
-    GATE_THRESHOLDS.iter().any(|tau| {
-        cases
-            .iter()
-            .any(|case| case.stage_a_ambiguity_gap <= *tau)
-    })
+    GATE_THRESHOLDS
+        .iter()
+        .any(|tau| cases.iter().any(|case| case.stage_a_ambiguity_gap <= *tau))
 }
 
 fn deterministic_settle(
@@ -812,7 +809,10 @@ fn deterministic_settle(
     Ok(state)
 }
 
-fn ambiguity_summary(bank: &PatternBank, state: &FieldState) -> Result<(usize, f64), Box<dyn Error>> {
+fn ambiguity_summary(
+    bank: &PatternBank,
+    state: &FieldState,
+) -> Result<(usize, f64), Box<dyn Error>> {
     let mut angles = Vec::with_capacity(bank.patterns().len());
     for (index, pattern) in bank.patterns().iter().enumerate() {
         let template = bank.encode_cue(pattern, CUE_TILT_RADIANS)?;
@@ -977,7 +977,8 @@ fn run_two_stage_trial(
     let target_state = bank.encode_cue(target, CUE_TILT_RADIANS)?;
     let competitor = case.competitor_index.map(|index| &bank.patterns()[index]);
     let mut first_passage = None;
-    let mut left_wrong = competitor.is_some_and(|comp| bank.decode_state(&state).ok().as_ref() != Some(comp));
+    let mut left_wrong =
+        competitor.is_some_and(|comp| bank.decode_state(&state).ok().as_ref() != Some(comp));
     let mut finite = state
         .nodes()
         .iter()
@@ -1210,8 +1211,8 @@ fn fnv1a64(bytes: &[u8]) -> u64 {
 #[cfg(test)]
 mod tests {
     use super::{
-        partition_case, temporal_permutation, CaseRecord, Partition, AMPLITUDES,
-        CLEAN_CUE_IDS, GATE_THRESHOLDS, OU_THETAS, SEEDS, STAGE_STEPS,
+        partition_case, temporal_permutation, CaseRecord, Partition, AMPLITUDES, CLEAN_CUE_IDS,
+        GATE_THRESHOLDS, OU_THETAS, SEEDS, STAGE_STEPS,
     };
 
     fn placeholder(id: &str) -> CaseRecord {
