@@ -1,6 +1,6 @@
 #![forbid(unsafe_code)]
 
-use field_core::{EnergyModel, FieldModel, FieldState};
+use field_core::{EnergyModel, FieldState};
 use field_dynamics::{heun_step, IntegratorConfig};
 use field_memory::PatternBank;
 use serde::Serialize;
@@ -98,6 +98,7 @@ struct CaseReport {
     finite: bool,
 }
 
+#[allow(clippy::struct_excessive_bools)]
 #[derive(Clone, Debug, PartialEq, Serialize)]
 struct Campaign {
     cases: Vec<CaseReport>,
@@ -115,6 +116,7 @@ struct Campaign {
     case_set_exact: bool,
 }
 
+#[allow(clippy::struct_field_names)]
 #[derive(Clone, Debug, Serialize)]
 struct HypothesisReport {
     h5f_0_reference_128: Check,
@@ -502,7 +504,7 @@ fn build_segments(labels: &[String]) -> Vec<Segment> {
                 start_step: start,
                 end_step: step - 1,
             });
-            current = label.clone();
+            current.clone_from(label);
             start = step;
         }
     }
