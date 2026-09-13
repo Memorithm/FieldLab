@@ -46,12 +46,18 @@ The surrogate arms test whether an observed effect depends on temporal structure
 
 ## Calibration / holdout separation
 
-Eligible cases are split deterministically by stable case identifier before any perturbation result is inspected:
+Eligible cases are split deterministically by stable case identifier before any perturbation result is inspected.
 
-- calibration: identifiers hashing to the first half of the declared partition;
-- holdout: identifiers hashing to the second half.
+The partition function is frozen as follows:
 
-The exact partition function and case IDs must be written into the result artifact. Holdout outcomes may not choose perturbation family, amplitude, OU correlation parameter, horizon or seed set.
+1. encode the case identifier as its exact UTF-8 byte sequence;
+2. compute SHA-256 over those bytes;
+3. assign **calibration** when the first digest byte is `< 0x80`;
+4. assign **holdout** when the first digest byte is `>= 0x80`.
+
+The executable `field-bench --bin fl5_partition` materializes this rule and emits the exact case identifier, full SHA-256 digest and assigned partition. The experiment executable must preserve the same case-identifier bytes in its result artifact; changing case-ID serialization after outcomes are observed is prohibited and requires a preregistration revision.
+
+Holdout outcomes may not choose perturbation family, amplitude, OU correlation parameter, horizon or seed set.
 
 ## Frozen calibration grid
 
