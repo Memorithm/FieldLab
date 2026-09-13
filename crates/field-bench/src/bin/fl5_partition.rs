@@ -76,7 +76,7 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
-    use super::{Partition, partition_case};
+    use super::{partition_case, Partition};
 
     #[test]
     fn partition_is_stable_for_known_case_ids() {
