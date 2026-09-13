@@ -111,7 +111,11 @@ mod tests {
 
     #[test]
     fn duplicate_case_ids_are_rejected_fail_closed() {
-        let cases = vec!["case-a".to_owned(), "case-b".to_owned(), "case-a".to_owned()];
+        let cases = vec![
+            "case-a".to_owned(),
+            "case-b".to_owned(),
+            "case-a".to_owned(),
+        ];
         assert_eq!(
             partition_cases(&cases),
             Err("duplicate case identifier is not allowed")
