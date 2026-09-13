@@ -1,0 +1,194 @@
+# FL-5C — Non-empty holdout clean-cue basin escape gate
+
+Status: **preregistered before FL-5C execution**; numeric grid, fixture, frozen clean-cue identifier list (partition-balanced by identifier hash only), hard clean-cue filter and hypotheses frozen with the introducing executable.
+
+## Question
+
+Can a hard-clean-cue-filtered perturbation still raise wrong-basin holdout recovery above D0, and is holdout clean-cue degradation within the H5-2 tolerance, when the clean-cue panel is large enough that **both** partition sides are non-empty?
+
+## Motivation and anti-leakage relative to FL-5 / FL-5B
+
+FL-5 supported H5-1 under OU amp `1.5` / θ `2.0` but failed H5-2 (clean-cue holdout recall collapsed). FL-5B applied a hard clean-cue calibration filter on a strictly smaller amplitude grid under namespace `fl5b|…`, but all three natural clean IDs hashed into calibration, leaving an **empty holdout clean-cue panel**, so H5B-3 was only vacuously within tolerance.
+
+FL-5C therefore:
+
+- keeps the same hard clean-cue filter and the same amplitude grid declared for FL-5B (`[0, 0.05, 0.1, 0.25, 0.5]`, all non-zero values strictly below `1.5`);
+- introduces a new case-id namespace `fl5c|…` so the SHA-256 partition cannot leak FL-5 or FL-5B holdout assignments;
+- **freezes, before any dynamics**, a clean-cue identifier list whose SHA-256 first-byte partition yields **≥2 clean cases on each side** (identifier-only precomputation; not outcome leakage);
+- requires eligible wrong-basin cases on **both** partitions as well, so the gate is not vacuous on either side.
+
+FL-5C does **not**:
+
+- inspect or reuse FL-5 / FL-5B recovery numbers to choose amplitudes, θ, seeds, family or to drop IDs after seeing recoveries;
+- retune on the FL-5 or FL-5B holdouts;
+- reuse FL-5 or FL-5B case-identifier strings;
+- relax the hard clean-cue filter after seeing holdout.
+
+Negative and mixed FL-5 / FL-5B outcomes remain constraints, not license to weaken validity gates.
+
+## External perturbation reference
+
+Identical NoiseLab pin as FL-5 / FL-5B:
+
+- repository: `Memorithm/NoiseLab`;
+- commit: `8cd8f23eea2f5f0b6e4b52b6240241d9cbee4a4e`;
+- compatible seeded Gaussian / Ornstein–Uhlenbeck / temporal-permutation definitions only — FieldLab does not copy NoiseLab code.
+
+PERM-* arms remain FieldLab temporal permutations of the same generated samples.
+
+## Frozen system under test
+
+Same FL-1 associative-memory field model path as FL-5 / FL-5B:
+
+1. construct the deterministic field model from the frozen Hebbian bank;
+2. select a target and declared competing memory;
+3. create a cue that falls into the competing/wrong basin under D0;
+4. replay under each frozen perturbation condition;
+5. decode only at the common terminal horizon.
+
+Cases that do not enter the declared wrong basin under zero-noise D0 are ineligible and reported, never counted as escapes.
+
+## Arms
+
+Every eligible case uses the same integrator, time step and horizon:
+
+- **D0 — deterministic reference:** no perturbation;
+- **G — seeded Gaussian perturbation;**
+- **OU — seeded Ornstein–Uhlenbeck perturbation;**
+- **PERM-G — Gaussian surrogate** (same samples, frozen temporal permutation);
+- **PERM-OU — OU surrogate** (same samples, frozen temporal permutation).
+
+## Calibration / holdout separation
+
+Reuse the frozen `fl5_partition` rule on the **exact UTF-8 FL-5C case-id bytes**:
+
+1. SHA-256 over UTF-8 case-id;
+2. **calibration** when first digest byte `< 0x80`;
+3. **holdout** when first digest byte `>= 0x80`.
+
+Holdout outcomes may not choose family, amplitude, OU θ, horizon or seed set.
+
+## New case-id namespace
+
+FL-5C case identifiers must not equal any FL-5 or FL-5B identifier string:
+
+- wrong-basin: `fl5c|wb|t{target}|c{competitor}|k{variant}`
+- clean-cue: `fl5c|clean|t{index}|a{alias}` (exact stored-pattern cues; alias distinguishes identifiers so the frozen list can balance partitions)
+
+## Frozen clean-cue identifier list (identifier-only; precomputed before dynamics)
+
+Natural IDs `fl5c|clean|t0`, `fl5c|clean|t1`, `fl5c|clean|t2` all hash to calibration under the frozen partition rule. Before any trajectory integration, the following **exact** six identifiers are frozen so that each stored pattern appears once on each partition side (≥2 clean cases per side; here 3 / 3):
+
+| Case id | Target pattern | Partition (first SHA-256 byte) |
+| --- | --- | --- |
+| `fl5c|clean|t0|a3` | P0 | calibration (`0x5e`) |
+| `fl5c|clean|t0|a0` | P0 | holdout (`0x8a`) |
+| `fl5c|clean|t1|a3` | P1 | calibration (`0x09`) |
+| `fl5c|clean|t1|a0` | P1 | holdout (`0xa9`) |
+| `fl5c|clean|t2|a0` | P2 | calibration (`0x78`) |
+| `fl5c|clean|t2|a1` | P2 | holdout (`0xc4`) |
+
+Cue content for each row is the exact bipolar stored pattern for that target index. Aliases do not alter the cue; they only diversify the UTF-8 identifier so the partition is non-empty on both sides. This list was chosen from identifier hashes alone — not from recovery outcomes.
+
+Wrong-basin IDs under the `fl5c|wb|…` namespace are generated by the same competitor + single differing-bit construction as FL-5B; their partition is accepted as produced by the frozen hash rule (expected non-empty on both sides for the 30-candidate bank).
+
+## Frozen calibration grid
+
+Machine-readable constants in `crates/field-bench/src/bin/fl5c.rs`:
+
+| Constant | Frozen value |
+| --- | --- |
+| `NODE_COUNT` | `8` |
+| `FIELD_STEPS` | `128` |
+| `FIELD_DT` | `0.05` |
+| `FIELD_MOBILITY` | `1.0` |
+| `CUE_TILT_RADIANS` | `0.15` |
+| `AMPLITUDES` | `[0.0, 0.05, 0.1, 0.25, 0.5]` (zero retained as reference; all non-zero values strictly below `1.5`; grid reused from FL-5B declaration, not chosen from FL-5C holdout) |
+| `OU_THETAS` | `[0.5, 2.0, 8.0]` |
+| `SEEDS` | `[1, 2, 3, 5, 8, 13, 21, 34]` (≥8 independent seeds) |
+| `PERM_SEED` | `0x0F15_B005` |
+| NoiseLab commit | `8cd8f23eea2f5f0b6e4b52b6240241d9cbee4a4e` |
+| `CLEAN_CUE_IDS` | the six frozen identifiers above |
+
+Non-zero amplitudes are evaluated for Gaussian and OU; OU additionally sweeps `OU_THETAS`. Surrogates reuse the same samples under the temporal permutation from `PERM_SEED`.
+
+## Hard clean-cue filter and selection (calibration only)
+
+Clean-cue safety tolerance matches FL-5 / FL-5B / H5-2: absolute clean-cue recall degradation versus D0 on the calibration clean-cue panel is at most **1 percentage point**. If the panel is too small for a one-point increment to be representable, use the stricter criterion of **zero additional errors**.
+
+Selection procedure:
+
+1. **Hard filter:** discard every non-zero condition whose calibration clean-cue degradation exceeds the tolerance above.
+2. If **no** non-zero condition survives, that is a **valid negative result**. Report it. Do **not** relax the filter after seeing holdout.
+3. Among survivors, select lexicographically by:
+   1. highest target-recovery fraction among eligible wrong-basin calibration cases;
+   2. lowest median terminal target-angle error;
+   3. lowest perturbation amplitude;
+   4. Gaussian before OU as the final deterministic tie-break.
+
+Zero-amplitude D0 is never selectable as the non-zero condition.
+
+## Frozen fixture
+
+Same bounded FL-1-style Hebbian bank as FL-5 / FL-5B, with the new case-id namespace and frozen clean-cue list:
+
+- patterns (8 bipolar symbols):
+  - `P0 = [+1,+1,+1,+1,+1,+1,+1,+1]`
+  - `P1 = [+1,+1,+1,+1,-1,-1,-1,-1]`
+  - `P2 = [+1,+1,-1,-1,+1,+1,-1,-1]`
+- **wrong-basin panel:** for every ordered pair `(target, competitor)` with `target != competitor`, include the exact competitor cue and each single differing-bit flip of the competitor toward the target (`k0..`). Only D0-terminal-competitor trajectories are eligible.
+- **clean-cue panel:** exactly the six frozen `CLEAN_CUE_IDS` above (exact stored patterns), required disjoint from wrong-basin ids, with ≥2 cases on each partition side.
+
+Sized for CI while producing non-empty eligible wrong-basin sets under D0 on **both** partitions and non-empty clean-cue panels on **both** partitions.
+
+## Metrics
+
+Report calibration and holdout separately, with per-seed distributions:
+
+- eligible wrong-basin cases (counts per partition);
+- target recoveries / eligible cases;
+- competing-memory terminal selections;
+- unresolved terminal states;
+- terminal target-angle error;
+- first-passage time into the target basin when it occurs;
+- fraction of trajectories leaving the initial wrong basin;
+- clean-cue recall accuracy on the separate panel (counts per partition; both sides must be non-empty);
+- clean-cue terminal target-angle error;
+- whether any condition survived the hard clean-cue filter;
+- selected family / amplitude / OU θ (or explicit none);
+- perturbation seeds;
+- exact FieldLab commit and NoiseLab reference commit.
+
+## Preregistered hypotheses
+
+- **H5C-0 (null):** either no non-zero condition survives the calibration clean-cue filter, or the selected condition does not increase untouched-holdout target-recovery fraction over D0.
+- **H5C-1 (safe escape):** at least one non-zero condition survives the calibration clean-cue filter, and the selected condition increases untouched-holdout target-recovery fraction over D0.
+- **H5C-2 (structured-noise control):** if a condition is selected and it is OU, holdout target-recovery under ordered OU must exceed PERM-OU; if Gaussian is selected, the result must not be interpreted as temporal-structure evidence (Gaussian and PERM-G share intended independence structure) — H5C-2 is then recorded as supported only for the Gaussian non-structure caveat path.
+- **H5C-3 (holdout clean-cue):** if a condition is selected, absolute holdout clean-cue recall degradation versus D0 is at most the same tolerance used in the hard filter (≤1 percentage point, or zero additional errors if the panel is too small). Because both clean panels are required non-empty, H5C-3 is **not** vacuously true due to an empty holdout clean panel. If none survive the filter, H5C-3 is not supported.
+- **H5C-4 (reproducibility):** rerunning an identical `(case, arm, seed)` tuple produces the identical retained trajectory/result under the deterministic software environment.
+
+H5C-1 may fail while the experiment remains valid. A failure is retained as evidence and constrains continuation of FL-5. This gate does **not** authorize FL-6.
+
+## Anti-leakage and validity gates
+
+Fail closed if any of the following occurs:
+
+- holdout data influences grid selection or filter relaxation;
+- FL-5 / FL-5B recovery outcomes are used to pick amplitudes / θ / seeds or to drop IDs after seeing recoveries;
+- D0 differs in model, integrator, time step or horizon from a perturbed arm;
+- an ineligible case is silently counted as a successful escape;
+- perturbation seeds are not recorded;
+- a non-finite state or metric is produced;
+- clean-cue and wrong-basin panels overlap when declared independent;
+- either partition has fewer than 2 clean-cue cases, or either partition has zero eligible wrong-basin cases;
+- the NoiseLab reference commit is omitted or differs from the frozen value without a new preregistration revision;
+- an arm receives additional integration steps or compute budget solely because it is noisy;
+- FL-5 or FL-5B case-identifier strings are reused.
+
+## Interpretation boundary
+
+A positive H5C-1 result would show only that a perturbation surviving a hard clean-cue calibration filter can still raise wrong-basin recovery on this bounded FieldLab fixture under matched simulation conditions with non-empty clean-cue panels on both partition sides, and (when OU is selected and H5C-2 holds) that the ordered temporal structure mattered relative to its PERM surrogate. It would not establish stochastic resonance as a universal cognitive principle, biological correspondence, physical magnetic noise benefit, lower hardware energy, or an LLM-level quality improvement. It does not authorize FL-6.
+
+## Stop condition
+
+FL-5C stops after the executable, frozen constants, frozen clean-cue identifier list, hard clean-cue filter, deterministic calibration/holdout split under the new case-id namespace, zero-noise baseline, seeded perturbation arms, surrogate controls, reproducible result artifact and documentation are green on one exact PR head. No FL-6 claim is required or authorized by this gate.
