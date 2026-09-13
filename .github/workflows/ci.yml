@@ -146,3 +146,25 @@ jobs:
           name: fieldlab-fl5e-${{ github.sha }}
           path: results/ci/fl5e.json
           if-no-files-found: error
+
+  fl5f:
+    name: FL-5F deterministic basin-lifetime audit
+    needs: fl0
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Rust toolchain
+        run: |
+          rustup toolchain install nightly-2026-07-02 --profile minimal
+          rustup override set nightly-2026-07-02
+      - name: Execute FL-5F campaign
+        run: |
+          mkdir -p results/ci
+          cargo run -p field-bench --bin fl5f > results/ci/fl5f.json
+          cat results/ci/fl5f.json
+      - name: Retain FL-5F evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: fieldlab-fl5f-${{ github.sha }}
+          path: results/ci/fl5f.json
+          if-no-files-found: error
