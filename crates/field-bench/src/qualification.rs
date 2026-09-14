@@ -66,7 +66,10 @@ impl AxialHessian {
             }
             lower_bound = lower_bound.min(bound);
         }
-        Ok(Self { matrix, lower_bound })
+        Ok(Self {
+            matrix,
+            lower_bound,
+        })
     }
 
     /// Symmetric angular Hessian, in graph node order.
@@ -97,9 +100,7 @@ impl AxialHessian {
             .matrix
             .iter()
             .zip(direction)
-            .map(|(row, v)| {
-                v * row.iter().zip(direction).map(|(b, w)| b * w).sum::<f64>()
-            })
+            .map(|(row, v)| v * row.iter().zip(direction).map(|(b, w)| b * w).sum::<f64>())
             .sum();
         if !result.is_finite() {
             return Err(QualificationError::NonFinite);
@@ -142,11 +143,18 @@ pub fn group_observables<K: Ord + Clone, L: Ord + Clone>(
     }
     let mut groups: BTreeMap<K, BTreeMap<L, usize>> = BTreeMap::new();
     for (key, label) in records {
-        *groups.entry(key.clone()).or_default().entry(label.clone()).or_default() += 1;
+        *groups
+            .entry(key.clone())
+            .or_default()
+            .entry(label.clone())
+            .or_default() += 1;
     }
     Ok(groups
         .into_iter()
-        .map(|(observable, label_counts)| ObservableGroup { observable, label_counts })
+        .map(|(observable, label_counts)| ObservableGroup {
+            observable,
+            label_counts,
+        })
         .collect())
 }
 
@@ -174,13 +182,24 @@ mod tests {
     use field_core::Coupling;
 
     fn graph(weight: f64) -> CouplingGraph {
-        CouplingGraph::new(2, vec![Coupling { source: 0, target: 1, weight }]).unwrap()
+        CouplingGraph::new(
+            2,
+            vec![Coupling {
+                source: 0,
+                target: 1,
+                weight,
+            }],
+        )
+        .unwrap()
     }
 
     #[test]
     fn global_rotation_is_neutral_without_anisotropy() {
         let h = AxialHessian::new(&graph(1.0), &[1, 1], 0.0).unwrap();
-        assert_eq!(h.quadratic_form(&[1.0, 1.0]).unwrap().to_bits(), 0.0_f64.to_bits());
+        assert_eq!(
+            h.quadratic_form(&[1.0, 1.0]).unwrap().to_bits(),
+            0.0_f64.to_bits()
+        );
         assert_eq!(h.lower_bound().to_bits(), 0.0_f64.to_bits());
     }
 
@@ -226,7 +245,13 @@ mod tests {
     fn contradictory_labels_are_reported_with_accuracy_bound() {
         let groups = group_observables(&[(vec![1], 0), (vec![1], 1), (vec![-1], 1)]).unwrap();
         assert_eq!(groups.iter().filter(|g| g.conflicts()).count(), 1);
-        assert_eq!(groups.iter().map(ObservableGroup::maximum_correct).sum::<usize>(), 2);
+        assert_eq!(
+            groups
+                .iter()
+                .map(ObservableGroup::maximum_correct)
+                .sum::<usize>(),
+            2
+        );
         assert!(group_observables::<Vec<i8>, usize>(&[]).is_err());
     }
 }
