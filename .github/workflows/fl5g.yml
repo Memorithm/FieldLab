@@ -1,0 +1,61 @@
+name: FieldLab FL-5G qualification
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualification:
+    name: FL-5G curvature and identifiable-input qualification
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Rust toolchain
+        run: |
+          rustup toolchain install nightly-2026-07-02 --profile minimal --component rustfmt --component clippy
+          rustup override set nightly-2026-07-02
+      - name: Format check
+        run: cargo fmt --all -- --check
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+      - name: Qualification unit tests
+        run: |
+          cargo test -p field-bench --lib
+          cargo test -p field-bench --bin fl5g
+      - name: Execute full repeated FL-5G campaign
+        run: |
+          mkdir -p results/ci
+          cargo run -p field-bench --bin fl5g > results/ci/fl5g.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          r = json.loads(Path('results/ci/fl5g.json').read_text())
+          print(json.dumps({'hypotheses': r['hypotheses'], 'validity': r['validity'], 'stiffness': r['campaign']['stiffness']}, indent=2))
+          assert r['validity']['protocol_valid'] is True
+          PY
+      - name: Retain evidence even on failed execution gate
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fieldlab-fl5g-${{ github.sha }}
+          path: results/ci/fl5g.json
+          if-no-files-found: warn
+      - name: Collect formatting diagnostics without changing the commit
+        if: failure()
+        run: |
+          mkdir -p results/ci
+          cargo fmt --all
+          git diff -- crates/field-bench/src > results/ci/fl5g-format.patch
+      - name: Retain failed-build formatting diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fieldlab-fl5g-format-${{ github.sha }}
+          path: results/ci/fl5g-format.patch
+          if-no-files-found: warn
