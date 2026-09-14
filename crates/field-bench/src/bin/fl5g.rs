@@ -76,21 +76,30 @@ fn main() -> Result<()> {
     let first = run_campaign()?;
     let replay_equal = first == run_campaign()?;
     let derivative_valid = first.curvature.iter().all(|c| {
-        c.stationary_tangent_residual <= 1e-12
-            && c.maximum_second_difference_error <= FD_TOL
+        c.stationary_tangent_residual <= 1e-12 && c.maximum_second_difference_error <= FD_TOL
     });
-    let numerics_valid = first.trajectories.iter().all(|t| {
-        t.max_norm_squared_error <= NUMERIC_TOL && t.max_energy_increase <= NUMERIC_TOL
-    });
+    let numerics_valid = first
+        .trajectories
+        .iter()
+        .all(|t| t.max_norm_squared_error <= NUMERIC_TOL && t.max_energy_increase <= NUMERIC_TOL);
     let reference_valid = reference_128_valid(&first.trajectories);
-    let certificate = first.curvature.iter().filter(|c| c.stiffness > 0.0)
+    let certificate = first
+        .curvature
+        .iter()
+        .filter(|c| c.stiffness > 0.0)
         .all(|c| c.row_lower_bound > 0.0);
-    let retained = first.trajectories.iter().filter(|t| t.model == "E1")
+    let retained = first
+        .trajectories
+        .iter()
+        .filter(|t| t.model == "E1")
         .all(|t| t.first_exit.is_none() && t.final_max_axial_angle <= 1e-3);
     let protocol_valid = first.trajectories.len() == 180
         && first.curvature.len() == 6
         && first.zero_lift_max_error <= 1e-12
-        && derivative_valid && numerics_valid && reference_valid && replay_equal;
+        && derivative_valid
+        && numerics_valid
+        && reference_valid
+        && replay_equal;
     let report = serde_json::json!({
         "experiment": "FL-5G",
         "protocol": "axial-stability-observable-input-v1",
@@ -139,26 +148,40 @@ fn patterns() -> Vec<Vec<i8>> {
 }
 
 fn model_e1(graph: &CouplingGraph, stiffness: f64) -> Result<OperatorEnergyModel> {
-    let couplings = graph.couplings().iter().map(|e| OperatorCoupling {
-        source: e.source,
-        target: e.target,
-        operator: vec![vec![e.weight, 0.0], vec![0.0, e.weight]],
-    }).collect();
-    let anisotropies = (0..graph.node_count()).map(|node| LocalAnisotropy {
-        node,
-        matrix: vec![vec![stiffness, 0.0], vec![0.0, 0.0]],
-    }).collect();
-    Ok(OperatorEnergyModel::new(vec![vec![0.0; 2]; N], couplings, anisotropies)?)
+    let couplings = graph
+        .couplings()
+        .iter()
+        .map(|e| OperatorCoupling {
+            source: e.source,
+            target: e.target,
+            operator: vec![vec![e.weight, 0.0], vec![0.0, e.weight]],
+        })
+        .collect();
+    let anisotropies = (0..graph.node_count())
+        .map(|node| LocalAnisotropy {
+            node,
+            matrix: vec![vec![stiffness, 0.0], vec![0.0, 0.0]],
+        })
+        .collect();
+    Ok(OperatorEnergyModel::new(
+        vec![vec![0.0; 2]; N],
+        couplings,
+        anisotropies,
+    )?)
 }
 
 fn angular_state(signs: &[i8], angles: &[f64]) -> Result<FieldState> {
     if signs.len() != angles.len() {
         return Err("angular chart dimension mismatch".into());
     }
-    let nodes = signs.iter().zip(angles).map(|(s, q)| {
-        let (sin, cos) = q.sin_cos();
-        NodeState::try_unit(vec![f64::from(*s) * cos, f64::from(*s) * sin], 1e-12)
-    }).collect::<std::result::Result<Vec<_>, _>>()?;
+    let nodes = signs
+        .iter()
+        .zip(angles)
+        .map(|(s, q)| {
+            let (sin, cos) = q.sin_cos();
+            NodeState::try_unit(vec![f64::from(*s) * cos, f64::from(*s) * sin], 1e-12)
+        })
+        .collect::<std::result::Result<Vec<_>, _>>()?;
     Ok(FieldState::new(nodes)?)
 }
 
@@ -202,7 +225,14 @@ fn run_campaign() -> Result<Campaign> {
                 zero_error = zero_error.max(zero_lift_error(&e0, &zero, &initial)?);
                 for (dt, steps) in GRIDS {
                     trajectories.push(trajectory(
-                        &bank, model, initial.clone(), name, pattern, perturbation, dt, steps,
+                        &bank,
+                        model,
+                        initial.clone(),
+                        name,
+                        pattern,
+                        perturbation,
+                        dt,
+                        steps,
                     )?);
                 }
             }
@@ -217,7 +247,11 @@ fn run_campaign() -> Result<Campaign> {
     })
 }
 
-fn zero_lift_error(e0: &EnergyModel, zero: &OperatorEnergyModel, state: &FieldState) -> Result<f64> {
+fn zero_lift_error(
+    e0: &EnergyModel,
+    zero: &OperatorEnergyModel,
+    state: &FieldState,
+) -> Result<f64> {
     let mut error = (e0.energy(state)? - zero.energy(state)?).abs();
     let f0 = e0.effective_fields(state)?;
     let f1 = zero.effective_fields(state)?;
@@ -249,9 +283,9 @@ fn curvature_check(
     let mut witness = 0;
     let mut fd_error = 0.0_f64;
     for mask in 0..(1_usize << N) {
-        let v: Vec<f64> = (0..N).map(|i| {
-            (if mask & (1 << i) == 0 { -1.0 } else { 1.0 }) / 8.0_f64.sqrt()
-        }).collect();
+        let v: Vec<f64> = (0..N)
+            .map(|i| (if mask & (1 << i) == 0 { -1.0 } else { 1.0 }) / 8.0_f64.sqrt())
+            .collect();
         let q = h.quadratic_form(&v)?;
         if q < min_rayleigh {
             min_rayleigh = q;
@@ -260,11 +294,15 @@ fn curvature_check(
         let plus: Vec<f64> = v.iter().map(|x| FD_EPS * x).collect();
         let minus: Vec<f64> = plus.iter().map(|x| -x).collect();
         let fd = (model.energy(&angular_state(signs, &plus)?)?
-            + model.energy(&angular_state(signs, &minus)?)? - 2.0 * energy)
+            + model.energy(&angular_state(signs, &minus)?)?
+            - 2.0 * energy)
             / (FD_EPS * FD_EPS);
         fd_error = fd_error.max((fd - q).abs());
     }
-    if ![h.lower_bound(), min_rayleigh, residual, fd_error].iter().all(|x| x.is_finite()) {
+    if ![h.lower_bound(), min_rayleigh, residual, fd_error]
+        .iter()
+        .all(|x| x.is_finite())
+    {
         return Err("non-finite curvature diagnostic".into());
     }
     Ok(Curvature {
@@ -320,9 +358,16 @@ fn trajectory(
             state = heun_step(&state, model, config)?;
         }
     }
-    let final_angle = state.nodes().iter().zip(target).map(|(node, sign)| {
-        (node.values()[0] * f64::from(*sign)).clamp(-1.0, 1.0).acos()
-    }).fold(0.0_f64, f64::max);
+    let final_angle = state
+        .nodes()
+        .iter()
+        .zip(target)
+        .map(|(node, sign)| {
+            (node.values()[0] * f64::from(*sign))
+                .clamp(-1.0, 1.0)
+                .acos()
+        })
+        .fold(0.0_f64, f64::max);
     if !final_angle.is_finite() {
         return Err("non-finite terminal angle".into());
     }
@@ -334,7 +379,12 @@ fn trajectory(
         }
     }
     Ok(Trajectory {
-        model: name.to_owned(), pattern, perturbation, dt, steps, first_exit,
+        model: name.to_owned(),
+        pattern,
+        perturbation,
+        dt,
+        steps,
+        first_exit,
         terminal_label: bank.patterns().iter().position(|p| *p == decoded),
         final_max_axial_angle: final_angle,
         max_norm_squared_error: norm_error,
@@ -366,28 +416,39 @@ fn observable_panel() -> Result<Observability> {
 }
 
 fn reference_128_valid(runs: &[Trajectory]) -> bool {
-    (0..3).all(|p| runs.iter().find(|r| {
-        r.model == "E0" && r.pattern == p && r.perturbation == 0 && r.steps == 1024
-    }).is_some_and(|r| {
-        if p == 0 { r.first_exit.is_none() } else {
-            r.first_exit.as_ref().is_some_and(|e| e.step == 145)
-        }
-    }))
+    (0..3).all(|p| {
+        runs.iter()
+            .find(|r| r.model == "E0" && r.pattern == p && r.perturbation == 0 && r.steps == 1024)
+            .is_some_and(|r| {
+                if p == 0 {
+                    r.first_exit.is_none()
+                } else {
+                    r.first_exit.as_ref().is_some_and(|e| e.step == 145)
+                }
+            })
+    })
 }
 
 fn refinement_valid(runs: &[Trajectory]) -> bool {
     (0..3).all(|p| {
-        let selected: Vec<&Trajectory> = runs.iter().filter(|r| {
-            r.model == "E0" && r.pattern == p && r.perturbation == 0
-        }).collect();
-        if selected.len() != 3 { return false; }
-        if p == 0 { return selected.iter().all(|r| r.first_exit.is_none()); }
-        let exits: Vec<f64> = selected.iter().filter_map(|r| {
-            r.first_exit.as_ref().map(|e| e.upper_time)
-        }).collect();
+        let selected: Vec<&Trajectory> = runs
+            .iter()
+            .filter(|r| r.model == "E0" && r.pattern == p && r.perturbation == 0)
+            .collect();
+        if selected.len() != 3 {
+            return false;
+        }
+        if p == 0 {
+            return selected.iter().all(|r| r.first_exit.is_none());
+        }
+        let exits: Vec<f64> = selected
+            .iter()
+            .filter_map(|r| r.first_exit.as_ref().map(|e| e.upper_time))
+            .collect();
         exits.len() == 3
             && exits.iter().copied().fold(f64::NEG_INFINITY, f64::max)
-                - exits.iter().copied().fold(f64::INFINITY, f64::min) <= 0.10
+                - exits.iter().copied().fold(f64::INFINITY, f64::min)
+                <= 0.10
     })
 }
 
