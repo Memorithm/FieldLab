@@ -9,16 +9,16 @@ use std::error::Error;
 use std::fmt::{Display, Formatter};
 
 pub use transition::{
-    BOOLEAN_FIELD_TRANSITION_SCHEMA, BOOLEAN_FIELD_TRANSITION_TRACE_SCHEMA, PredicateTransition,
-    PredicateTransitionTraceError, evaluate_predicate_transition, evaluate_predicate_transition_trace,
-    evaluate_predicate_transitions,
+    evaluate_predicate_transition, evaluate_predicate_transition_trace,
+    evaluate_predicate_transitions, PredicateTransition, PredicateTransitionTraceError,
+    BOOLEAN_FIELD_TRANSITION_SCHEMA, BOOLEAN_FIELD_TRANSITION_TRACE_SCHEMA,
 };
 pub use transition_runs::{
-    BOOLEAN_FIELD_DWELL_RUN_SCHEMA, PredicateDwellRun, PredicateDwellRunError, predicate_dwell_runs,
+    predicate_dwell_runs, PredicateDwellRun, PredicateDwellRunError, BOOLEAN_FIELD_DWELL_RUN_SCHEMA,
 };
 pub use transition_summary::{
-    BOOLEAN_FIELD_TRANSITION_SUMMARY_SCHEMA, PredicateTransitionSummary,
-    summarize_predicate_transition_trace,
+    summarize_predicate_transition_trace, PredicateTransitionSummary,
+    BOOLEAN_FIELD_TRANSITION_SUMMARY_SCHEMA,
 };
 
 /// Versioned contract for field-to-Boolean predicate evaluation.
@@ -95,28 +95,28 @@ impl ComponentThresholdPredicate {
         self.relation
     }
 
-    /// Evaluates the declared predicate on a field state without modifying it.
+    /// Evaluates this predicate against `state` without changing it.
     ///
     /// # Errors
     ///
-    /// Returns [`PredicateError::NodeOutOfBounds`] or
-    /// [`PredicateError::ComponentOutOfBounds`] when the declared address is not
-    /// present in `state`.
+    /// Returns a typed bounds error when the declared node or component does not
+    /// exist in the supplied field state.
     pub fn evaluate(&self, state: &FieldState) -> Result<bool, PredicateError> {
         let node = state
-            .nodes()
-            .get(self.node)
+            .node(self.node)
             .ok_or(PredicateError::NodeOutOfBounds {
                 node: self.node,
-                nodes: state.nodes().len(),
+                node_count: state.node_count(),
             })?;
-        let value = *node
-            .components()
-            .get(self.component)
-            .ok_or(PredicateError::ComponentOutOfBounds {
-                component: self.component,
-                dimension: node.components().len(),
-            })?;
+        let value =
+            *node
+                .values()
+                .get(self.component)
+                .ok_or(PredicateError::ComponentOutOfBounds {
+                    component: self.component,
+                    dimension: node.dimension(),
+                })?;
+
         Ok(match self.relation {
             ThresholdRelation::AtLeast => value >= self.threshold,
             ThresholdRelation::LessThan => value < self.threshold,
@@ -124,30 +124,86 @@ impl ComponentThresholdPredicate {
     }
 }
 
-/// Errors produced by explicit field-to-Boolean predicates.
+/// Evaluates an ordered predicate set into an equally ordered Boolean vector.
+///
+/// The order is caller-owned and is preserved exactly. This function neither
+/// tunes predicates nor interprets the resulting bits as a physical claim.
+///
+/// # Errors
+///
+/// Returns the first typed predicate error in input order.
+pub fn evaluate_predicates(
+    state: &FieldState,
+    predicates: &[ComponentThresholdPredicate],
+) -> Result<Vec<bool>, PredicateError> {
+    predicates
+        .iter()
+        .map(|predicate| predicate.evaluate(state))
+        .collect()
+}
+
+/// Encodes an ordered exact spin vector using `-1.0 -> false`, `+1.0 -> true`.
+///
+/// This is an exact representation contract, not thresholding. Values such as
+/// `0.999`, signed zero, NaN, infinities, or any other continuous field value
+/// are rejected rather than rounded or classified.
+///
+/// # Errors
+///
+/// Returns [`SpinEncodingError::NonBinarySpin`] at the first input that is not
+/// exactly `-1.0` or `+1.0` in IEEE-754 binary64 representation.
+pub fn encode_spins(spins: &[f64]) -> Result<Vec<bool>, SpinEncodingError> {
+    spins
+        .iter()
+        .enumerate()
+        .map(|(index, value)| match value.to_bits() {
+            bits if bits == 1.0_f64.to_bits() => Ok(true),
+            bits if bits == (-1.0_f64).to_bits() => Ok(false),
+            bits => Err(SpinEncodingError::NonBinarySpin { index, bits }),
+        })
+        .collect()
+}
+
+/// Decodes Boolean bits using the inverse exact spin convention.
+#[must_use]
+pub fn decode_spins(bits: &[bool]) -> Vec<f64> {
+    bits.iter()
+        .map(|bit| if *bit { 1.0 } else { -1.0 })
+        .collect()
+}
+
+/// Validation errors for the explicit field-to-Boolean bridge.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum PredicateError {
-    /// Thresholds must be finite binary64 values.
+    /// Predicate thresholds must be finite.
     NonFiniteThreshold,
-    /// The declared node is absent from the supplied state.
-    NodeOutOfBounds { node: usize, nodes: usize },
-    /// The declared component is absent from the addressed node.
+    /// The declared node does not exist in the evaluated state.
+    NodeOutOfBounds { node: usize, node_count: usize },
+    /// The declared component does not exist in the selected node.
     ComponentOutOfBounds { component: usize, dimension: usize },
 }
 
+/// Errors for exact `{-1,+1}` spin encoding.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum SpinEncodingError {
+    /// The indexed value is not exactly one of the two declared spin values.
+    NonBinarySpin { index: usize, bits: u64 },
+}
+
 impl Display for PredicateError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::NonFiniteThreshold => f.write_str("predicate threshold must be finite"),
-            Self::NodeOutOfBounds { node, nodes } => {
-                write!(f, "predicate node index {node} is out of bounds for {nodes} nodes")
-            }
+            Self::NonFiniteThreshold => write!(formatter, "predicate threshold must be finite"),
+            Self::NodeOutOfBounds { node, node_count } => write!(
+                formatter,
+                "predicate node index {node} is outside field state with {node_count} nodes"
+            ),
             Self::ComponentOutOfBounds {
                 component,
                 dimension,
             } => write!(
-                f,
-                "predicate component index {component} is out of bounds for dimension {dimension}"
+                formatter,
+                "predicate component index {component} is outside node dimension {dimension}"
             ),
         }
     }
@@ -155,31 +211,12 @@ impl Display for PredicateError {
 
 impl Error for PredicateError {}
 
-/// Evaluates predicates in caller-supplied order.
-///
-/// # Errors
-///
-/// Returns the first [`PredicateError`] encountered in predicate order.
-pub fn evaluate_predicates(
-    predicates: &[ComponentThresholdPredicate],
-    state: &FieldState,
-) -> Result<Vec<bool>, PredicateError> {
-    predicates.iter().map(|predicate| predicate.evaluate(state)).collect()
-}
-
-/// Error while converting exact Ising-like spins into Boolean bits.
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub enum SpinEncodingError {
-    /// The source value was neither exact `-1.0` nor exact `+1.0`.
-    NonBinarySpin { index: usize, value: f64 },
-}
-
 impl Display for SpinEncodingError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::NonBinarySpin { index, value } => write!(
-                f,
-                "spin at index {index} must be exactly -1.0 or +1.0, got {value}"
+            Self::NonBinarySpin { index, bits } => write!(
+                formatter,
+                "spin at index {index} is not exact -1.0 or +1.0 (bits=0x{bits:016x})"
             ),
         }
     }
@@ -187,91 +224,80 @@ impl Display for SpinEncodingError {
 
 impl Error for SpinEncodingError {}
 
-/// Converts exact Ising-like spins to bits (`-1 -> false`, `+1 -> true`).
-///
-/// No rounding, sign test, zero handling, thresholding, or normalization is
-/// performed. Callers with continuous field components must declare their
-/// discretization separately before using this exact bridge.
-///
-/// # Errors
-///
-/// Returns [`SpinEncodingError::NonBinarySpin`] at the first source value that
-/// is not exactly `-1.0` or `+1.0`.
-pub fn spins_to_bits(spins: &[f64]) -> Result<Vec<bool>, SpinEncodingError> {
-    spins
-        .iter()
-        .copied()
-        .enumerate()
-        .map(|(index, value)| {
-            if value == -1.0 {
-                Ok(false)
-            } else if value == 1.0 {
-                Ok(true)
-            } else {
-                Err(SpinEncodingError::NonBinarySpin { index, value })
-            }
-        })
-        .collect()
-}
-
-/// Converts Boolean bits to exact Ising-like spins (`false -> -1`, `true -> +1`).
-#[must_use]
-pub fn bits_to_spins(bits: &[bool]) -> Vec<f64> {
-    bits.iter()
-        .map(|&bit| if bit { 1.0 } else { -1.0 })
-        .collect()
-}
-
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use field_core::NodeState;
+    use super::{
+        decode_spins, encode_spins, evaluate_predicates, ComponentThresholdPredicate,
+        PredicateError, SpinEncodingError, ThresholdRelation,
+    };
+    use field_core::{FieldState, NodeState};
 
-    fn state(values: [f64; 2]) -> FieldState {
+    fn state() -> FieldState {
         FieldState::new(vec![
-            NodeState::try_unit(values.to_vec(), 1.0e-12).expect("unit state")
+            NodeState::try_unit(vec![1.0, 0.0], 1.0e-12).expect("unit state"),
+            NodeState::try_unit(vec![0.0, -1.0], 1.0e-12).expect("unit state"),
         ])
         .expect("homogeneous field state")
     }
 
     #[test]
-    fn declared_predicates_preserve_order() {
-        let field = state([0.6, 0.8]);
+    fn evaluates_declared_thresholds_in_stable_order() {
         let predicates = [
-            ComponentThresholdPredicate::new(0, 0, 0.5, ThresholdRelation::AtLeast).unwrap(),
-            ComponentThresholdPredicate::new(0, 1, 0.9, ThresholdRelation::LessThan).unwrap(),
-            ComponentThresholdPredicate::new(0, 1, 0.8, ThresholdRelation::AtLeast).unwrap(),
+            ComponentThresholdPredicate::new(0, 0, 1.0, ThresholdRelation::AtLeast)
+                .expect("finite threshold"),
+            ComponentThresholdPredicate::new(0, 1, 0.0, ThresholdRelation::LessThan)
+                .expect("finite threshold"),
+            ComponentThresholdPredicate::new(1, 1, -0.5, ThresholdRelation::LessThan)
+                .expect("finite threshold"),
         ];
 
-        assert_eq!(evaluate_predicates(&predicates, &field), Ok(vec![true, true, true]));
-    }
-
-    #[test]
-    fn threshold_relation_is_explicit() {
-        let field = state([0.6, 0.8]);
-        let at_least =
-            ComponentThresholdPredicate::new(0, 0, 0.6, ThresholdRelation::AtLeast).unwrap();
-        let less_than =
-            ComponentThresholdPredicate::new(0, 0, 0.6, ThresholdRelation::LessThan).unwrap();
-
-        assert_eq!(at_least.evaluate(&field), Ok(true));
-        assert_eq!(less_than.evaluate(&field), Ok(false));
-    }
-
-    #[test]
-    fn invalid_addresses_fail_closed() {
-        let field = state([0.6, 0.8]);
-        let invalid_node =
-            ComponentThresholdPredicate::new(1, 0, 0.0, ThresholdRelation::AtLeast).unwrap();
-        let invalid_component =
-            ComponentThresholdPredicate::new(0, 2, 0.0, ThresholdRelation::AtLeast).unwrap();
-
         assert_eq!(
-            invalid_node.evaluate(&field),
-            Err(PredicateError::NodeOutOfBounds { node: 1, nodes: 1 })
+            evaluate_predicates(&state(), &predicates).expect("valid addresses"),
+            vec![true, false, true]
+        );
+    }
+
+    #[test]
+    fn equality_boundary_is_explicit() {
+        let field = state();
+        let at_least = ComponentThresholdPredicate::new(0, 1, 0.0, ThresholdRelation::AtLeast)
+            .expect("finite threshold");
+        let less_than = ComponentThresholdPredicate::new(0, 1, 0.0, ThresholdRelation::LessThan)
+            .expect("finite threshold");
+
+        assert!(at_least.evaluate(&field).expect("valid address"));
+        assert!(!less_than.evaluate(&field).expect("valid address"));
+    }
+
+    #[test]
+    fn rejects_non_finite_thresholds() {
+        assert_eq!(
+            ComponentThresholdPredicate::new(0, 0, f64::NAN, ThresholdRelation::AtLeast),
+            Err(PredicateError::NonFiniteThreshold)
         );
         assert_eq!(
-            invalid_component.evaluate(&field),
+            ComponentThresholdPredicate::new(0, 0, f64::INFINITY, ThresholdRelation::AtLeast),
+            Err(PredicateError::NonFiniteThreshold)
+        );
+    }
+
+    #[test]
+    fn rejects_out_of_bounds_addresses() {
+        let field = state();
+        let node = ComponentThresholdPredicate::new(2, 0, 0.0, ThresholdRelation::AtLeast)
+            .expect("finite threshold");
+        assert_eq!(
+            node.evaluate(&field),
+            Err(PredicateError::NodeOutOfBounds {
+                node: 2,
+                node_count: 2,
+            })
+        );
+
+        let component = ComponentThresholdPredicate::new(0, 2, 0.0, ThresholdRelation::AtLeast)
+            .expect("finite threshold");
+        assert_eq!(
+            component.evaluate(&field),
             Err(PredicateError::ComponentOutOfBounds {
                 component: 2,
                 dimension: 2,
@@ -280,30 +306,46 @@ mod tests {
     }
 
     #[test]
-    fn non_finite_thresholds_are_rejected() {
-        for threshold in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY] {
-            assert_eq!(
-                ComponentThresholdPredicate::new(0, 0, threshold, ThresholdRelation::AtLeast),
-                Err(PredicateError::NonFiniteThreshold)
-            );
-        }
+    fn empty_predicate_set_is_an_empty_snapshot() {
+        assert_eq!(
+            evaluate_predicates(&state(), &[]).expect("no predicates to invalidate"),
+            Vec::<bool>::new()
+        );
     }
 
     #[test]
-    fn exact_spin_encoding_round_trips() {
-        let spins = [-1.0, 1.0, 1.0, -1.0];
-        let bits = spins_to_bits(&spins).expect("exact spins are accepted");
-        assert_eq!(bits, vec![false, true, true, false]);
-        assert_eq!(bits_to_spins(&bits), spins);
+    fn exact_spin_encoding_round_trips_in_order() {
+        let spins = [-1.0, 1.0, 1.0, -1.0, -1.0];
+        let bits = encode_spins(&spins).expect("exact declared spins");
+        assert_eq!(bits, vec![false, true, true, false, false]);
+        assert_eq!(decode_spins(&bits), spins);
     }
 
     #[test]
-    fn spin_encoding_rejects_continuous_values() {
-        for value in [-0.999, -0.0, 0.0, 0.75, f64::NAN, f64::INFINITY] {
-            assert!(matches!(
-                spins_to_bits(&[value]),
-                Err(SpinEncodingError::NonBinarySpin { index: 0, .. })
-            ));
-        }
+    fn spin_encoding_rejects_continuous_values_without_thresholding() {
+        assert_eq!(
+            encode_spins(&[-1.0, 0.999, 1.0]),
+            Err(SpinEncodingError::NonBinarySpin {
+                index: 1,
+                bits: 0.999_f64.to_bits(),
+            })
+        );
+        assert!(matches!(
+            encode_spins(&[-0.0]),
+            Err(SpinEncodingError::NonBinarySpin { index: 0, .. })
+        ));
+        assert!(matches!(
+            encode_spins(&[f64::NAN]),
+            Err(SpinEncodingError::NonBinarySpin { index: 0, .. })
+        ));
+    }
+
+    #[test]
+    fn empty_spin_vector_round_trips_without_inventing_state() {
+        assert_eq!(
+            encode_spins(&[]).expect("empty exact vector"),
+            Vec::<bool>::new()
+        );
+        assert_eq!(decode_spins(&[]), Vec::<f64>::new());
     }
 }
