@@ -325,7 +325,10 @@ mod tests {
 
     #[test]
     fn empty_spin_vector_round_trips_without_inventing_state() {
-        assert_eq!(encode_spins(&[]).expect("empty exact vector"), Vec::<bool>::new());
+        assert_eq!(
+            encode_spins(&[]).expect("empty exact vector"),
+            Vec::<bool>::new()
+        );
         assert_eq!(decode_spins(&[]), Vec::<f64>::new());
     }
 }
