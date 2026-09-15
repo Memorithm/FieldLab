@@ -38,7 +38,7 @@ Use the three eight-node axial memories already used by FL-5G, in this exact ord
 2. `P1 = [+1,+1,+1,+1,+1,+1,-1,-1]`
 3. `P2 = [+1,+1,+1,+1,-1,-1,+1,+1]`
 
-A clean node with sign `s ∈ {-1,+1}` is represented exactly as the two-dimensional unit state `[s, 0]`. Clean case identifiers are `flb1|clean|p0`, `flb1|clean|p1`, and `flb1|clean|p2`. Labels `0`, `1`, and `2` are attached only after Boolean and CONTINUOUS-BITWISE observations have been constructed.
+A clean node with sign `s ∈ {-1,+1}` is represented exactly as the two-dimensional unit state `[s, 0]`. Clean and perturbed nodes are constructed with `NodeState::try_unit(..., 1.0e-12)`; **`1.0e-12` is the frozen construction tolerance for FL-B1.0**. Clean case identifiers are `flb1|clean|p0`, `flb1|clean|p1`, and `flb1|clean|p2`. Labels `0`, `1`, and `2` are attached only after Boolean and CONTINUOUS-BITWISE observations have been constructed.
 
 ### Predicate bank
 
@@ -55,15 +55,19 @@ Duplicate `(node, component, threshold bits, relation)` tuples are forbidden. Pr
 
 ### Deterministic perturbation panel
 
-The frozen radius grid, in radians, is:
+The frozen radius grid uses **zero-based stable indices** with this exact mapping:
 
-`[0.01, 0.05, 0.10, 0.25, 0.50]`.
+- `r0 = 0.01` radians;
+- `r1 = 0.05` radians;
+- `r2 = 0.10` radians;
+- `r3 = 0.25` radians;
+- `r4 = 0.50` radians.
 
-For every clean memory, every radius, every node `j = 0..7`, and each direction `d ∈ {-1,+1}`, create exactly one single-node angular perturbation. All nodes except `j` remain at angle `0`. Node `j` uses angle `q = d * radius`; a node with axial sign `s` is constructed as `[s*cos(q), s*sin(q)]` and is passed through the existing FieldLab unit-state validation. No target label, decoder result, Boolean result, or previous perturbation outcome participates in this construction.
+For every clean memory, every radius, every node `j = 0..7`, and each direction `d ∈ {-1,+1}`, create exactly one single-node angular perturbation. All nodes except `j` remain at angle `0`. Node `j` uses angle `q = d * radius`; a node with axial sign `s` is constructed as `[s*cos(q), s*sin(q)]` and is passed to `NodeState::try_unit(..., 1.0e-12)`. No target label, decoder result, Boolean result, or previous perturbation outcome participates in this construction.
 
-This yields exactly `3 × 5 × 8 × 2 = 240` perturbed states. Perturbation identifiers are `flb1|perturb|p{pattern}|r{radius_index}|n{node}|d{minus|plus}`. The radius index, not decimal formatting, is the stable identifier component.
+This yields exactly `3 × 5 × 8 × 2 = 240` perturbed states. Perturbation identifiers are `flb1|perturb|p{pattern}|r{radius_index}|n{node}|d{minus|plus}`, where `radius_index` is exactly `0..4` according to the mapping above. The index, not decimal formatting, is the stable identifier component.
 
-The implementation reports the maximum node norm-squared error for every perturbation and must fail the protocol-validity gate if any perturbed state is non-finite or violates the repository's declared unit-state tolerance.
+The implementation reports `max_norm_squared_error = max(abs(dot(node,node) - 1))` across every node of every evaluated clean or perturbed state. **The frozen FL-B1.0 numerical validity tolerance is `1.0e-10`: protocol validity requires `max_norm_squared_error <= 1.0e-10`.** This validity metric is separate from the `1.0e-12` construction tolerance. Any non-finite component is also a protocol failure.
 
 ## Predicate-bank construction rules
 
@@ -107,7 +111,7 @@ Report at minimum:
 - label purity of each Boolean-code group;
 - empirical label entropy `H(Y)` and conditional entropy `H(Y|B)` on the declared finite clean fixture, with mutual information `I(Y;B)=H(Y)-H(Y|B)` reported as a descriptive finite-panel quantity only;
 - CONST-baseline `I(Y;B)` computed over the same clean fixture;
-- maximum norm-squared error over perturbed nodes;
+- maximum norm-squared error over evaluated clean and perturbed nodes;
 - exact replay equality for the complete machine-readable semantic report.
 
 Entropy uses base-2 logarithms and empirical frequencies over the declared finite clean case panel. No population/generalization interpretation is permitted.
@@ -121,14 +125,15 @@ The run is protocol-valid only if:
 - the predicate bank contains exactly the 16 frozen, finite, duplicate-free predicates in the declared order and is unchanged between repeats;
 - all node/component addresses are valid for every evaluated state;
 - no evaluated state contains a non-finite component;
-- every perturbed node satisfies the existing normalization tolerance;
+- every node was constructed through `NodeState::try_unit(..., 1.0e-12)` and the campaign-wide `max_norm_squared_error` is at most `1.0e-10`;
+- radius identifiers use exactly the frozen zero-based `r0..r4` mapping;
 - CONTINUOUS-BITWISE keys are constructed only from the canonical full clean state, before labels are consulted;
 - both complete runs produce exactly equal semantic reports;
 - scientific hypothesis failures remain represented as data rather than converted into execution failures.
 
 ## Anti-leakage rules
 
-After the first campaign result is inspected, do not change predicate addresses, thresholds, relations, order, perturbation radii, directions, scoring rules, case membership, HB1-2 criterion, or the CONTINUOUS-BITWISE grouping inside FL-B1. Any improved predicate construction is a new preregistered subseries (for example FL-B2) with a fresh namespace and, if tuning is introduced, a fresh calibration/holdout partition.
+After the first campaign result is inspected, do not change predicate addresses, thresholds, relations, order, perturbation radii or their stable indices, directions, construction/validity tolerances, scoring rules, case membership, HB1-2 criterion, or the CONTINUOUS-BITWISE grouping inside FL-B1. Any improved predicate construction is a new preregistered subseries (for example FL-B2) with a fresh namespace and, if tuning is introduced, a fresh calibration/holdout partition.
 
 ## Interpretation boundary
 
