@@ -1,0 +1,71 @@
+{
+  "schema": "fieldlab.flb1-result-summary.v1",
+  "experiment": "FL-B1.0",
+  "status": "qualified_fixture_result",
+  "provenance": {
+    "merged_implementation_commit": "198725ec32d833cd9b8036ccabfc1574d286f462",
+    "qualified_pr_head_sha": "ab3f558bad73080e2f0c83607580fd46ab943ec3",
+    "actions_checkout_revision": "2849655bcdcee79bfa23f3b9167114253045681f",
+    "workflow_run_id": 34941348489,
+    "artifact_id": 10385013578,
+    "artifact_name": "fieldlab-flb1-2849655bcdcee79bfa23f3b9167114253045681f",
+    "artifact_zip_digest_sha256": "d4bfeced7799cb79cbc228b0237415b01617fe9bfb97f1438924f085f47614d6",
+    "semantic_report_sha256": "05ea50cd555c7f7953ee9ea4ad05aab439defd39ff010f2481e163f862ee3bca",
+    "repeated_reports_byte_identical": true
+  },
+  "protocol": {
+    "predicate_schema": "fieldlab.boolean-predicate.v1",
+    "predicate_count": 16,
+    "clean_case_count": 3,
+    "perturbation_case_count": 240,
+    "construction_tolerance": 1e-12,
+    "validity_norm_squared_tolerance": 1e-10,
+    "radii_radians": [0.01, 0.05, 0.10, 0.25, 0.50],
+    "hb1_2_local_radii_indices": [0, 1, 2, 3],
+    "stress_radius_index": 4
+  },
+  "results": {
+    "replay_exact": true,
+    "maximum_norm_squared_error": 1.1102230246251565e-16,
+    "minimum_clean_hamming_distance": 4,
+    "clean_boolean_collision_count": 0,
+    "boolean_induced_collision_groups": [],
+    "clean_label_entropy_bits": 1.584962500721156,
+    "conditional_entropy_given_boolean_bits": -0.0,
+    "mutual_information_bits": 1.584962500721156,
+    "constant_baseline_mutual_information_bits": 0.0,
+    "radius_retention": [
+      {"radius_index": 0, "radius": 0.01, "retained": 48, "total": 48, "rate": 1.0},
+      {"radius_index": 1, "radius": 0.05, "retained": 48, "total": 48, "rate": 1.0},
+      {"radius_index": 2, "radius": 0.10, "retained": 48, "total": 48, "rate": 1.0},
+      {"radius_index": 3, "radius": 0.25, "retained": 48, "total": 48, "rate": 1.0},
+      {"radius_index": 4, "radius": 0.50, "retained": 0, "total": 48, "rate": 0.0}
+    ],
+    "first_code_change": [
+      {"label": 0, "radius_index": 4, "radius": 0.50},
+      {"label": 1, "radius_index": 4, "radius": 0.50},
+      {"label": 2, "radius_index": 4, "radius": 0.50}
+    ],
+    "hypotheses": {
+      "hb1_1_clean_codes_separated": true,
+      "hb1_2_all_declared_local_perturbations_retained": true,
+      "hb1_3_clean_boolean_collision_count": 0,
+      "hb1_4_nonzero_empirical_information": true
+    }
+  },
+  "interpretation_boundary": {
+    "scope": "the frozen three-memory FL-B1.0 fixture and its 240 deterministic perturbations only",
+    "stress_observation": "all 48 perturbations at radius 0.50 changed the clean Boolean code; radius 0.50 was preregistered as a stress observation and is outside HB1-2",
+    "claims_not_supported": [
+      "general memory-system observability",
+      "cognitive improvement",
+      "compression",
+      "latency or throughput improvement",
+      "memory-traffic reduction",
+      "energy benefit",
+      "hardware benefit",
+      "physical magnetic equivalence",
+      "novelty"
+    ]
+  }
+}
