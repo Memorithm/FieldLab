@@ -1,4 +1,5 @@
 #![forbid(unsafe_code)]
+#![allow(clippy::float_cmp)] // Frozen protocol constants use exact identity checks.
 
 use field_boolean::{
     evaluate_predicates, ComponentThresholdPredicate, ThresholdRelation,
