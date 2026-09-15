@@ -23,6 +23,36 @@ The two-observation transition contract is `fieldlab.boolean-transition.v1`.
 
 This transition surface is observation-only. It does not infer thresholds, rank transitions, select a regime, mutate the field, add hysteresis, or authorize a Boolean controller. A scientific experiment that uses a transition to switch dynamics must separately declare and preregister the switching rule and its baselines.
 
+## Ordered transition traces
+
+The bounded sequence contract is `fieldlab.boolean-transition-trace.v1`.
+
+`evaluate_predicate_transition_trace` applies one already-declared predicate to an ordered sequence of explicit `FieldState` observations and records each adjacent transition. The implementation bounds the number of transitions before allocation and before evaluating the predicate. Zero- and one-observation sequences therefore produce an empty trace instead of inventing a transition.
+
+The trace preserves temporal order. It is still descriptive observation infrastructure: it does not define a sampling interval, infer a regime boundary, choose a controller action, or establish physical time from an observation index.
+
+## Exact transition summaries
+
+The aggregate contract is `fieldlab.boolean-transition-summary.v1`.
+
+`summarize_predicate_transition_trace` counts the four transition classes exactly and derives the total number of changed and stable transitions. It summarizes only the supplied trace; it does not reconstruct missing observations or treat a count as a rate without an independently declared observation cadence.
+
+A high or low transition count is not, by itself, evidence of stability, bifurcation, cognition, hysteresis, or useful control.
+
+## Exact dwell runs
+
+The run reconstruction contract is `fieldlab.boolean-dwell-run.v1`.
+
+`predicate_dwell_runs` reconstructs maximal contiguous Boolean runs from an explicit initial predicate value plus an ordered transition trace. It validates transition continuity and records each run's Boolean value, starting observation index and non-zero observation count. The reconstruction is exact for the supplied discrete observation sequence; an observation count is not automatically a physical residence time.
+
+## Exact dwell summaries
+
+The summary contract is `fieldlab.boolean-dwell-summary.v1`.
+
+`summarize_predicate_dwell_runs` revalidates public `PredicateDwellRun` inputs before aggregation. A valid non-empty trajectory must start at observation zero, contain non-zero run lengths, be contiguous, and alternate Boolean values so adjacent runs are already maximal. Checked arithmetic is used for accumulated observation counts.
+
+The summary reports exact observation count, transition count, False/True observation totals, False/True run counts and the longest observed dwell for each Boolean value. Longest dwell remains a descriptive observation count. It is not a preregistered stability threshold, attractor claim, debounce rule, hysteresis parameter, controller decision or bifurcation result.
+
 ## Exact `{-1,+1}` spin encoding
 
 The exact discrete encoding contract is `fieldlab.boolean-spin.v1` with the fixed convention:
@@ -36,6 +66,6 @@ This contract is intended only for experiments whose state space has already bee
 
 ## Scientific boundary
 
-These primitives are infrastructure for Boolean×Field experiments such as regime predicates, explicit switches, attractor-boundary encodings or Boolean controllers. They are **not** evidence that such a controller improves stability, cognition, speed, memory, energy or any other metric. Any scientific use must preregister predicate/encoding construction, baselines, decision rules and holdouts separately before measurements are interpreted.
+These primitives are infrastructure for Boolean×Field experiments such as regime predicates, explicit switches, attractor-boundary encodings or Boolean controllers. They are **not** evidence that such a controller improves stability, cognition, speed, memory, energy or any other metric. Any scientific use must preregister predicate/encoding construction, observation cadence, baselines, decision rules and holdouts separately before measurements are interpreted.
 
 Generic Boolean synthesis/equivalence remains owned by BooleanLab/SciRust as appropriate; FieldLab owns only the field-specific observation/representation boundary in this crate. Promotion of a more general primitive should occur only after repeated cross-project use justifies it.
