@@ -93,7 +93,7 @@ jobs:
         run: |
           mkdir -p results/ci
           cargo fmt --all
-          git diff -- crates/field-bench/src crates/field-bench/Cargo.toml .github/workflows/flb1.yml > results/ci/flb1-format.patch
+          git diff -- crates/field-bench/src crates/field-bench/Cargo.toml crates/field-boolean/src crates/field-boolean/Cargo.toml .github/workflows/flb1.yml > results/ci/flb1-format.patch
       - name: Retain failed-build formatting diagnostics
         if: failure()
         uses: actions/upload-artifact@v4

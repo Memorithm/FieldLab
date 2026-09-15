@@ -15,6 +15,14 @@ Each `ComponentThresholdPredicate` records all information needed to evaluate on
 
 `evaluate_predicates` preserves caller order and returns one Boolean value per predicate. Thresholds are never inferred from the evaluated state. Invalid node/component addresses and non-finite thresholds fail closed with typed errors.
 
+## Predicate transitions
+
+The two-observation transition contract is `fieldlab.boolean-transition.v1`.
+
+`evaluate_predicate_transition` applies the same already-declared predicate to an explicit previous and current `FieldState`, then returns exactly one of `StableFalse`, `Rising`, `Falling`, or `StableTrue`. `evaluate_predicate_transitions` preserves the caller-declared predicate order for a batch. The previous state is evaluated before the current state, and any invalid field address fails closed through the existing typed predicate errors.
+
+This transition surface is observation-only. It does not infer thresholds, rank transitions, select a regime, mutate the field, add hysteresis, or authorize a Boolean controller. A scientific experiment that uses a transition to switch dynamics must separately declare and preregister the switching rule and its baselines.
+
 ## Exact `{-1,+1}` spin encoding
 
 The exact discrete encoding contract is `fieldlab.boolean-spin.v1` with the fixed convention:

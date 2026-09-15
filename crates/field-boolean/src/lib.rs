@@ -1,8 +1,15 @@
 #![forbid(unsafe_code)]
 
+pub mod transition;
+
 use field_core::FieldState;
 use std::error::Error;
 use std::fmt::{Display, Formatter};
+
+pub use transition::{
+    evaluate_predicate_transition, evaluate_predicate_transitions, PredicateTransition,
+    BOOLEAN_FIELD_TRANSITION_SCHEMA,
+};
 
 /// Versioned contract for field-to-Boolean predicate evaluation.
 pub const BOOLEAN_FIELD_PREDICATE_SCHEMA: &str = "fieldlab.boolean-predicate.v1";
