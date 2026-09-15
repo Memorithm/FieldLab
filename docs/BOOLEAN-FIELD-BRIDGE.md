@@ -1,8 +1,10 @@
 # Boolean × Field bridge
 
-`field-boolean` is a narrow, versioned bridge from an existing continuous `FieldState` to explicitly declared Boolean predicates. It does not replace the field model, alter the energy, change `H_eff = -∂E/∂m`, or assign physical meaning to a threshold.
+`field-boolean` is a narrow, versioned bridge between declared field representations and Boolean values. It does not replace the field model, alter the energy, change `H_eff = -∂E/∂m`, or assign physical meaning to a threshold or bit.
 
-The initial contract is `fieldlab.boolean-predicate.v1`.
+## Component predicates
+
+The field observation contract is `fieldlab.boolean-predicate.v1`.
 
 Each `ComponentThresholdPredicate` records all information needed to evaluate one bit:
 
@@ -13,6 +15,19 @@ Each `ComponentThresholdPredicate` records all information needed to evaluate on
 
 `evaluate_predicates` preserves caller order and returns one Boolean value per predicate. Thresholds are never inferred from the evaluated state. Invalid node/component addresses and non-finite thresholds fail closed with typed errors.
 
-This is infrastructure for future Boolean×Field experiments such as regime predicates, explicit switches, attractor-boundary encodings or Boolean controllers. It is **not** evidence that such a controller improves stability, cognition, speed, memory, energy or any other metric. Any scientific use must preregister predicate construction, baselines, decision rules and holdouts separately before measurements are interpreted.
+## Exact `{-1,+1}` spin encoding
 
-Generic Boolean synthesis/equivalence remains owned by BooleanLab/SciRust as appropriate; FieldLab owns only the field-specific observation boundary in this crate. Promotion of a more general primitive should occur only after repeated cross-project use justifies it.
+The exact discrete encoding contract is `fieldlab.boolean-spin.v1` with the fixed convention:
+
+- `-1.0 -> false`;
+- `+1.0 -> true`.
+
+`encode_spins` accepts only values whose IEEE-754 binary64 representation is exactly one of those two declared spins. It does not threshold or round continuous states: values such as `0.999`, signed zero, NaN and infinities fail closed with the offending index and raw bits. `decode_spins` is the inverse mapping and preserves bit order.
+
+This contract is intended only for experiments whose state space has already been declared as exact Ising-like `{-1,+1}` values. Applying it to a continuous `FieldState` requires a separately declared observation/discretization rule; the exact-spin encoder itself cannot supply that missing semantics.
+
+## Scientific boundary
+
+These primitives are infrastructure for Boolean×Field experiments such as regime predicates, explicit switches, attractor-boundary encodings or Boolean controllers. They are **not** evidence that such a controller improves stability, cognition, speed, memory, energy or any other metric. Any scientific use must preregister predicate/encoding construction, baselines, decision rules and holdouts separately before measurements are interpreted.
+
+Generic Boolean synthesis/equivalence remains owned by BooleanLab/SciRust as appropriate; FieldLab owns only the field-specific observation/representation boundary in this crate. Promotion of a more general primitive should occur only after repeated cross-project use justifies it.

@@ -7,6 +7,9 @@ use std::fmt::{Display, Formatter};
 /// Versioned contract for field-to-Boolean predicate evaluation.
 pub const BOOLEAN_FIELD_PREDICATE_SCHEMA: &str = "fieldlab.boolean-predicate.v1";
 
+/// Versioned exact encoding for declared Ising-like spins.
+pub const BOOLEAN_SPIN_ENCODING_SCHEMA: &str = "fieldlab.boolean-spin.v1";
+
 /// Explicit comparison applied to one declared field-state component.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum ThresholdRelation {
@@ -122,6 +125,36 @@ pub fn evaluate_predicates(
         .collect()
 }
 
+/// Encodes an ordered exact spin vector using `-1.0 -> false`, `+1.0 -> true`.
+///
+/// This is an exact representation contract, not thresholding. Values such as
+/// `0.999`, signed zero, NaN, infinities, or any other continuous field value
+/// are rejected rather than rounded or classified.
+///
+/// # Errors
+///
+/// Returns [`SpinEncodingError::NonBinarySpin`] at the first input that is not
+/// exactly `-1.0` or `+1.0` in IEEE-754 binary64 representation.
+pub fn encode_spins(spins: &[f64]) -> Result<Vec<bool>, SpinEncodingError> {
+    spins
+        .iter()
+        .enumerate()
+        .map(|(index, value)| match value.to_bits() {
+            bits if bits == 1.0_f64.to_bits() => Ok(true),
+            bits if bits == (-1.0_f64).to_bits() => Ok(false),
+            bits => Err(SpinEncodingError::NonBinarySpin { index, bits }),
+        })
+        .collect()
+}
+
+/// Decodes Boolean bits using the inverse exact spin convention.
+#[must_use]
+pub fn decode_spins(bits: &[bool]) -> Vec<f64> {
+    bits.iter()
+        .map(|bit| if *bit { 1.0 } else { -1.0 })
+        .collect()
+}
+
 /// Validation errors for the explicit field-to-Boolean bridge.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum PredicateError {
@@ -131,6 +164,13 @@ pub enum PredicateError {
     NodeOutOfBounds { node: usize, node_count: usize },
     /// The declared component does not exist in the selected node.
     ComponentOutOfBounds { component: usize, dimension: usize },
+}
+
+/// Errors for exact `{-1,+1}` spin encoding.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum SpinEncodingError {
+    /// The indexed value is not exactly one of the two declared spin values.
+    NonBinarySpin { index: usize, bits: u64 },
 }
 
 impl Display for PredicateError {
@@ -154,10 +194,24 @@ impl Display for PredicateError {
 
 impl Error for PredicateError {}
 
+impl Display for SpinEncodingError {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::NonBinarySpin { index, bits } => write!(
+                formatter,
+                "spin at index {index} is not exact -1.0 or +1.0 (bits=0x{bits:016x})"
+            ),
+        }
+    }
+}
+
+impl Error for SpinEncodingError {}
+
 #[cfg(test)]
 mod tests {
     use super::{
-        evaluate_predicates, ComponentThresholdPredicate, PredicateError, ThresholdRelation,
+        decode_spins, encode_spins, evaluate_predicates, ComponentThresholdPredicate,
+        PredicateError, SpinEncodingError, ThresholdRelation,
     };
     use field_core::{FieldState, NodeState};
 
@@ -240,5 +294,41 @@ mod tests {
             evaluate_predicates(&state(), &[]).expect("no predicates to invalidate"),
             Vec::<bool>::new()
         );
+    }
+
+    #[test]
+    fn exact_spin_encoding_round_trips_in_order() {
+        let spins = [-1.0, 1.0, 1.0, -1.0, -1.0];
+        let bits = encode_spins(&spins).expect("exact declared spins");
+        assert_eq!(bits, vec![false, true, true, false, false]);
+        assert_eq!(decode_spins(&bits), spins);
+    }
+
+    #[test]
+    fn spin_encoding_rejects_continuous_values_without_thresholding() {
+        assert_eq!(
+            encode_spins(&[-1.0, 0.999, 1.0]),
+            Err(SpinEncodingError::NonBinarySpin {
+                index: 1,
+                bits: 0.999_f64.to_bits(),
+            })
+        );
+        assert!(matches!(
+            encode_spins(&[-0.0]),
+            Err(SpinEncodingError::NonBinarySpin { index: 0, .. })
+        ));
+        assert!(matches!(
+            encode_spins(&[f64::NAN]),
+            Err(SpinEncodingError::NonBinarySpin { index: 0, .. })
+        ));
+    }
+
+    #[test]
+    fn empty_spin_vector_round_trips_without_inventing_state() {
+        assert_eq!(
+            encode_spins(&[]).expect("empty exact vector"),
+            Vec::<bool>::new()
+        );
+        assert_eq!(decode_spins(&[]), Vec::<f64>::new());
     }
 }
