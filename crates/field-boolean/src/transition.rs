@@ -93,7 +93,7 @@ mod tests {
 
     fn state(values: [f64; 2]) -> FieldState {
         FieldState::new(vec![
-            NodeState::try_unit(values.to_vec(), 1.0e-12).expect("unit state"),
+            NodeState::try_unit(values.to_vec(), 1.0e-12).expect("unit state")
         ])
         .expect("homogeneous field state")
     }
@@ -171,12 +171,11 @@ mod tests {
     fn transition_evaluation_fails_closed_on_invalid_current_state_address() {
         let previous = state([1.0, 0.0]);
         let current = FieldState::new(vec![
-            NodeState::try_unit(vec![1.0], 1.0e-12).expect("unit state"),
+            NodeState::try_unit(vec![1.0], 1.0e-12).expect("unit state")
         ])
         .expect("one-dimensional field state");
-        let predicate =
-            ComponentThresholdPredicate::new(0, 1, 0.0, ThresholdRelation::AtLeast)
-                .expect("finite threshold");
+        let predicate = ComponentThresholdPredicate::new(0, 1, 0.0, ThresholdRelation::AtLeast)
+            .expect("finite threshold");
 
         assert_eq!(
             evaluate_predicate_transition(&predicate, &previous, &current),
