@@ -1,5 +1,6 @@
 #![forbid(unsafe_code)]
 
+pub mod dwell_summary;
 pub mod transition;
 pub mod transition_runs;
 pub mod transition_summary;
@@ -8,6 +9,10 @@ use field_core::FieldState;
 use std::error::Error;
 use std::fmt::{Display, Formatter};
 
+pub use dwell_summary::{
+    summarize_predicate_dwell_runs, PredicateDwellSummary, PredicateDwellSummaryError,
+    BOOLEAN_FIELD_DWELL_SUMMARY_SCHEMA,
+};
 pub use transition::{
     evaluate_predicate_transition, evaluate_predicate_transition_trace,
     evaluate_predicate_transitions, PredicateTransition, PredicateTransitionTraceError,
