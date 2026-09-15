@@ -79,6 +79,8 @@ struct FirstChange {
     radius: Option<f64>,
 }
 
+// These names intentionally preserve the preregistered FL-B1 hypothesis identifiers in JSON.
+#[allow(clippy::struct_field_names)]
 #[derive(Clone, Debug, PartialEq, Serialize)]
 struct HypothesisOutcomes {
     hb1_1_clean_codes_separated: bool,
@@ -169,6 +171,8 @@ fn predicate_records(predicates: &[ComponentThresholdPredicate]) -> Vec<Predicat
         .collect()
 }
 
+// Keeping the frozen pattern borrowed makes every caller visibly use the same immutable fixture.
+#[allow(clippy::trivially_copy_pass_by_ref)]
 fn state_from_pattern(pattern: &[i8; 8]) -> Result<FieldState, Box<dyn Error>> {
     let nodes = pattern
         .iter()
@@ -177,6 +181,8 @@ fn state_from_pattern(pattern: &[i8; 8]) -> Result<FieldState, Box<dyn Error>> {
     Ok(FieldState::new(nodes)?)
 }
 
+// See `state_from_pattern`: borrowing here makes the frozen fixture identity explicit.
+#[allow(clippy::trivially_copy_pass_by_ref)]
 fn perturbed_state(
     pattern: &[i8; 8],
     node_index: usize,
@@ -226,6 +232,8 @@ fn hamming(left: &[bool], right: &[bool]) -> usize {
         .count()
 }
 
+// FL-B1 has three clean cases and 240 perturbations, so these integer-to-f64 conversions are exact.
+#[allow(clippy::cast_precision_loss)]
 fn entropy_bits(counts: impl IntoIterator<Item = usize>, total: usize) -> f64 {
     if total == 0 {
         return 0.0;
@@ -240,6 +248,8 @@ fn entropy_bits(counts: impl IntoIterator<Item = usize>, total: usize) -> f64 {
         .sum()
 }
 
+// The frozen clean panel contains exactly three cases; the conversion cannot lose integer precision.
+#[allow(clippy::cast_precision_loss)]
 fn label_purity(members: &[usize]) -> f64 {
     if members.is_empty() {
         return 0.0;
@@ -252,6 +262,8 @@ fn label_purity(members: &[usize]) -> f64 {
     maximum as f64 / members.len() as f64
 }
 
+// The frozen clean panel contains exactly three cases; the conversion cannot lose integer precision.
+#[allow(clippy::cast_precision_loss)]
 fn conditional_entropy(groups: &[Vec<usize>], total: usize) -> f64 {
     groups
         .iter()
@@ -266,6 +278,9 @@ fn conditional_entropy(groups: &[Vec<usize>], total: usize) -> f64 {
         .sum()
 }
 
+// This deliberately linear executor mirrors the preregistered protocol for auditability.
+// All usize-to-f64 conversions below are bounded by the fixed 240-case panel.
+#[allow(clippy::cast_precision_loss, clippy::too_many_lines)]
 fn run_once(source_revision: &str) -> Result<Report, Box<dyn Error>> {
     if source_revision.trim().is_empty() {
         return Err("FIELDLAB_SOURCE_REVISION must be non-empty".into());
@@ -497,13 +512,57 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 #[cfg(test)]
 mod tests {
-    use super::{predicate_bank, run_replayed, PATTERNS, RADII};
+    use super::{predicate_bank, predicate_records, run_replayed, PATTERNS, RADII};
 
     #[test]
     fn frozen_protocol_has_declared_shape() {
         assert_eq!(predicate_bank().expect("frozen predicates").len(), 16);
         assert_eq!(PATTERNS.len(), 3);
         assert_eq!(RADII, [0.01, 0.05, 0.10, 0.25, 0.50]);
+    }
+
+    #[test]
+    fn frozen_fixture_definitions_match_preregistration_exactly() {
+        assert_eq!(
+            PATTERNS,
+            [
+                [1, 1, 1, 1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1, 1, -1, -1],
+                [1, 1, 1, 1, -1, -1, 1, 1],
+            ]
+        );
+
+        let records = predicate_records(&predicate_bank().expect("frozen predicates"));
+        let observed = records
+            .iter()
+            .map(|record| {
+                (
+                    record.node,
+                    record.component,
+                    record.threshold_bits,
+                    record.relation,
+                )
+            })
+            .collect::<Vec<_>>();
+        let expected = [
+            (0, 0, 0.9_f64.to_bits(), "at-least"),
+            (0, 0, (-0.9_f64).to_bits(), "less-than"),
+            (1, 0, 0.9_f64.to_bits(), "at-least"),
+            (1, 0, (-0.9_f64).to_bits(), "less-than"),
+            (2, 0, 0.9_f64.to_bits(), "at-least"),
+            (2, 0, (-0.9_f64).to_bits(), "less-than"),
+            (3, 0, 0.9_f64.to_bits(), "at-least"),
+            (3, 0, (-0.9_f64).to_bits(), "less-than"),
+            (4, 0, 0.9_f64.to_bits(), "at-least"),
+            (4, 0, (-0.9_f64).to_bits(), "less-than"),
+            (5, 0, 0.9_f64.to_bits(), "at-least"),
+            (5, 0, (-0.9_f64).to_bits(), "less-than"),
+            (6, 0, 0.9_f64.to_bits(), "at-least"),
+            (6, 0, (-0.9_f64).to_bits(), "less-than"),
+            (7, 0, 0.9_f64.to_bits(), "at-least"),
+            (7, 0, (-0.9_f64).to_bits(), "less-than"),
+        ];
+        assert_eq!(observed.as_slice(), expected.as_slice());
     }
 
     #[test]
