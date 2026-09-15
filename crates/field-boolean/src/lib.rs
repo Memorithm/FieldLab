@@ -7,8 +7,8 @@ use std::error::Error;
 use std::fmt::{Display, Formatter};
 
 pub use transition::{
-    BOOLEAN_FIELD_TRANSITION_SCHEMA, PredicateTransition, evaluate_predicate_transition,
-    evaluate_predicate_transitions,
+    evaluate_predicate_transition, evaluate_predicate_transitions, PredicateTransition,
+    BOOLEAN_FIELD_TRANSITION_SCHEMA,
 };
 
 /// Versioned contract for field-to-Boolean predicate evaluation.
@@ -217,8 +217,8 @@ impl Error for SpinEncodingError {}
 #[cfg(test)]
 mod tests {
     use super::{
-        ComponentThresholdPredicate, PredicateError, SpinEncodingError, ThresholdRelation,
-        decode_spins, encode_spins, evaluate_predicates,
+        decode_spins, encode_spins, evaluate_predicates, ComponentThresholdPredicate,
+        PredicateError, SpinEncodingError, ThresholdRelation,
     };
     use field_core::{FieldState, NodeState};
 
