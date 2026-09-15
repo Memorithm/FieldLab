@@ -10,6 +10,9 @@ use field_core::FieldState;
 /// Versioned contract for two-state predicate transition observations.
 pub const BOOLEAN_FIELD_TRANSITION_SCHEMA: &str = "fieldlab.boolean-transition.v1";
 
+/// Versioned contract for bounded ordered transition traces.
+pub const BOOLEAN_FIELD_TRANSITION_TRACE_SCHEMA: &str = "fieldlab.boolean-transition-trace.v1";
+
 /// Exact transition of one Boolean predicate between two field observations.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum PredicateTransition {
@@ -40,6 +43,18 @@ impl PredicateTransition {
     pub const fn changed(self) -> bool {
         matches!(self, Self::Rising | Self::Falling)
     }
+}
+
+/// Failure while constructing a bounded ordered transition trace.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum PredicateTransitionTraceError {
+    /// The requested trace contains more adjacent transitions than permitted.
+    TransitionLimitExceeded {
+        required_transitions: usize,
+        max_transitions: usize,
+    },
+    /// A declared predicate could not be evaluated on one field state.
+    Predicate(PredicateError),
 }
 
 /// Evaluates one declared predicate on two field states and classifies its transition.
@@ -83,6 +98,46 @@ pub fn evaluate_predicate_transitions(
         .iter()
         .map(|predicate| evaluate_predicate_transition(predicate, previous, current))
         .collect()
+}
+
+/// Evaluates one declared predicate across an ordered field-state trace.
+///
+/// The returned vector has exactly `states.len().saturating_sub(1)` entries,
+/// each corresponding to one adjacent pair in caller-supplied order. Zero- and
+/// one-state traces are valid and return an empty vector. The transition-count
+/// budget is checked before allocating the output or evaluating any state.
+///
+/// This function only records predicate changes. It does not infer a regime,
+/// tune thresholds, debounce transitions, apply hysteresis, or control field
+/// dynamics.
+///
+/// # Errors
+///
+/// Returns [`PredicateTransitionTraceError::TransitionLimitExceeded`] before
+/// evaluation when the exact adjacent-pair count exceeds `max_transitions`, or
+/// [`PredicateTransitionTraceError::Predicate`] at the first invalid predicate
+/// evaluation in trace order.
+pub fn evaluate_predicate_transition_trace(
+    predicate: &ComponentThresholdPredicate,
+    states: &[FieldState],
+    max_transitions: usize,
+) -> Result<Vec<PredicateTransition>, PredicateTransitionTraceError> {
+    let required_transitions = states.len().saturating_sub(1);
+    if required_transitions > max_transitions {
+        return Err(PredicateTransitionTraceError::TransitionLimitExceeded {
+            required_transitions,
+            max_transitions,
+        });
+    }
+
+    let mut transitions = Vec::with_capacity(required_transitions);
+    for pair in states.windows(2) {
+        transitions.push(
+            evaluate_predicate_transition(predicate, &pair[0], &pair[1])
+                .map_err(PredicateTransitionTraceError::Predicate)?,
+        );
+    }
+    Ok(transitions)
 }
 
 #[cfg(test)]
@@ -164,6 +219,80 @@ mod tests {
                 PredicateTransition::StableTrue,
                 PredicateTransition::StableFalse,
             ])
+        );
+    }
+
+    #[test]
+    fn trace_preserves_adjacent_transition_order() {
+        let predicate = ComponentThresholdPredicate::new(0, 0, 0.5, ThresholdRelation::AtLeast)
+            .expect("finite threshold");
+        let states = [
+            state([1.0, 0.0]),
+            state([1.0, 0.0]),
+            state([0.0, 1.0]),
+            state([0.0, 1.0]),
+            state([1.0, 0.0]),
+        ];
+
+        assert_eq!(
+            evaluate_predicate_transition_trace(&predicate, &states, 4),
+            Ok(vec![
+                PredicateTransition::StableTrue,
+                PredicateTransition::Falling,
+                PredicateTransition::StableFalse,
+                PredicateTransition::Rising,
+            ])
+        );
+    }
+
+    #[test]
+    fn trace_budget_fails_closed_before_predicate_evaluation() {
+        let invalid = ComponentThresholdPredicate::new(9, 0, 0.0, ThresholdRelation::AtLeast)
+            .expect("finite threshold");
+        let states = [state([1.0, 0.0]), state([0.0, 1.0]), state([1.0, 0.0])];
+
+        assert_eq!(
+            evaluate_predicate_transition_trace(&invalid, &states, 1),
+            Err(PredicateTransitionTraceError::TransitionLimitExceeded {
+                required_transitions: 2,
+                max_transitions: 1,
+            })
+        );
+    }
+
+    #[test]
+    fn trace_reports_first_invalid_state_in_order() {
+        let predicate = ComponentThresholdPredicate::new(0, 1, 0.0, ThresholdRelation::AtLeast)
+            .expect("finite threshold");
+        let valid = state([1.0, 0.0]);
+        let invalid = FieldState::new(vec![
+            NodeState::try_unit(vec![1.0], 1.0e-12).expect("unit state")
+        ])
+        .expect("one-dimensional field state");
+        let states = [valid, invalid];
+
+        assert_eq!(
+            evaluate_predicate_transition_trace(&predicate, &states, 1),
+            Err(PredicateTransitionTraceError::Predicate(
+                PredicateError::ComponentOutOfBounds {
+                    component: 1,
+                    dimension: 1,
+                }
+            ))
+        );
+    }
+
+    #[test]
+    fn zero_and_one_state_traces_are_empty() {
+        let predicate = ComponentThresholdPredicate::new(0, 0, 0.0, ThresholdRelation::AtLeast)
+            .expect("finite threshold");
+        assert_eq!(
+            evaluate_predicate_transition_trace(&predicate, &[], 0),
+            Ok(Vec::new())
+        );
+        assert_eq!(
+            evaluate_predicate_transition_trace(&predicate, &[state([1.0, 0.0])], 0),
+            Ok(Vec::new())
         );
     }
 

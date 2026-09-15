@@ -7,8 +7,9 @@ use std::error::Error;
 use std::fmt::{Display, Formatter};
 
 pub use transition::{
-    evaluate_predicate_transition, evaluate_predicate_transitions, PredicateTransition,
-    BOOLEAN_FIELD_TRANSITION_SCHEMA,
+    evaluate_predicate_transition, evaluate_predicate_transition_trace,
+    evaluate_predicate_transitions, PredicateTransition, PredicateTransitionTraceError,
+    BOOLEAN_FIELD_TRANSITION_SCHEMA, BOOLEAN_FIELD_TRANSITION_TRACE_SCHEMA,
 };
 
 /// Versioned contract for field-to-Boolean predicate evaluation.
