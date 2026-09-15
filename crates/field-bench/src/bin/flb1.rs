@@ -38,6 +38,19 @@ struct CleanObservation {
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize)]
+struct PerturbationObservation {
+    case_id: String,
+    label: usize,
+    radius_index: usize,
+    radius: f64,
+    node: usize,
+    direction: &'static str,
+    code: Vec<bool>,
+    retained_clean_code: bool,
+    max_norm_squared_error: f64,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize)]
 struct ObservationGroup {
     members: Vec<usize>,
     label_purity: f64,
@@ -83,6 +96,7 @@ struct Report {
     validity_norm_squared_tolerance: f64,
     predicates: Vec<PredicateRecord>,
     clean: Vec<CleanObservation>,
+    perturbations: Vec<PerturbationObservation>,
     boolean_groups: Vec<ObservationGroup>,
     continuous_bitwise_groups: Vec<Vec<usize>>,
     boolean_induced_collision_groups: Vec<Vec<usize>>,
@@ -158,12 +172,7 @@ fn predicate_records(predicates: &[ComponentThresholdPredicate]) -> Vec<Predicat
 fn state_from_pattern(pattern: &[i8; 8]) -> Result<FieldState, Box<dyn Error>> {
     let nodes = pattern
         .iter()
-        .map(|sign| {
-            NodeState::try_unit(
-                vec![f64::from(*sign), 0.0],
-                CONSTRUCTION_TOLERANCE,
-            )
-        })
+        .map(|sign| NodeState::try_unit(vec![f64::from(*sign), 0.0], CONSTRUCTION_TOLERANCE))
         .collect::<Result<Vec<_>, _>>()?;
     Ok(FieldState::new(nodes)?)
 }
@@ -265,7 +274,6 @@ fn run_once(source_revision: &str) -> Result<Report, Box<dyn Error>> {
     let predicates = predicate_bank()?;
     let predicate_records = predicate_records(&predicates);
     let mut clean = Vec::with_capacity(PATTERNS.len());
-    let mut clean_states = Vec::with_capacity(PATTERNS.len());
     let mut max_error = 0.0_f64;
 
     for (label, pattern) in PATTERNS.iter().enumerate() {
@@ -279,7 +287,6 @@ fn run_once(source_revision: &str) -> Result<Report, Box<dyn Error>> {
             code,
             continuous_bits,
         });
-        clean_states.push(state);
     }
 
     let mut boolean_map = BTreeMap::<Vec<bool>, Vec<usize>>::new();
@@ -339,12 +346,17 @@ fn run_once(source_revision: &str) -> Result<Report, Box<dyn Error>> {
     let mut retained_per_radius = [0_usize; RADII.len()];
     let mut total_per_radius = [0_usize; RADII.len()];
     let mut first_change_index = [None::<usize>; PATTERNS.len()];
-    let mut perturbation_case_count = 0_usize;
+    let mut perturbations = Vec::with_capacity(240);
 
     for (label, pattern) in PATTERNS.iter().enumerate() {
         for (radius_index, radius) in RADII.iter().copied().enumerate() {
             for node_index in 0..8 {
                 for direction in [-1.0_f64, 1.0_f64] {
+                    let direction_name = if direction.is_sign_negative() {
+                        "minus"
+                    } else {
+                        "plus"
+                    };
                     let state = perturbed_state(pattern, node_index, radius, direction)?;
                     let error = max_norm_squared_error(&state);
                     if !error.is_finite() || error > VALIDITY_NORM_SQUARED_TOLERANCE {
@@ -362,12 +374,25 @@ fn run_once(source_revision: &str) -> Result<Report, Box<dyn Error>> {
                     } else if first_change_index[label].is_none() {
                         first_change_index[label] = Some(radius_index);
                     }
-                    perturbation_case_count += 1;
+                    perturbations.push(PerturbationObservation {
+                        case_id: format!(
+                            "flb1|perturb|p{label}|r{radius_index}|n{node_index}|d{direction_name}"
+                        ),
+                        label,
+                        radius_index,
+                        radius,
+                        node: node_index,
+                        direction: direction_name,
+                        code,
+                        retained_clean_code: retained,
+                        max_norm_squared_error: error,
+                    });
                 }
             }
         }
     }
 
+    let perturbation_case_count = perturbations.len();
     if perturbation_case_count != 240 {
         return Err("FL-B1.0 perturbation panel count drift".into());
     }
@@ -384,8 +409,7 @@ fn run_once(source_revision: &str) -> Result<Report, Box<dyn Error>> {
             radius,
             retained: retained_per_radius[radius_index],
             total: total_per_radius[radius_index],
-            rate: retained_per_radius[radius_index] as f64
-                / total_per_radius[radius_index] as f64,
+            rate: retained_per_radius[radius_index] as f64 / total_per_radius[radius_index] as f64,
         })
         .collect::<Vec<_>>();
 
@@ -403,12 +427,13 @@ fn run_once(source_revision: &str) -> Result<Report, Box<dyn Error>> {
     let clean_label_entropy_bits = entropy_bits([1_usize; PATTERNS.len()], PATTERNS.len());
     let conditional_entropy_given_boolean_bits =
         conditional_entropy(&boolean_group_members, PATTERNS.len());
-    let mutual_information_bits =
-        clean_label_entropy_bits - conditional_entropy_given_boolean_bits;
-    let constant_baseline_mutual_information_bits =
-        clean_label_entropy_bits - conditional_entropy(&[(0..PATTERNS.len()).collect()], PATTERNS.len());
+    let mutual_information_bits = clean_label_entropy_bits - conditional_entropy_given_boolean_bits;
+    let constant_baseline_mutual_information_bits = clean_label_entropy_bits
+        - conditional_entropy(&[(0..PATTERNS.len()).collect()], PATTERNS.len());
 
-    let hb1_1 = boolean_group_members.iter().all(|members| members.len() == 1);
+    let hb1_1 = boolean_group_members
+        .iter()
+        .all(|members| members.len() == 1);
     let hb1_2 = radius_retention
         .iter()
         .filter(|record| record.radius_index <= 3)
@@ -426,6 +451,7 @@ fn run_once(source_revision: &str) -> Result<Report, Box<dyn Error>> {
         validity_norm_squared_tolerance: VALIDITY_NORM_SQUARED_TOLERANCE,
         predicates: predicate_records,
         clean,
+        perturbations,
         boolean_groups,
         continuous_bitwise_groups: continuous_groups,
         boolean_induced_collision_groups,
@@ -485,6 +511,7 @@ mod tests {
         let report = run_replayed("test-revision").expect("protocol-valid campaign");
         assert_eq!(report.clean_case_count, 3);
         assert_eq!(report.perturbation_case_count, 240);
+        assert_eq!(report.perturbations.len(), 240);
         assert_eq!(report.predicates.len(), 16);
         assert!(report.replay_exact);
     }
