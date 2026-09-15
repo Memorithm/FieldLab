@@ -82,17 +82,20 @@ impl ComponentThresholdPredicate {
     /// Returns a typed bounds error when the declared node or component does not
     /// exist in the supplied field state.
     pub fn evaluate(&self, state: &FieldState) -> Result<bool, PredicateError> {
-        let node = state.node(self.node).ok_or(PredicateError::NodeOutOfBounds {
-            node: self.node,
-            node_count: state.node_count(),
-        })?;
-        let value = *node
-            .values()
-            .get(self.component)
-            .ok_or(PredicateError::ComponentOutOfBounds {
-                component: self.component,
-                dimension: node.dimension(),
+        let node = state
+            .node(self.node)
+            .ok_or(PredicateError::NodeOutOfBounds {
+                node: self.node,
+                node_count: state.node_count(),
             })?;
+        let value =
+            *node
+                .values()
+                .get(self.component)
+                .ok_or(PredicateError::ComponentOutOfBounds {
+                    component: self.component,
+                    dimension: node.dimension(),
+                })?;
 
         Ok(match self.relation {
             ThresholdRelation::AtLeast => value >= self.threshold,
@@ -127,10 +130,7 @@ pub enum PredicateError {
     /// The declared node does not exist in the evaluated state.
     NodeOutOfBounds { node: usize, node_count: usize },
     /// The declared component does not exist in the selected node.
-    ComponentOutOfBounds {
-        component: usize,
-        dimension: usize,
-    },
+    ComponentOutOfBounds { component: usize, dimension: usize },
 }
 
 impl Display for PredicateError {
@@ -189,12 +189,10 @@ mod tests {
     #[test]
     fn equality_boundary_is_explicit() {
         let field = state();
-        let at_least =
-            ComponentThresholdPredicate::new(0, 1, 0.0, ThresholdRelation::AtLeast)
-                .expect("finite threshold");
-        let less_than =
-            ComponentThresholdPredicate::new(0, 1, 0.0, ThresholdRelation::LessThan)
-                .expect("finite threshold");
+        let at_least = ComponentThresholdPredicate::new(0, 1, 0.0, ThresholdRelation::AtLeast)
+            .expect("finite threshold");
+        let less_than = ComponentThresholdPredicate::new(0, 1, 0.0, ThresholdRelation::LessThan)
+            .expect("finite threshold");
 
         assert!(at_least.evaluate(&field).expect("valid address"));
         assert!(!less_than.evaluate(&field).expect("valid address"));
