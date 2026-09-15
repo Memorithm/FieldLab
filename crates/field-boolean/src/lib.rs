@@ -1,8 +1,15 @@
 #![forbid(unsafe_code)]
 
+pub mod transition;
+
 use field_core::FieldState;
 use std::error::Error;
 use std::fmt::{Display, Formatter};
+
+pub use transition::{
+    BOOLEAN_FIELD_TRANSITION_SCHEMA, PredicateTransition, evaluate_predicate_transition,
+    evaluate_predicate_transitions,
+};
 
 /// Versioned contract for field-to-Boolean predicate evaluation.
 pub const BOOLEAN_FIELD_PREDICATE_SCHEMA: &str = "fieldlab.boolean-predicate.v1";
@@ -210,8 +217,8 @@ impl Error for SpinEncodingError {}
 #[cfg(test)]
 mod tests {
     use super::{
-        decode_spins, encode_spins, evaluate_predicates, ComponentThresholdPredicate,
-        PredicateError, SpinEncodingError, ThresholdRelation,
+        ComponentThresholdPredicate, PredicateError, SpinEncodingError, ThresholdRelation,
+        decode_spins, encode_spins, evaluate_predicates,
     };
     use field_core::{FieldState, NodeState};
 
