@@ -1,6 +1,7 @@
 #![forbid(unsafe_code)]
 
 pub mod transition;
+pub mod transition_runs;
 pub mod transition_summary;
 
 use field_core::FieldState;
@@ -11,6 +12,9 @@ pub use transition::{
     evaluate_predicate_transition, evaluate_predicate_transition_trace,
     evaluate_predicate_transitions, PredicateTransition, PredicateTransitionTraceError,
     BOOLEAN_FIELD_TRANSITION_SCHEMA, BOOLEAN_FIELD_TRANSITION_TRACE_SCHEMA,
+};
+pub use transition_runs::{
+    predicate_dwell_runs, PredicateDwellRun, PredicateDwellRunError, BOOLEAN_FIELD_DWELL_RUN_SCHEMA,
 };
 pub use transition_summary::{
     summarize_predicate_transition_trace, PredicateTransitionSummary,
