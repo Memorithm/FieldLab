@@ -140,10 +140,7 @@ pub fn summarize_predicate_dwell_runs(
     let transitions = runs
         .len()
         .checked_sub(1)
-        .expect("validated non-empty runs always contain at least one run");
-
-    debug_assert_eq!(false_observations + true_observations, observations);
-    debug_assert_eq!(false_runs + true_runs, runs.len());
+        .ok_or(PredicateDwellSummaryError::EmptyRuns)?;
 
     Ok(PredicateDwellSummary {
         observations,
