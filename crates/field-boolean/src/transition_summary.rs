@@ -7,8 +7,7 @@
 use crate::PredicateTransition;
 
 /// Versioned contract for exact transition-trace summaries.
-pub const BOOLEAN_FIELD_TRANSITION_SUMMARY_SCHEMA: &str =
-    "fieldlab.boolean-transition-summary.v1";
+pub const BOOLEAN_FIELD_TRANSITION_SUMMARY_SCHEMA: &str = "fieldlab.boolean-transition-summary.v1";
 
 /// Exact count summary for one ordered transition trace.
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
