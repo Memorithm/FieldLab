@@ -1,5 +1,6 @@
 #![forbid(unsafe_code)]
 
+pub mod dwell_distribution;
 pub mod dwell_summary;
 pub mod transition;
 pub mod transition_runs;
@@ -9,6 +10,10 @@ use field_core::FieldState;
 use std::error::Error;
 use std::fmt::{Display, Formatter};
 
+pub use dwell_distribution::{
+    predicate_dwell_distribution, PredicateDwellDistribution, PredicateDwellDistributionError,
+    PredicateDwellLengthCount, BOOLEAN_FIELD_DWELL_DISTRIBUTION_SCHEMA,
+};
 pub use dwell_summary::{
     summarize_predicate_dwell_runs, PredicateDwellSummary, PredicateDwellSummaryError,
     BOOLEAN_FIELD_DWELL_SUMMARY_SCHEMA,
