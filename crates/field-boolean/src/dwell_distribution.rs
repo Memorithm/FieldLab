@@ -68,11 +68,17 @@ pub fn predicate_dwell_distribution(
     let true_run_lengths = run_length_counts(runs, true)?;
 
     debug_assert_eq!(
-        false_run_lengths.iter().map(|entry| entry.runs).sum::<usize>(),
+        false_run_lengths
+            .iter()
+            .map(|entry| entry.runs)
+            .sum::<usize>(),
         summary.false_runs
     );
     debug_assert_eq!(
-        true_run_lengths.iter().map(|entry| entry.runs).sum::<usize>(),
+        true_run_lengths
+            .iter()
+            .map(|entry| entry.runs)
+            .sum::<usize>(),
         summary.true_runs
     );
 
@@ -159,7 +165,10 @@ mod tests {
         let distribution = predicate_dwell_distribution(&runs).unwrap();
         assert_eq!(distribution.observations, 12);
         assert_eq!(distribution.transitions, 3);
-        assert_eq!(distribution.false_run_lengths, vec![count(2, 1), count(4, 1)]);
+        assert_eq!(
+            distribution.false_run_lengths,
+            vec![count(2, 1), count(4, 1)]
+        );
         assert_eq!(distribution.true_run_lengths, vec![count(3, 2)]);
     }
 
