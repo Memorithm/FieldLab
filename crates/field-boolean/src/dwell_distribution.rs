@@ -9,17 +9,26 @@ use crate::{summarize_predicate_dwell_runs, PredicateDwellRun, PredicateDwellSum
 /// Versioned contract for exact Boolean dwell-run distributions.
 pub const BOOLEAN_FIELD_DWELL_DISTRIBUTION_SCHEMA: &str = "fieldlab.boolean-dwell-distribution.v1";
 
-/// Exact run-length histograms for one validated Boolean trajectory.
+/// One exact observed dwell length and the number of maximal runs having it.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct PredicateDwellLengthCount {
+    /// Exact run duration in observations.
+    pub observations: usize,
+    /// Number of maximal runs with this exact duration.
+    pub runs: usize,
+}
+
+/// Exact sparse run-length distributions for one validated Boolean trajectory.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct PredicateDwellDistribution {
     /// Number of observations represented by the source trajectory.
     pub observations: usize,
     /// Number of value changes between adjacent maximal runs.
     pub transitions: usize,
-    /// `false_run_lengths[d]` is the number of maximal `false` runs of length `d`.
-    pub false_run_lengths: Vec<usize>,
-    /// `true_run_lengths[d]` is the number of maximal `true` runs of length `d`.
-    pub true_run_lengths: Vec<usize>,
+    /// Ascending exact run-length counts for maximal `false` runs.
+    pub false_run_lengths: Vec<PredicateDwellLengthCount>,
+    /// Ascending exact run-length counts for maximal `true` runs.
+    pub true_run_lengths: Vec<PredicateDwellLengthCount>,
 }
 
 /// Failure while constructing an exact dwell distribution.
@@ -27,9 +36,9 @@ pub struct PredicateDwellDistribution {
 pub enum PredicateDwellDistributionError {
     /// The supplied public dwell-run values are not one canonical trajectory.
     InvalidRuns(PredicateDwellSummaryError),
-    /// Histogram length or a bucket count overflowed `usize`.
+    /// A run-count accumulator overflowed `usize`.
     CountOverflow,
-    /// Histogram allocation failed.
+    /// Storage proportional to the number of source runs could not be reserved.
     AllocationFailed,
 }
 
@@ -39,61 +48,31 @@ impl From<PredicateDwellSummaryError> for PredicateDwellDistributionError {
     }
 }
 
-/// Validates one maximal dwell-run sequence and returns exact run-length
-/// histograms for `false` and `true` runs.
+/// Validates one maximal dwell-run sequence and returns exact sparse run-length
+/// distributions for `false` and `true` runs.
 ///
-/// Bucket zero is always present and always zero because canonical dwell runs
-/// cannot be empty. Histogram truncation is lossless: both histograms have
-/// length `max_observed_run + 1`, where `max_observed_run` is taken across both
-/// values.
+/// Storage is bounded by the number of supplied runs, not by the largest
+/// declared observation count. Only observed run lengths are represented and
+/// entries are returned in ascending duration order.
 ///
 /// # Errors
 ///
 /// Returns a structural validation error for malformed public runs, an overflow
-/// error when exact counts cannot be represented, or an allocation error if the
-/// bounded histogram cannot be allocated.
+/// error when an exact frequency cannot be represented, or an allocation error
+/// if run-count-bounded storage cannot be reserved.
 pub fn predicate_dwell_distribution(
     runs: &[PredicateDwellRun],
 ) -> Result<PredicateDwellDistribution, PredicateDwellDistributionError> {
     let summary = summarize_predicate_dwell_runs(runs)?;
-    let max_run = summary.longest_false_run.max(summary.longest_true_run);
-    let histogram_len = max_run
-        .checked_add(1)
-        .ok_or(PredicateDwellDistributionError::CountOverflow)?;
-
-    let mut false_run_lengths = Vec::new();
-    false_run_lengths
-        .try_reserve_exact(histogram_len)
-        .map_err(|_| PredicateDwellDistributionError::AllocationFailed)?;
-    false_run_lengths.resize(histogram_len, 0usize);
-
-    let mut true_run_lengths = Vec::new();
-    true_run_lengths
-        .try_reserve_exact(histogram_len)
-        .map_err(|_| PredicateDwellDistributionError::AllocationFailed)?;
-    true_run_lengths.resize(histogram_len, 0usize);
-
-    for run in runs {
-        let bucket = if run.value {
-            true_run_lengths
-                .get_mut(run.observations)
-                .ok_or(PredicateDwellDistributionError::CountOverflow)?
-        } else {
-            false_run_lengths
-                .get_mut(run.observations)
-                .ok_or(PredicateDwellDistributionError::CountOverflow)?
-        };
-        *bucket = bucket
-            .checked_add(1)
-            .ok_or(PredicateDwellDistributionError::CountOverflow)?;
-    }
+    let false_run_lengths = run_length_counts(runs, false)?;
+    let true_run_lengths = run_length_counts(runs, true)?;
 
     debug_assert_eq!(
-        false_run_lengths.iter().copied().sum::<usize>(),
+        false_run_lengths.iter().map(|entry| entry.runs).sum::<usize>(),
         summary.false_runs
     );
     debug_assert_eq!(
-        true_run_lengths.iter().copied().sum::<usize>(),
+        true_run_lengths.iter().map(|entry| entry.runs).sum::<usize>(),
         summary.true_runs
     );
 
@@ -105,9 +84,52 @@ pub fn predicate_dwell_distribution(
     })
 }
 
+fn run_length_counts(
+    runs: &[PredicateDwellRun],
+    value: bool,
+) -> Result<Vec<PredicateDwellLengthCount>, PredicateDwellDistributionError> {
+    let matching_runs = runs.iter().filter(|run| run.value == value).count();
+    let mut lengths = Vec::new();
+    lengths
+        .try_reserve_exact(matching_runs)
+        .map_err(|_| PredicateDwellDistributionError::AllocationFailed)?;
+    lengths.extend(
+        runs.iter()
+            .filter(|run| run.value == value)
+            .map(|run| run.observations),
+    );
+    lengths.sort_unstable();
+
+    let mut counts = Vec::new();
+    counts
+        .try_reserve_exact(matching_runs)
+        .map_err(|_| PredicateDwellDistributionError::AllocationFailed)?;
+    for observations in lengths {
+        match counts.last_mut() {
+            Some(PredicateDwellLengthCount {
+                observations: previous,
+                runs: count,
+            }) if *previous == observations => {
+                *count = count
+                    .checked_add(1)
+                    .ok_or(PredicateDwellDistributionError::CountOverflow)?;
+            }
+            _ => counts.push(PredicateDwellLengthCount {
+                observations,
+                runs: 1,
+            }),
+        }
+    }
+    Ok(counts)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn count(observations: usize, runs: usize) -> PredicateDwellLengthCount {
+        PredicateDwellLengthCount { observations, runs }
+    }
 
     #[test]
     fn preserves_complete_run_length_distribution() {
@@ -137,12 +159,12 @@ mod tests {
         let distribution = predicate_dwell_distribution(&runs).unwrap();
         assert_eq!(distribution.observations, 12);
         assert_eq!(distribution.transitions, 3);
-        assert_eq!(distribution.false_run_lengths, vec![0, 0, 1, 0, 1]);
-        assert_eq!(distribution.true_run_lengths, vec![0, 0, 0, 2, 0]);
+        assert_eq!(distribution.false_run_lengths, vec![count(2, 1), count(4, 1)]);
+        assert_eq!(distribution.true_run_lengths, vec![count(3, 2)]);
     }
 
     #[test]
-    fn single_value_trajectory_keeps_other_histogram_empty_of_runs() {
+    fn single_value_trajectory_keeps_other_distribution_empty() {
         let runs = [PredicateDwellRun {
             value: true,
             start_observation: 0,
@@ -152,8 +174,22 @@ mod tests {
         let distribution = predicate_dwell_distribution(&runs).unwrap();
         assert_eq!(distribution.observations, 5);
         assert_eq!(distribution.transitions, 0);
-        assert_eq!(distribution.false_run_lengths, vec![0; 6]);
-        assert_eq!(distribution.true_run_lengths, vec![0, 0, 0, 0, 0, 1]);
+        assert!(distribution.false_run_lengths.is_empty());
+        assert_eq!(distribution.true_run_lengths, vec![count(5, 1)]);
+    }
+
+    #[test]
+    fn very_large_duration_does_not_drive_dense_allocation() {
+        let runs = [PredicateDwellRun {
+            value: true,
+            start_observation: 0,
+            observations: usize::MAX,
+        }];
+
+        let distribution = predicate_dwell_distribution(&runs).unwrap();
+        assert_eq!(distribution.observations, usize::MAX);
+        assert!(distribution.false_run_lengths.is_empty());
+        assert_eq!(distribution.true_run_lengths, vec![count(usize::MAX, 1)]);
     }
 
     #[test]
@@ -183,7 +219,7 @@ mod tests {
     }
 
     #[test]
-    fn histogram_run_counts_match_source_run_count() {
+    fn distribution_run_counts_match_source_run_count() {
         let runs = [
             PredicateDwellRun {
                 value: true,
@@ -202,8 +238,12 @@ mod tests {
             },
         ];
         let distribution = predicate_dwell_distribution(&runs).unwrap();
-        let counted_runs = distribution.false_run_lengths.iter().sum::<usize>()
-            + distribution.true_run_lengths.iter().sum::<usize>();
+        let counted_runs = distribution
+            .false_run_lengths
+            .iter()
+            .chain(&distribution.true_run_lengths)
+            .map(|entry| entry.runs)
+            .sum::<usize>();
         assert_eq!(counted_runs, runs.len());
     }
 }
