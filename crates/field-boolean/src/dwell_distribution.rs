@@ -4,7 +4,9 @@
 //! each Boolean value. They are observational only: no duration is interpreted
 //! as stability, an attractor, a bifurcation, hysteresis, or a controller gate.
 
-use crate::{summarize_predicate_dwell_runs, PredicateDwellRun, PredicateDwellSummaryError};
+use crate::{
+    PredicateDwellRun, PredicateDwellSummaryError, summarize_predicate_dwell_runs,
+};
 
 /// Versioned contract for exact Boolean dwell-run distributions.
 pub const BOOLEAN_FIELD_DWELL_DISTRIBUTION_SCHEMA: &str =
