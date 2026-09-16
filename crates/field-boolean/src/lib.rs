@@ -12,7 +12,7 @@ use std::fmt::{Display, Formatter};
 
 pub use dwell_distribution::{
     predicate_dwell_distribution, PredicateDwellDistribution, PredicateDwellDistributionError,
-    BOOLEAN_FIELD_DWELL_DISTRIBUTION_SCHEMA,
+    PredicateDwellLengthCount, BOOLEAN_FIELD_DWELL_DISTRIBUTION_SCHEMA,
 };
 pub use dwell_summary::{
     summarize_predicate_dwell_runs, PredicateDwellSummary, PredicateDwellSummaryError,
