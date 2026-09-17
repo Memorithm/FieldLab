@@ -4,6 +4,7 @@ pub mod censored_distribution;
 pub mod censored_tail_bounds;
 pub mod censored_tail_fractions;
 pub mod censored_tail_ordering;
+pub mod censored_tail_profile;
 pub mod dwell_censoring;
 pub mod dwell_distribution;
 pub mod dwell_summary;
@@ -32,6 +33,10 @@ pub use censored_tail_fractions::{
 pub use censored_tail_ordering::{
     predicate_censor_aware_dwell_tail_ordering, PredicateDwellTailOrdering,
     BOOLEAN_FIELD_CENSOR_AWARE_TAIL_ORDERING_SCHEMA,
+};
+pub use censored_tail_profile::{
+    predicate_censor_aware_dwell_tail_profile, CensorAwareDwellTailProfileError,
+    CensorAwareDwellTailProfilePoint, BOOLEAN_FIELD_CENSOR_AWARE_TAIL_PROFILE_SCHEMA,
 };
 pub use dwell_censoring::{
     annotate_predicate_dwell_censoring, CensoredPredicateDwellRun, ObservationBoundary,
