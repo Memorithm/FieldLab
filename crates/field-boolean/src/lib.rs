@@ -2,6 +2,7 @@
 
 pub mod censored_distribution;
 pub mod censored_tail_bounds;
+pub mod censored_tail_fractions;
 pub mod dwell_censoring;
 pub mod dwell_distribution;
 pub mod dwell_summary;
@@ -21,6 +22,11 @@ pub use censored_tail_bounds::{
     predicate_censor_aware_dwell_tail_bounds, CensorAwareDwellTailBoundsError,
     CensorAwarePredicateDwellTailBounds, PredicateDwellTailCountBounds,
     BOOLEAN_FIELD_CENSOR_AWARE_TAIL_BOUNDS_SCHEMA,
+};
+pub use censored_tail_fractions::{
+    predicate_censor_aware_dwell_tail_fraction_bounds, CensorAwarePredicateDwellTailFractionBounds,
+    ExactRunFraction, PredicateDwellTailFractionBounds,
+    BOOLEAN_FIELD_CENSOR_AWARE_TAIL_FRACTION_BOUNDS_SCHEMA,
 };
 pub use dwell_censoring::{
     annotate_predicate_dwell_censoring, CensoredPredicateDwellRun, ObservationBoundary,
