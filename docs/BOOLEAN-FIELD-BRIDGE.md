@@ -72,6 +72,8 @@ must not be treated as a physical residence time. This distinction is required
 before using bounded dwell observations in attractor-stability, basin-lifetime or
 bifurcation experiments.
 
+The censor-aware descriptive distribution contract is `fieldlab.boolean-censor-aware-dwell-distribution.v1`. `predicate_censor_aware_dwell_distribution` retains exact left/right/both-censored run counts while building run-length histograms **only** from runs known complete at both observation-window edges. Censored durations are not imputed and are not mixed into the complete-run histogram. This is still descriptive infrastructure: it is not a Kaplan–Meier estimator, a hazard model, an attractor-residence estimate or evidence that longer observed dwells imply stability.
+
 ## Exact `{-1,+1}` spin encoding
 
 The exact discrete encoding contract is `fieldlab.boolean-spin.v1` with the fixed convention:
