@@ -33,7 +33,7 @@ jobs:
       - name: Execute FL-5D campaign
         run: |
           mkdir -p results/ci
-          cargo run -p field-bench --bin fl5d > results/ci/fl5d.json
+          FIELDLAB_SOURCE_SHA="${{ github.event.pull_request.head.sha || github.sha }}" cargo run -p field-bench --bin fl5d > results/ci/fl5d.json
           cat results/ci/fl5d.json
 
       - name: Retain FL-5D evidence

@@ -34,7 +34,7 @@ jobs:
       - name: Execute full repeated FL-5G campaign
         run: |
           mkdir -p results/ci
-          cargo run -p field-bench --bin fl5g > results/ci/fl5g.json
+          FIELDLAB_SOURCE_SHA="${{ github.event.pull_request.head.sha || github.sha }}" cargo run -p field-bench --bin fl5g > results/ci/fl5g.json
           python3 - <<'PY'
           import json
           from pathlib import Path
