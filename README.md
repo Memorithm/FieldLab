@@ -36,7 +36,7 @@ FL-3  hysteresis / temporal persistence        ✅
   ↓
 FL-4  CCOS field mapping                       ✅ FL-4A/4B/4C/4D/4E validated; wider external replication remains optional
   ↓
-FL-5  resonance / noise-assisted exploration   🟡 FL-5/5B/5C/5D/5E/5F executed; horizon drift must constrain the next gate
+FL-5  resonance / noise-assisted exploration   🟡 FL-5/5B/5C/5D/5E/5F/5G executed; identifiable inputs + residence semantics constrain the next gate
   ↓
 FL-6  scalable coupling structures             ⚪ blocked as an efficacy progression until FL-5 demonstrates a qualified benefit under stable horizon semantics
   ↓
@@ -46,6 +46,14 @@ FL-8  bounded cognitive computation
   ↓
 FL-9  optional physical correspondence
 ```
+
+## Latest completed result: FL-5G axial stability and observable-input qualification
+
+FL-5G executed the preregistered deterministic qualification on FieldLab source `a64a6064554e34831e60a84510a8d341449053b3`. The frozen geometry-derived anisotropy selected `a = 1.25`; all 90 E1 trajectories retained their decoded axial target through `T = 51.2` across all three time-step grids, while the historical E0 P1/P2 positive-tilt exits remained near simulated time 7.2–7.25 and satisfied the preregistered refinement tolerance. All five H5G hypotheses and the execution-validity gate passed for this bounded fixture.
+
+The information audit is equally important: the nine frozen FL-5F labeled records contain only seven distinct observable sign inputs, with two contradictory-label groups, so the declared deterministic exact-label ceiling is 7/9 under equal weighting. Future perturbation gates must use genuinely identifiable targets or explicit additional context; renaming cases or repartitioning hashes is insufficient. FL-5G does not establish noise benefit, corrupted-cue recovery, basin volume, hardware performance, biological correspondence, LLM quality or FL-6 authorization.
+
+See [`docs/FL-5G-RESULT.md`](docs/FL-5G-RESULT.md), [`prereg/FL-5G.md`](prereg/FL-5G.md), and [`results/FL-5G-axial-stability-observable-input.json`](results/FL-5G-axial-stability-observable-input.json).
 
 ## Latest completed result: FL-5F deterministic basin-lifetime and horizon stability
 
