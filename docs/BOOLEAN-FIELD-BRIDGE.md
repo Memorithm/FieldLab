@@ -74,6 +74,8 @@ bifurcation experiments.
 
 The censor-aware descriptive distribution contract is `fieldlab.boolean-censor-aware-dwell-distribution.v1`. `predicate_censor_aware_dwell_distribution` retains exact left/right/both-censored run counts while building run-length histograms **only** from runs known complete at both observation-window edges. Censored durations are not imputed and are not mixed into the complete-run histogram. This is still descriptive infrastructure: it is not a Kaplan–Meier estimator, a hazard model, an attractor-residence estimate or evidence that longer observed dwells imply stability.
 
+The partial-identification contract `fieldlab.boolean-censor-aware-dwell-tail-bounds.v1` answers a narrower caller-declared question without fitting a survival model: for a positive observation-count threshold, how many complete dwell lengths are **definitely** at least that long, and how many **could** be at least that long given only the retained boundary-censoring facts? A censored run already observed beyond the threshold is definite; a censored run cut below it widens only the upper count. Complete short runs remain definitely below the threshold. These are exact count bounds over the supplied runs, not probabilities, Kaplan–Meier estimates, hazards, stationarity assumptions, attractor-lifetime estimates, or stability verdicts.
+
 ## Exact `{-1,+1}` spin encoding
 
 The exact discrete encoding contract is `fieldlab.boolean-spin.v1` with the fixed convention:
