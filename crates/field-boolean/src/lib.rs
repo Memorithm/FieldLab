@@ -3,6 +3,7 @@
 pub mod censored_distribution;
 pub mod censored_tail_bounds;
 pub mod censored_tail_contrast;
+pub mod censored_tail_contrast_profile;
 pub mod censored_tail_fractions;
 pub mod censored_tail_ordering;
 pub mod censored_tail_profile;
@@ -30,6 +31,11 @@ pub use censored_tail_contrast::{
     predicate_censor_aware_dwell_tail_contrast_bounds, CensorAwarePredicateDwellTailContrastBounds,
     ExactFractionSign, ExactSignedRunFraction,
     BOOLEAN_FIELD_CENSOR_AWARE_TAIL_CONTRAST_BOUNDS_SCHEMA,
+};
+pub use censored_tail_contrast_profile::{
+    predicate_censor_aware_dwell_tail_contrast_profile, CensorAwareDwellTailContrastProfileError,
+    CensorAwareDwellTailContrastProfilePoint,
+    BOOLEAN_FIELD_CENSOR_AWARE_TAIL_CONTRAST_PROFILE_SCHEMA,
 };
 pub use censored_tail_fractions::{
     predicate_censor_aware_dwell_tail_fraction_bounds, CensorAwarePredicateDwellTailFractionBounds,
