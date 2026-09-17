@@ -53,6 +53,25 @@ The summary contract is `fieldlab.boolean-dwell-summary.v1`.
 
 The summary reports exact observation count, transition count, False/True observation totals, False/True run counts and the longest observed dwell for each Boolean value. Longest dwell remains a descriptive observation count. It is not a preregistered stability threshold, attractor claim, debounce rule, hysteresis parameter, controller decision or bifurcation result.
 
+## Explicit dwell-window censoring
+
+The observation-boundary contract is `fieldlab.boolean-dwell-censoring.v1`.
+
+`annotate_predicate_dwell_censoring` first revalidates the supplied maximal dwell
+runs and then applies caller-declared left/right boundary knowledge. A boundary
+may be declared `Complete` (for example a known initialization or terminal event)
+or `ObservationCut` when the retained window can slice through a longer dwell.
+Only the first run can be left-censored, only the final run can be right-censored,
+and a single run may carry both annotations. Interior runs remain complete with
+respect to the supplied observation sequence because observed transitions bound
+them on both sides.
+
+Censoring is never inferred from run length, transition count, field energy or
+predicate value. The annotation does not estimate the unobserved duration and
+must not be treated as a physical residence time. This distinction is required
+before using bounded dwell observations in attractor-stability, basin-lifetime or
+bifurcation experiments.
+
 ## Exact `{-1,+1}` spin encoding
 
 The exact discrete encoding contract is `fieldlab.boolean-spin.v1` with the fixed convention:
