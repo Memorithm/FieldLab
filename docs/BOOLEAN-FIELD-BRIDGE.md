@@ -82,6 +82,8 @@ The partial-identification contract `fieldlab.boolean-censor-aware-dwell-tail-bo
 
 `fieldlab.boolean-censor-aware-dwell-tail-profile.v1` evaluates those same exact bounds and strict orderings over a caller-declared, strictly increasing threshold grid. The grid must be fixed by the experiment protocol before result interpretation; the helper never searches for a favorable threshold and rejects empty, duplicate or reordered grids. A stable ordering across several supplied thresholds is descriptive robustness evidence only, not independent replicated evidence, a p-value, a survival model, or an attractor/stability/bifurcation verdict.
 
+`fieldlab.boolean-censor-aware-dwell-tail-contrast-profile.v1` applies the exact true-minus-false contrast interval over a caller-declared, strictly increasing threshold grid. Each point is exactly the corresponding single-threshold contrast contract; absent Boolean values remain undefined and censoring-induced sign ambiguity remains explicit. The helper does not select, interpolate, smooth or multiplicity-adjust thresholds, so a favorable interval at one point cannot be promoted to independent evidence or a stability claim.
+
 ## Exact `{-1,+1}` spin encoding
 
 The exact discrete encoding contract is `fieldlab.boolean-spin.v1` with the fixed convention:
