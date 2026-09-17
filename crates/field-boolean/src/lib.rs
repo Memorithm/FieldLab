@@ -1,5 +1,6 @@
 #![forbid(unsafe_code)]
 
+pub mod censored_distribution;
 pub mod dwell_censoring;
 pub mod dwell_distribution;
 pub mod dwell_summary;
@@ -11,6 +12,10 @@ use field_core::FieldState;
 use std::error::Error;
 use std::fmt::{Display, Formatter};
 
+pub use censored_distribution::{
+    predicate_censor_aware_dwell_distribution, CensorAwareDwellDistributionError,
+    CensorAwarePredicateDwellDistribution, BOOLEAN_FIELD_CENSOR_AWARE_DISTRIBUTION_SCHEMA,
+};
 pub use dwell_censoring::{
     annotate_predicate_dwell_censoring, CensoredPredicateDwellRun, ObservationBoundary,
     PredicateDwellCensoringError, BOOLEAN_FIELD_DWELL_CENSORING_SCHEMA,
