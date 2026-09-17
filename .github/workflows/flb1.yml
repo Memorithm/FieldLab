@@ -45,7 +45,7 @@ jobs:
         run: cargo test -p field-bench --bin flb1
       - name: Execute frozen campaign twice
         env:
-          FIELDLAB_SOURCE_REVISION: ${{ github.sha }}
+          FIELDLAB_SOURCE_REVISION: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           mkdir -p results/ci
           cargo run -p field-bench --bin flb1 > results/ci/flb1-run-a.json
@@ -61,7 +61,7 @@ jobs:
           report = json.loads(Path("results/ci/flb1.json").read_text())
           assert report["schema"] == "fieldlab.flb1-report.v1"
           assert report["predicate_schema"] == "fieldlab.boolean-predicate.v1"
-          assert report["source_revision"] == "${{ github.sha }}"
+          assert report["source_revision"] == "${{ github.event.pull_request.head.sha || github.sha }}"
           assert report["clean_case_count"] == 3
           assert report["perturbation_case_count"] == 240
           assert len(report["predicates"]) == 16
