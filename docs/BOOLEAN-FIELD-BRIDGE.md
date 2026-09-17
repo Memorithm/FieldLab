@@ -76,6 +76,8 @@ The censor-aware descriptive distribution contract is `fieldlab.boolean-censor-a
 
 The partial-identification contract `fieldlab.boolean-censor-aware-dwell-tail-bounds.v1` answers a narrower caller-declared question without fitting a survival model: for a positive observation-count threshold, how many complete dwell lengths are **definitely** at least that long, and how many **could** be at least that long given only the retained boundary-censoring facts? A censored run already observed beyond the threshold is definite; a censored run cut below it widens only the upper count. Complete short runs remain definitely below the threshold. These are exact count bounds over the supplied runs, not probabilities, Kaplan–Meier estimates, hazards, stationarity assumptions, attractor-lifetime estimates, or stability verdicts.
 
+`fieldlab.boolean-censor-aware-dwell-tail-fraction-bounds.v1` preserves those bounds as exact count fractions over the observed run count for each Boolean value; an absent value has no empirical fraction rather than an invented zero. `fieldlab.boolean-censor-aware-dwell-tail-ordering.v1` then permits only a strict interval-order statement: `true` is definitely higher only when its exact lower bound is above the `false` upper bound, and conversely for `false`. Touching/overlapping intervals remain indeterminate and an absent Boolean value remains undefined. The comparison uses exact integer cross-products; it is not a probability, significance test, survival estimate, or field-stability/bifurcation verdict.
+
 ## Exact `{-1,+1}` spin encoding
 
 The exact discrete encoding contract is `fieldlab.boolean-spin.v1` with the fixed convention:
