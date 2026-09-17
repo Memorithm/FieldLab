@@ -47,7 +47,12 @@ pub enum CensorAwareDwellDistributionError {
 
 impl From<PredicateDwellCensoringError> for CensorAwareDwellDistributionError {
     fn from(value: PredicateDwellCensoringError) -> Self {
-        Self::InvalidSource(value)
+        match value {
+            PredicateDwellCensoringError::InvalidRuns(error) => {
+                Self::InvalidSource(PredicateDwellCensoringError::InvalidRuns(error))
+            }
+            PredicateDwellCensoringError::AllocationFailed => Self::AllocationFailed,
+        }
     }
 }
 
@@ -253,5 +258,13 @@ mod tests {
             ),
             Err(CensorAwareDwellDistributionError::InvalidSource(_))
         ));
+    }
+
+    #[test]
+    fn nested_allocation_failure_remains_retryable_resource_failure() {
+        assert_eq!(
+            CensorAwareDwellDistributionError::from(PredicateDwellCensoringError::AllocationFailed),
+            CensorAwareDwellDistributionError::AllocationFailed
+        );
     }
 }
