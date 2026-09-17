@@ -14,8 +14,10 @@ jobs:
     name: FL-E2 relational transport and composition
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
       - name: Install pinned Rust toolchain
         run: |
           rustup toolchain install nightly-2026-07-02 --profile minimal
@@ -28,7 +30,7 @@ jobs:
           cat results/ci/fle2.json
 
       - name: Retain FL-E2 evidence
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: fieldlab-fle2-${{ github.sha }}
           path: results/ci/fle2.json

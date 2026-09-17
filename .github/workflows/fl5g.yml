@@ -15,7 +15,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
       - name: Install pinned Rust toolchain
         run: |
           rustup toolchain install nightly-2026-07-02 --profile minimal --component rustfmt --component clippy
@@ -41,7 +44,7 @@ jobs:
           PY
       - name: Retain evidence even on failed execution gate
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: fieldlab-fl5g-${{ github.sha }}
           path: results/ci/fl5g.json
@@ -54,7 +57,7 @@ jobs:
           git diff -- crates/field-bench/src > results/ci/fl5g-format.patch
       - name: Retain failed-build formatting diagnostics
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: fieldlab-fl5g-format-${{ github.sha }}
           path: results/ci/fl5g-format.patch
