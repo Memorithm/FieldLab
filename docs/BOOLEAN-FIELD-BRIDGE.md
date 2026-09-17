@@ -78,6 +78,8 @@ The partial-identification contract `fieldlab.boolean-censor-aware-dwell-tail-bo
 
 `fieldlab.boolean-censor-aware-dwell-tail-fraction-bounds.v1` preserves those bounds as exact count fractions over the observed run count for each Boolean value; an absent value has no empirical fraction rather than an invented zero. `fieldlab.boolean-censor-aware-dwell-tail-ordering.v1` then permits only a strict interval-order statement: `true` is definitely higher only when its exact lower bound is above the `false` upper bound, and conversely for `false`. Touching/overlapping intervals remain indeterminate and an absent Boolean value remains undefined. The comparison uses exact integer cross-products; it is not a probability, significance test, survival estimate, or field-stability/bifurcation verdict.
 
+`fieldlab.boolean-censor-aware-dwell-tail-profile.v1` evaluates those same exact bounds and strict orderings over a caller-declared, strictly increasing threshold grid. The grid must be fixed by the experiment protocol before result interpretation; the helper never searches for a favorable threshold and rejects empty, duplicate or reordered grids. A stable ordering across several supplied thresholds is descriptive robustness evidence only, not independent replicated evidence, a p-value, a survival model, or an attractor/stability/bifurcation verdict.
+
 ## Exact `{-1,+1}` spin encoding
 
 The exact discrete encoding contract is `fieldlab.boolean-spin.v1` with the fixed convention:
