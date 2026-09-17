@@ -156,7 +156,7 @@ jobs:
       - name: Execute FL-5E campaign
         run: |
           mkdir -p results/ci
-          cargo run -p field-bench --bin fl5e > results/ci/fl5e.json
+          FIELDLAB_SOURCE_SHA="${{ github.event.pull_request.head.sha || github.sha }}" cargo run -p field-bench --bin fl5e > results/ci/fl5e.json
           cat results/ci/fl5e.json
       - name: Retain FL-5E evidence
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
@@ -181,7 +181,7 @@ jobs:
       - name: Execute FL-5F campaign
         run: |
           mkdir -p results/ci
-          cargo run -p field-bench --bin fl5f > results/ci/fl5f.json
+          FIELDLAB_SOURCE_SHA="${{ github.event.pull_request.head.sha || github.sha }}" cargo run -p field-bench --bin fl5f > results/ci/fl5f.json
           cat results/ci/fl5f.json
       - name: Retain FL-5F evidence
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

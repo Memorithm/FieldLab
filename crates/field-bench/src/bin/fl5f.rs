@@ -181,7 +181,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     let artifact = ExperimentArtifact {
         experiment: "FL-5F",
         protocol: "deterministic-basin-lifetime-v1",
-        fieldlab_commit: std::env::var("GITHUB_SHA").unwrap_or_else(|_| "local".to_owned()),
+        fieldlab_commit: std::env::var("FIELDLAB_SOURCE_SHA")
+            .or_else(|_| std::env::var("GITHUB_SHA"))
+            .unwrap_or_else(|_| "local".to_owned()),
         frozen_constants: FrozenConstants {
             node_count: NODE_COUNT,
             max_steps: MAX_STEPS,

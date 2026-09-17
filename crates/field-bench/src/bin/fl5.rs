@@ -526,7 +526,9 @@ fn run_experiment() -> Result<ExperimentArtifact, Box<dyn Error>> {
         experiment: "FL-5",
         protocol: "noise-assisted-basin-escape-v1",
         noiselab_commit: NOISELAB_COMMIT,
-        fieldlab_commit: std::env::var("GITHUB_SHA").unwrap_or_else(|_| "local".to_owned()),
+        fieldlab_commit: std::env::var("FIELDLAB_SOURCE_SHA")
+            .or_else(|_| std::env::var("GITHUB_SHA"))
+            .unwrap_or_else(|_| "local".to_owned()),
         provenance_fingerprint: format!("fnv1a64:{:016x}", provenance_fingerprint()),
         frozen_constants: FrozenConstants {
             node_count: NODE_COUNT,

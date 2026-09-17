@@ -14,7 +14,10 @@ jobs:
     name: FL-5 noise-assisted basin escape
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
 
       - name: Install pinned Rust toolchain
         run: |
@@ -33,12 +36,12 @@ jobs:
       - name: Execute FL-5 campaign
         run: |
           mkdir -p results/ci
-          cargo run -p field-bench --bin fl5 > results/ci/fl5.json
+          FIELDLAB_SOURCE_SHA="${{ github.event.pull_request.head.sha || github.sha }}" cargo run -p field-bench --bin fl5 > results/ci/fl5.json
           cat results/ci/fl5.json
 
       - name: Retain FL-5 evidence
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: fieldlab-fl5-${{ github.sha }}
+          name: fieldlab-fl5-${{ github.event.pull_request.head.sha || github.sha }}
           path: results/ci/fl5.json
           if-no-files-found: error

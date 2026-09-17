@@ -104,7 +104,9 @@ fn main() -> Result<()> {
         "experiment": "FL-5G",
         "protocol": "axial-stability-observable-input-v1",
         "parent_commit": PARENT,
-        "fieldlab_commit": std::env::var("GITHUB_SHA").unwrap_or_else(|_| "local".into()),
+        "fieldlab_commit": std::env::var("FIELDLAB_SOURCE_SHA")
+            .or_else(|_| std::env::var("GITHUB_SHA"))
+            .unwrap_or_else(|_| "local".to_owned()),
         "preregistration_commit": "89d8c1ac02b72d873d96c0c187f98d891425d50a",
         "frozen_constants": {
             "nodes": N, "duration": DURATION, "dt_and_steps": GRIDS,
