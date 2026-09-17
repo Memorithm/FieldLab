@@ -29,7 +29,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
       - name: Install pinned Rust toolchain
         run: |
           rustup toolchain install nightly-2026-07-02 --profile minimal --component rustfmt --component clippy
@@ -79,7 +82,7 @@ jobs:
           PY
       - name: Retain FL-B1.0 report even on failed execution gate
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: fieldlab-flb1-${{ github.sha }}
           path: |
@@ -96,7 +99,7 @@ jobs:
           git diff -- crates/field-bench/src crates/field-bench/Cargo.toml crates/field-boolean/src crates/field-boolean/Cargo.toml .github/workflows/flb1.yml > results/ci/flb1-format.patch
       - name: Retain failed-build formatting diagnostics
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: fieldlab-flb1-format-${{ github.sha }}
           path: results/ci/flb1-format.patch

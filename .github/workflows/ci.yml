@@ -14,7 +14,10 @@ jobs:
     name: FL-0 foundation validation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
       - name: Install pinned Rust toolchain
         run: |
           rustup toolchain install nightly-2026-07-02 --profile minimal --component rustfmt --component clippy
@@ -31,7 +34,7 @@ jobs:
           cargo run -p field-bench --bin field-bench > results/ci/fl0.json
           cat results/ci/fl0.json
       - name: Retain FL-0 evidence
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: fieldlab-fl0-${{ github.sha }}
           path: results/ci/fl0.json
@@ -42,7 +45,10 @@ jobs:
     needs: fl0
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
       - name: Install pinned Rust toolchain
         run: |
           rustup toolchain install nightly-2026-07-02 --profile minimal
@@ -53,7 +59,7 @@ jobs:
           cargo run -p field-bench --bin fl1 > results/ci/fl1.json
           cat results/ci/fl1.json
       - name: Retain FL-1 evidence
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: fieldlab-fl1-${{ github.sha }}
           path: results/ci/fl1.json
@@ -64,7 +70,10 @@ jobs:
     needs: fl1
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
       - name: Install pinned Rust toolchain
         run: |
           rustup toolchain install nightly-2026-07-02 --profile minimal
@@ -75,7 +84,7 @@ jobs:
           cargo run -p field-bench --bin fl2 > results/ci/fl2.json
           cat results/ci/fl2.json
       - name: Retain FL-2 evidence
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: fieldlab-fl2-${{ github.sha }}
           path: results/ci/fl2.json
@@ -86,7 +95,10 @@ jobs:
     needs: fl2
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
       - name: Install pinned Rust toolchain
         run: |
           rustup toolchain install nightly-2026-07-02 --profile minimal
@@ -97,7 +109,7 @@ jobs:
           cargo run -p field-bench --bin fl3 > results/ci/fl3.json
           cat results/ci/fl3.json
       - name: Retain FL-3 evidence
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: fieldlab-fl3-${{ github.sha }}
           path: results/ci/fl3.json
@@ -108,7 +120,10 @@ jobs:
     needs: fl3
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
       - name: Install pinned Rust toolchain
         run: |
           rustup toolchain install nightly-2026-07-02 --profile minimal
@@ -119,7 +134,7 @@ jobs:
           cargo run -p field-bench --bin fl4 > results/ci/fl4.json
           cat results/ci/fl4.json
       - name: Retain FL-4A evidence
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: fieldlab-fl4-${{ github.sha }}
           path: results/ci/fl4.json
@@ -130,7 +145,10 @@ jobs:
     needs: fl0
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
       - name: Install pinned Rust toolchain
         run: |
           rustup toolchain install nightly-2026-07-02 --profile minimal
@@ -141,7 +159,7 @@ jobs:
           cargo run -p field-bench --bin fl5e > results/ci/fl5e.json
           cat results/ci/fl5e.json
       - name: Retain FL-5E evidence
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: fieldlab-fl5e-${{ github.sha }}
           path: results/ci/fl5e.json
@@ -152,7 +170,10 @@ jobs:
     needs: fl0
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
       - name: Install pinned Rust toolchain
         run: |
           rustup toolchain install nightly-2026-07-02 --profile minimal
@@ -163,7 +184,7 @@ jobs:
           cargo run -p field-bench --bin fl5f > results/ci/fl5f.json
           cat results/ci/fl5f.json
       - name: Retain FL-5F evidence
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: fieldlab-fl5f-${{ github.sha }}
           path: results/ci/fl5f.json
