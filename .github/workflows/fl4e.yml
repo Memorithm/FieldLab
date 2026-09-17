@@ -74,7 +74,7 @@ jobs:
       - name: Retain FL-4E evidence
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: fieldlab-fl4e-${{ github.sha }}
+          name: fieldlab-fl4e-${{ github.event.pull_request.head.sha || github.sha }}
           path: |
             results/ci/fl4e-trace-a.json
             results/ci/fl4e-trace-b.json

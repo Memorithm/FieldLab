@@ -32,6 +32,6 @@ jobs:
       - name: Retain FL-E2 evidence
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: fieldlab-fle2-${{ github.sha }}
+          name: fieldlab-fle2-${{ github.event.pull_request.head.sha || github.sha }}
           path: results/ci/fle2.json
           if-no-files-found: error

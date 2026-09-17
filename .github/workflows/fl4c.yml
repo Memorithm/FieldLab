@@ -72,7 +72,7 @@ jobs:
       - name: Retain FL-4C evidence
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: fieldlab-fl4c-${{ github.sha }}
+          name: fieldlab-fl4c-${{ github.event.pull_request.head.sha || github.sha }}
           path: |
             results/ci/fl4c-probe-a.json
             results/ci/fl4c-probe-b.json
