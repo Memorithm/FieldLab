@@ -36,7 +36,7 @@ jobs:
       - name: Retain FL-0 evidence
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: fieldlab-fl0-${{ github.sha }}
+          name: fieldlab-fl0-${{ github.event.pull_request.head.sha || github.sha }}
           path: results/ci/fl0.json
           if-no-files-found: error
 
@@ -61,7 +61,7 @@ jobs:
       - name: Retain FL-1 evidence
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: fieldlab-fl1-${{ github.sha }}
+          name: fieldlab-fl1-${{ github.event.pull_request.head.sha || github.sha }}
           path: results/ci/fl1.json
           if-no-files-found: error
 
@@ -86,7 +86,7 @@ jobs:
       - name: Retain FL-2 evidence
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: fieldlab-fl2-${{ github.sha }}
+          name: fieldlab-fl2-${{ github.event.pull_request.head.sha || github.sha }}
           path: results/ci/fl2.json
           if-no-files-found: error
 
@@ -111,7 +111,7 @@ jobs:
       - name: Retain FL-3 evidence
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: fieldlab-fl3-${{ github.sha }}
+          name: fieldlab-fl3-${{ github.event.pull_request.head.sha || github.sha }}
           path: results/ci/fl3.json
           if-no-files-found: error
 
@@ -136,7 +136,7 @@ jobs:
       - name: Retain FL-4A evidence
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: fieldlab-fl4-${{ github.sha }}
+          name: fieldlab-fl4-${{ github.event.pull_request.head.sha || github.sha }}
           path: results/ci/fl4.json
           if-no-files-found: error
 
@@ -161,7 +161,7 @@ jobs:
       - name: Retain FL-5E evidence
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: fieldlab-fl5e-${{ github.sha }}
+          name: fieldlab-fl5e-${{ github.event.pull_request.head.sha || github.sha }}
           path: results/ci/fl5e.json
           if-no-files-found: error
 
@@ -186,6 +186,6 @@ jobs:
       - name: Retain FL-5F evidence
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: fieldlab-fl5f-${{ github.sha }}
+          name: fieldlab-fl5f-${{ github.event.pull_request.head.sha || github.sha }}
           path: results/ci/fl5f.json
           if-no-files-found: error
