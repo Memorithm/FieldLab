@@ -99,6 +99,7 @@ This contract is intended only for experiments whose state space has already bee
 ## Experiment use
 
 - **FL-B1** used the predicate contract for static observability of E1 axial memories.
+- **FL-B4** re-ran the FL-B2 E1 stress-probe dwell panel with left `Complete` / right `ObservationCut` and obtained determinate `true-definitely-higher` contrasts (224 cells), confirming FL-B2’s dual-cut failure mode without authorizing FL-6 ([`FL-B4-RESULT.md`](FL-B4-RESULT.md)).
 - **FL-B3** audited Boolean collisions on the FL-5G nine-case panel: FL-B1 and a richer fixed threshold bank both preserved the 7/9 sign-input ceiling and covered contradictory-label groups without inventing identity ([`FL-B3-RESULT.md`](FL-B3-RESULT.md)).
 - **FL-B2** used dwell runs, explicit `ObservationCut` censoring, and the exact censor-aware dwell-tail contrast-profile / ordering contracts on E1 stress-probe trajectories. On that frozen panel, dual observation cuts with at most one Boolean change produced no determinate True/False orderings; the negative result is retained in [`FL-B2-RESULT.md`](FL-B2-RESULT.md).
 
