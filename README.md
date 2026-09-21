@@ -47,6 +47,18 @@ FL-8  bounded cognitive computation
 FL-9  optional physical correspondence
 ```
 
+## Orthogonal Boolean×Field subseries
+
+The Boolean×Field line is observational infrastructure and experiment work that uses `field-boolean` without renaming or authorizing roadmap **FL-6**.
+
+| Slice | Status | Question (short) | Notes |
+| --- | --- | --- | --- |
+| **FL-B1** | ✅ Completed | Do frozen component-threshold predicates separate the three E1 axial memories under local perturbations? | Clean codes separated; local robustness through `0.25` rad supported; stress failure at `0.50` retained. |
+| **FL-B2** | ✅ Completed (negative on scientific hypotheses) | Do censor-aware True/False dwell-tail contrasts on E1 stress-probe relaxations separate memories/bit roles vs baselines? | Protocol valid; **0** determinate orderings under dual `ObservationCut` on this panel. Does not authorize FL-6. |
+| **FL-B3** | ⚪ Next candidate | Richer identifiable Boolean codes / collision audit for FL-5G’s ambiguous observable panel (still observation-only). | — |
+
+See [`docs/BOOLEAN-FIELD-BRIDGE.md`](docs/BOOLEAN-FIELD-BRIDGE.md), [`docs/FL-B1-RESULT.md`](docs/FL-B1-RESULT.md), [`docs/FL-B2-RESULT.md`](docs/FL-B2-RESULT.md).
+
 ## Latest completed result: FL-5G axial stability and observable-input qualification
 
 FL-5G executed the preregistered deterministic qualification on FieldLab source `a64a6064554e34831e60a84510a8d341449053b3`. The frozen geometry-derived anisotropy selected `a = 1.25`; all 90 E1 trajectories retained their decoded axial target through `T = 51.2` across all three time-step grids, while the historical E0 P1/P2 positive-tilt exits remained near simulated time 7.2–7.25 and satisfied the preregistered refinement tolerance. All five H5G hypotheses and the execution-validity gate passed for this bounded fixture.

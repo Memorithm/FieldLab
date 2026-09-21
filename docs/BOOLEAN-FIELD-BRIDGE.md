@@ -95,6 +95,12 @@ The exact discrete encoding contract is `fieldlab.boolean-spin.v1` with the fixe
 
 This contract is intended only for experiments whose state space has already been declared as exact Ising-like `{-1,+1}` values. Applying it to a continuous `FieldState` requires a separately declared observation/discretization rule; the exact-spin encoder itself cannot supply that missing semantics.
 
+
+## Experiment use
+
+- **FL-B1** used the predicate contract for static observability of E1 axial memories.
+- **FL-B2** used dwell runs, explicit `ObservationCut` censoring, and the exact censor-aware dwell-tail contrast-profile / ordering contracts on E1 stress-probe trajectories. On that frozen panel, dual observation cuts with at most one Boolean change produced no determinate True/False orderings; the negative result is retained in [`FL-B2-RESULT.md`](FL-B2-RESULT.md).
+
 ## Scientific boundary
 
 These primitives are infrastructure for Boolean×Field experiments such as regime predicates, explicit switches, attractor-boundary encodings or Boolean controllers. They are **not** evidence that such a controller improves stability, cognition, speed, memory, energy or any other metric. Any scientific use must preregister predicate/encoding construction, observation cadence, baselines, decision rules and holdouts separately before measurements are interpreted.

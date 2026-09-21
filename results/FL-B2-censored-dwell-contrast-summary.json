@@ -1,0 +1,244 @@
+{
+  "schema": "fieldlab.flb2-result-summary.v1",
+  "experiment": "FL-B2.0",
+  "status": "qualified_negative_fixture_result",
+  "source_revision_at_execution": "859c0ef773ac9d0df8bffc8aae861db48d9a3173",
+  "full_report_sha256": "4a4032fc843963ec6d15607957273d6faca75fd2b2cccd18c3105832795cad20",
+  "protocol": {
+    "stiffness": 1.25,
+    "dt": 0.05,
+    "steps": 64,
+    "observation_count": 65,
+    "stress_radius": 0.5,
+    "thresholds_observations": [
+      2,
+      4,
+      8,
+      16,
+      32
+    ],
+    "primary_threshold_observations": 8,
+    "left_boundary": "observation-cut",
+    "right_boundary": "observation-cut",
+    "trajectory_count": 48,
+    "case_count": 768,
+    "predicate_count": 16
+  },
+  "results": {
+    "replay_exact": true,
+    "max_norm_squared_error": 4.440892098500626e-16,
+    "determinate_case_threshold_hits": 0,
+    "const_false_determinate_hits": 0,
+    "memory_signatures": [
+      {
+        "memory": 0,
+        "modal_orderings_at_primary_threshold": [
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value"
+        ]
+      },
+      {
+        "memory": 1,
+        "modal_orderings_at_primary_threshold": [
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value"
+        ]
+      },
+      {
+        "memory": 2,
+        "modal_orderings_at_primary_threshold": [
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value"
+        ]
+      }
+    ],
+    "perm_pred_signatures": [
+      {
+        "memory": 0,
+        "modal_orderings_at_primary_threshold": [
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value"
+        ]
+      },
+      {
+        "memory": 1,
+        "modal_orderings_at_primary_threshold": [
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value"
+        ]
+      },
+      {
+        "memory": 2,
+        "modal_orderings_at_primary_threshold": [
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value"
+        ]
+      }
+    ],
+    "role_multisets": [
+      {
+        "memory": 0,
+        "aligned_modal_orderings": [
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value"
+        ],
+        "anti_modal_orderings": [
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value"
+        ],
+        "multisets_differ": false
+      },
+      {
+        "memory": 1,
+        "aligned_modal_orderings": [
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value"
+        ],
+        "anti_modal_orderings": [
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value"
+        ],
+        "multisets_differ": false
+      },
+      {
+        "memory": 2,
+        "aligned_modal_orderings": [
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value"
+        ],
+        "anti_modal_orderings": [
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value",
+          "undefined-absent-value"
+        ],
+        "multisets_differ": false
+      }
+    ]
+  },
+  "hypotheses": {
+    "hb2_0_protocol_valid": true,
+    "hb2_1_determinate_contrast_exists": false,
+    "hb2_2_memory_signatures_pairwise_distinct": false,
+    "hb2_3_baselines_support_nonartifact": false,
+    "hb2_4_bit_role_separation": false
+  }
+}
