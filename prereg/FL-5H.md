@@ -1,6 +1,6 @@
 # FL-5H — identifiable E1 residence-aware stochastic gate
 
-Status: preregistered before implementation and before any FL-5H outcome is inspected.
+Status: **executed; outcomes in docs/FL-5H-RESULT.md (H5H-0/3/4/5 supported; H5H-1/2 not).** Originally preregistered before implementation and outcome inspection.
 Parent FieldLab revision: `fa36d6e` (post FL-B4 / FL-B3 / FL-B2 on main).
 
 ## Motivation and boundary

@@ -17,7 +17,7 @@ The **FL series is the authoritative line of development and experimentation for
 | **FL-2** | **Competing hypotheses, signed coupling & frustration** | ✅ Completed | Do attraction and repulsion help resolve controlled contradictory evidence rather than merely creating instability? | Matched competition controls and analytic three-way frustration reference executed. |
 | **FL-3** | **Hysteresis & context switching** | ✅ Completed | Can path dependence retain useful cognitive state without unacceptable lock-in? | Retention benefit and switching cost characterized under a frozen context-switch protocol. |
 | **FL-4** | **CCOS field mapping** | ✅ First external comparative gate completed through FL-4E | Is CCOS causal pressure/heat usefully representable as a discrete field, and do extra field operators improve bounded context selection? | Fixed or externally grounded CCOS traces replayed; native CCOS vs field variants compared at identical budget while preserving auditability. |
-| **FL-5** | **Resonance, perturbation & stochastic exploration** | 🟡 FL-5 through FL-5F executed; deterministic horizon drift characterized | Can controlled perturbation improve basin escape, recall or ambiguity resolution under clean-cue safety? | Future stochastic gates must declare horizon semantics explicitly and separate perturbation effects from deterministic basin drift. |
+| **FL-5** | **Resonance, perturbation & stochastic exploration** | 🟡 FL-5 through FL-5H executed; identifiable E1 residence gate negative on escape | Can controlled perturbation improve basin escape, recall or ambiguity resolution under clean-cue safety? | Future stochastic gates must declare horizon semantics explicitly, use identifiable inputs, and separate perturbation effects from deterministic basin drift. |
 | **FL-6** | **Sparse, low-rank & multiscale field scaling** | ⚪ Planned — not authorized by FL-5 efficacy | Can useful dense interaction be retained without assuming scalable `O(N²)` coupling? | Approximation error and interaction/runtime scaling reported separately against a dense reference. |
 | **FL-7** | **Learned fields & adaptive couplings** | ⚪ Planned | Which field parameters can be learned without obscuring reference semantics or provenance? | Explicit train/validation/test split; learned model beats fixed-rule baselines and remains inspectable. |
 | **FL-8** | **Bounded cognitive tasks** | ⚪ Planned | Do validated field primitives improve memory/reasoning tasks rather than only toy energy objectives? | Pre-registered synthetic cognitive tasks pass matched-baseline criteria before LLM-agent claims are allowed. |
@@ -36,7 +36,7 @@ FL-3  hysteresis / temporal persistence        ✅
   ↓
 FL-4  CCOS field mapping                       ✅ FL-4A/4B/4C/4D/4E validated; wider external replication remains optional
   ↓
-FL-5  resonance / noise-assisted exploration   🟡 FL-5/5B/5C/5D/5E/5F/5G executed; identifiable inputs + residence semantics constrain the next gate
+FL-5  resonance / noise-assisted exploration   🟡 FL-5/5B/5C/5D/5E/5F/5G/5H executed; identifiable E1 residence gate did not unlock escape efficacy
   ↓
 FL-6  scalable coupling structures             ⚪ blocked as an efficacy progression until FL-5 demonstrates a qualified benefit under stable horizon semantics
   ↓
@@ -60,7 +60,15 @@ The Boolean×Field line is observational infrastructure and experiment work that
 
 See [`docs/BOOLEAN-FIELD-BRIDGE.md`](docs/BOOLEAN-FIELD-BRIDGE.md), [`docs/FL-B1-RESULT.md`](docs/FL-B1-RESULT.md), [`docs/FL-B2-RESULT.md`](docs/FL-B2-RESULT.md), [`docs/FL-B3-RESULT.md`](docs/FL-B3-RESULT.md), [`docs/FL-B4-RESULT.md`](docs/FL-B4-RESULT.md).
 
-## Latest completed result: FL-5G axial stability and observable-input qualification
+## Latest completed result: FL-5H identifiable E1 residence-aware stochastic gate
+
+FL-5H is the first stochastic gate constrained by FL-5G/FL-B3 identifiability and FL-B4 Complete-left residence lessons. It drops the FL-5G conflict geometries, retains four unambiguous single-bit `P0` corruptions plus balanced cleans under a new `fl5h|` namespace, runs E1 (`a = 1.25`) for a matched `T = 12.8` (`256` steps) horizon with left `Complete` / right `ObservationCut`, and selects OU under a hard clean-cue calibration filter (NoiseLab pin `8cd8f23…`).
+
+Sign-input audit: 10/10 identifiable (0 conflicts). Calibration selected OU amplitude `0.5` / θ `0.5` (cal recovery `0.1875`, clean `1.0`). On untouched holdout, D0 and selected OU both recovered `0` targets; selected OU degraded clean recall (`1.0 → 0.583`) while PERM-OU preserved clean `1.0` with recovery `0`. Complete-left residence fields show D0 full right-censor on target hits. H5H-0/3/4/5 supported; H5H-1 and H5H-2 not. No FL-6 authorization.
+
+See [`docs/FL-5H-RESULT.md`](docs/FL-5H-RESULT.md), [`prereg/FL-5H.md`](prereg/FL-5H.md), and [`results/FL-5H-identifiable-e1-residence-stochastic-gate.json`](results/FL-5H-identifiable-e1-residence-stochastic-gate.json).
+
+## Earlier completed result: FL-5G axial stability and observable-input qualification
 
 FL-5G executed the preregistered deterministic qualification on FieldLab source `a64a6064554e34831e60a84510a8d341449053b3`. The frozen geometry-derived anisotropy selected `a = 1.25`; all 90 E1 trajectories retained their decoded axial target through `T = 51.2` across all three time-step grids, while the historical E0 P1/P2 positive-tilt exits remained near simulated time 7.2–7.25 and satisfied the preregistered refinement tolerance. All five H5G hypotheses and the execution-validity gate passed for this bounded fixture.
 
@@ -68,7 +76,7 @@ The information audit is equally important: the nine frozen FL-5F labeled record
 
 See [`docs/FL-5G-RESULT.md`](docs/FL-5G-RESULT.md), [`prereg/FL-5G.md`](prereg/FL-5G.md), and [`results/FL-5G-axial-stability-observable-input.json`](results/FL-5G-axial-stability-observable-input.json).
 
-## Latest completed result: FL-5F deterministic basin-lifetime and horizon stability
+## Earlier completed result: FL-5F deterministic basin-lifetime and horizon stability
 
 FL-5F executed the preregistered deterministic horizon audit on the frozen 8-node fixture through 1,024 field steps. The three clean cases and six frozen wrong-basin cases were evaluated at checkpoints from step 0 through 1,024 with exact deterministic replay, finite metrics, unit-norm validation and complete checkpoint coverage.
 
@@ -222,7 +230,7 @@ Hysteresis remains an explicit operator rather than being hidden in numerical in
 
 **TDI supplies evidence discipline.** Mature architectural or information-theoretic claims should be promoted to TDI only after FieldLab exploratory protocols stabilize.
 
-**NoiseLab supplies perturbation methodology.** FL-5 / FL-5B / FL-5C / FL-5D / FL-5E record NoiseLab `@8cd8f23eea2f5f0b6e4b52b6240241d9cbee4a4e` and use compatible seeded Gaussian / OU / temporal-permutation definitions without copying NoiseLab code.
+**NoiseLab supplies perturbation methodology.** FL-5 / FL-5B / FL-5C / FL-5D / FL-5E / FL-5H record NoiseLab `@8cd8f23eea2f5f0b6e4b52b6240241d9cbee4a4e` and use compatible seeded Gaussian / OU / temporal-permutation definitions without copying NoiseLab code.
 
 **SciRust supplies reusable mathematics.** General-purpose graph, ODE/SDE, spectral, sparse/low-rank and deterministic simulation primitives that mature in FieldLab should move upstream rather than become permanent duplicate infrastructure.
 
@@ -246,6 +254,8 @@ cargo run -p field-bench --bin fl5c
 cargo run -p field-bench --bin fl5d
 cargo run -p field-bench --bin fl5e
 cargo run -p field-bench --bin fl5f
+cargo run -p field-bench --bin fl5g
+cargo run -p field-bench --bin fl5h
 cargo run -p field-bench --bin fle1
 cargo run -p field-bench --bin fle2
 ```
