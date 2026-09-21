@@ -1,0 +1,1196 @@
+{
+  "schema": "fieldlab.flb3-report.v1",
+  "predicate_schema": "fieldlab.boolean-predicate.v1",
+  "source_revision": "076491345b801cc897d941fa0c9bc19c949f3393",
+  "case_count": 9,
+  "b1_predicates": [
+    {
+      "index": 0,
+      "node": 0,
+      "component": 0,
+      "threshold_bits": 4606281698874543309,
+      "relation": "at-least"
+    },
+    {
+      "index": 1,
+      "node": 0,
+      "component": 0,
+      "threshold_bits": 13829653735729319117,
+      "relation": "less-than"
+    },
+    {
+      "index": 2,
+      "node": 1,
+      "component": 0,
+      "threshold_bits": 4606281698874543309,
+      "relation": "at-least"
+    },
+    {
+      "index": 3,
+      "node": 1,
+      "component": 0,
+      "threshold_bits": 13829653735729319117,
+      "relation": "less-than"
+    },
+    {
+      "index": 4,
+      "node": 2,
+      "component": 0,
+      "threshold_bits": 4606281698874543309,
+      "relation": "at-least"
+    },
+    {
+      "index": 5,
+      "node": 2,
+      "component": 0,
+      "threshold_bits": 13829653735729319117,
+      "relation": "less-than"
+    },
+    {
+      "index": 6,
+      "node": 3,
+      "component": 0,
+      "threshold_bits": 4606281698874543309,
+      "relation": "at-least"
+    },
+    {
+      "index": 7,
+      "node": 3,
+      "component": 0,
+      "threshold_bits": 13829653735729319117,
+      "relation": "less-than"
+    },
+    {
+      "index": 8,
+      "node": 4,
+      "component": 0,
+      "threshold_bits": 4606281698874543309,
+      "relation": "at-least"
+    },
+    {
+      "index": 9,
+      "node": 4,
+      "component": 0,
+      "threshold_bits": 13829653735729319117,
+      "relation": "less-than"
+    },
+    {
+      "index": 10,
+      "node": 5,
+      "component": 0,
+      "threshold_bits": 4606281698874543309,
+      "relation": "at-least"
+    },
+    {
+      "index": 11,
+      "node": 5,
+      "component": 0,
+      "threshold_bits": 13829653735729319117,
+      "relation": "less-than"
+    },
+    {
+      "index": 12,
+      "node": 6,
+      "component": 0,
+      "threshold_bits": 4606281698874543309,
+      "relation": "at-least"
+    },
+    {
+      "index": 13,
+      "node": 6,
+      "component": 0,
+      "threshold_bits": 13829653735729319117,
+      "relation": "less-than"
+    },
+    {
+      "index": 14,
+      "node": 7,
+      "component": 0,
+      "threshold_bits": 4606281698874543309,
+      "relation": "at-least"
+    },
+    {
+      "index": 15,
+      "node": 7,
+      "component": 0,
+      "threshold_bits": 13829653735729319117,
+      "relation": "less-than"
+    }
+  ],
+  "rich_predicates": [
+    {
+      "index": 0,
+      "node": 0,
+      "component": 0,
+      "threshold_bits": 4606281698874543309,
+      "relation": "at-least"
+    },
+    {
+      "index": 1,
+      "node": 0,
+      "component": 0,
+      "threshold_bits": 13829653735729319117,
+      "relation": "less-than"
+    },
+    {
+      "index": 2,
+      "node": 0,
+      "component": 0,
+      "threshold_bits": 4602678819172646912,
+      "relation": "at-least"
+    },
+    {
+      "index": 3,
+      "node": 0,
+      "component": 0,
+      "threshold_bits": 13826050856027422720,
+      "relation": "less-than"
+    },
+    {
+      "index": 4,
+      "node": 1,
+      "component": 0,
+      "threshold_bits": 4606281698874543309,
+      "relation": "at-least"
+    },
+    {
+      "index": 5,
+      "node": 1,
+      "component": 0,
+      "threshold_bits": 13829653735729319117,
+      "relation": "less-than"
+    },
+    {
+      "index": 6,
+      "node": 1,
+      "component": 0,
+      "threshold_bits": 4602678819172646912,
+      "relation": "at-least"
+    },
+    {
+      "index": 7,
+      "node": 1,
+      "component": 0,
+      "threshold_bits": 13826050856027422720,
+      "relation": "less-than"
+    },
+    {
+      "index": 8,
+      "node": 2,
+      "component": 0,
+      "threshold_bits": 4606281698874543309,
+      "relation": "at-least"
+    },
+    {
+      "index": 9,
+      "node": 2,
+      "component": 0,
+      "threshold_bits": 13829653735729319117,
+      "relation": "less-than"
+    },
+    {
+      "index": 10,
+      "node": 2,
+      "component": 0,
+      "threshold_bits": 4602678819172646912,
+      "relation": "at-least"
+    },
+    {
+      "index": 11,
+      "node": 2,
+      "component": 0,
+      "threshold_bits": 13826050856027422720,
+      "relation": "less-than"
+    },
+    {
+      "index": 12,
+      "node": 3,
+      "component": 0,
+      "threshold_bits": 4606281698874543309,
+      "relation": "at-least"
+    },
+    {
+      "index": 13,
+      "node": 3,
+      "component": 0,
+      "threshold_bits": 13829653735729319117,
+      "relation": "less-than"
+    },
+    {
+      "index": 14,
+      "node": 3,
+      "component": 0,
+      "threshold_bits": 4602678819172646912,
+      "relation": "at-least"
+    },
+    {
+      "index": 15,
+      "node": 3,
+      "component": 0,
+      "threshold_bits": 13826050856027422720,
+      "relation": "less-than"
+    },
+    {
+      "index": 16,
+      "node": 4,
+      "component": 0,
+      "threshold_bits": 4606281698874543309,
+      "relation": "at-least"
+    },
+    {
+      "index": 17,
+      "node": 4,
+      "component": 0,
+      "threshold_bits": 13829653735729319117,
+      "relation": "less-than"
+    },
+    {
+      "index": 18,
+      "node": 4,
+      "component": 0,
+      "threshold_bits": 4602678819172646912,
+      "relation": "at-least"
+    },
+    {
+      "index": 19,
+      "node": 4,
+      "component": 0,
+      "threshold_bits": 13826050856027422720,
+      "relation": "less-than"
+    },
+    {
+      "index": 20,
+      "node": 5,
+      "component": 0,
+      "threshold_bits": 4606281698874543309,
+      "relation": "at-least"
+    },
+    {
+      "index": 21,
+      "node": 5,
+      "component": 0,
+      "threshold_bits": 13829653735729319117,
+      "relation": "less-than"
+    },
+    {
+      "index": 22,
+      "node": 5,
+      "component": 0,
+      "threshold_bits": 4602678819172646912,
+      "relation": "at-least"
+    },
+    {
+      "index": 23,
+      "node": 5,
+      "component": 0,
+      "threshold_bits": 13826050856027422720,
+      "relation": "less-than"
+    },
+    {
+      "index": 24,
+      "node": 6,
+      "component": 0,
+      "threshold_bits": 4606281698874543309,
+      "relation": "at-least"
+    },
+    {
+      "index": 25,
+      "node": 6,
+      "component": 0,
+      "threshold_bits": 13829653735729319117,
+      "relation": "less-than"
+    },
+    {
+      "index": 26,
+      "node": 6,
+      "component": 0,
+      "threshold_bits": 4602678819172646912,
+      "relation": "at-least"
+    },
+    {
+      "index": 27,
+      "node": 6,
+      "component": 0,
+      "threshold_bits": 13826050856027422720,
+      "relation": "less-than"
+    },
+    {
+      "index": 28,
+      "node": 7,
+      "component": 0,
+      "threshold_bits": 4606281698874543309,
+      "relation": "at-least"
+    },
+    {
+      "index": 29,
+      "node": 7,
+      "component": 0,
+      "threshold_bits": 13829653735729319117,
+      "relation": "less-than"
+    },
+    {
+      "index": 30,
+      "node": 7,
+      "component": 0,
+      "threshold_bits": 4602678819172646912,
+      "relation": "at-least"
+    },
+    {
+      "index": 31,
+      "node": 7,
+      "component": 0,
+      "threshold_bits": 13826050856027422720,
+      "relation": "less-than"
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "flb3|k0",
+      "construction_index": 0,
+      "signs": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "label": 0,
+      "b1_code": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false
+      ],
+      "rich_code": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false
+      ]
+    },
+    {
+      "case_id": "flb3|k1",
+      "construction_index": 1,
+      "signs": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        -1,
+        -1
+      ],
+      "label": 1,
+      "b1_code": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
+        true,
+        false,
+        true
+      ],
+      "rich_code": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true
+      ]
+    },
+    {
+      "case_id": "flb3|k2",
+      "construction_index": 2,
+      "signs": [
+        1,
+        1,
+        1,
+        1,
+        -1,
+        -1,
+        1,
+        1
+      ],
+      "label": 2,
+      "b1_code": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true,
+        false,
+        true,
+        false
+      ],
+      "rich_code": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false
+      ]
+    },
+    {
+      "case_id": "flb3|k3",
+      "construction_index": 3,
+      "signs": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        -1,
+        -1
+      ],
+      "label": 0,
+      "b1_code": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
+        true,
+        false,
+        true
+      ],
+      "rich_code": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true
+      ]
+    },
+    {
+      "case_id": "flb3|k4",
+      "construction_index": 4,
+      "signs": [
+        1,
+        1,
+        1,
+        1,
+        -1,
+        -1,
+        1,
+        1
+      ],
+      "label": 0,
+      "b1_code": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true,
+        false,
+        true,
+        false
+      ],
+      "rich_code": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false
+      ]
+    },
+    {
+      "case_id": "flb3|k5",
+      "construction_index": 5,
+      "signs": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        -1,
+        1
+      ],
+      "label": 1,
+      "b1_code": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
+        true,
+        true,
+        false
+      ],
+      "rich_code": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true,
+        false,
+        true,
+        false
+      ]
+    },
+    {
+      "case_id": "flb3|k6",
+      "construction_index": 6,
+      "signs": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        -1
+      ],
+      "label": 1,
+      "b1_code": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
+        true
+      ],
+      "rich_code": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
+        true,
+        false,
+        true
+      ]
+    },
+    {
+      "case_id": "flb3|k7",
+      "construction_index": 7,
+      "signs": [
+        1,
+        1,
+        1,
+        1,
+        -1,
+        1,
+        1,
+        1
+      ],
+      "label": 2,
+      "b1_code": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false
+      ],
+      "rich_code": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false
+      ]
+    },
+    {
+      "case_id": "flb3|k8",
+      "construction_index": 8,
+      "signs": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        -1,
+        1,
+        1
+      ],
+      "label": 2,
+      "b1_code": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        false
+      ],
+      "rich_code": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false
+      ]
+    }
+  ],
+  "sign_groups": [
+    {
+      "member_construction_indices": [
+        2,
+        4
+      ],
+      "labels": [
+        2,
+        0
+      ],
+      "conflicts": true,
+      "maximum_correct": 1
+    },
+    {
+      "member_construction_indices": [
+        7
+      ],
+      "labels": [
+        2
+      ],
+      "conflicts": false,
+      "maximum_correct": 1
+    },
+    {
+      "member_construction_indices": [
+        8
+      ],
+      "labels": [
+        2
+      ],
+      "conflicts": false,
+      "maximum_correct": 1
+    },
+    {
+      "member_construction_indices": [
+        1,
+        3
+      ],
+      "labels": [
+        1,
+        0
+      ],
+      "conflicts": true,
+      "maximum_correct": 1
+    },
+    {
+      "member_construction_indices": [
+        5
+      ],
+      "labels": [
+        1
+      ],
+      "conflicts": false,
+      "maximum_correct": 1
+    },
+    {
+      "member_construction_indices": [
+        6
+      ],
+      "labels": [
+        1
+      ],
+      "conflicts": false,
+      "maximum_correct": 1
+    },
+    {
+      "member_construction_indices": [
+        0
+      ],
+      "labels": [
+        0
+      ],
+      "conflicts": false,
+      "maximum_correct": 1
+    }
+  ],
+  "b1_groups": [
+    {
+      "member_construction_indices": [
+        2,
+        4
+      ],
+      "labels": [
+        2,
+        0
+      ],
+      "conflicts": true,
+      "maximum_correct": 1
+    },
+    {
+      "member_construction_indices": [
+        7
+      ],
+      "labels": [
+        2
+      ],
+      "conflicts": false,
+      "maximum_correct": 1
+    },
+    {
+      "member_construction_indices": [
+        8
+      ],
+      "labels": [
+        2
+      ],
+      "conflicts": false,
+      "maximum_correct": 1
+    },
+    {
+      "member_construction_indices": [
+        1,
+        3
+      ],
+      "labels": [
+        1,
+        0
+      ],
+      "conflicts": true,
+      "maximum_correct": 1
+    },
+    {
+      "member_construction_indices": [
+        5
+      ],
+      "labels": [
+        1
+      ],
+      "conflicts": false,
+      "maximum_correct": 1
+    },
+    {
+      "member_construction_indices": [
+        6
+      ],
+      "labels": [
+        1
+      ],
+      "conflicts": false,
+      "maximum_correct": 1
+    },
+    {
+      "member_construction_indices": [
+        0
+      ],
+      "labels": [
+        0
+      ],
+      "conflicts": false,
+      "maximum_correct": 1
+    }
+  ],
+  "rich_groups": [
+    {
+      "member_construction_indices": [
+        2,
+        4
+      ],
+      "labels": [
+        2,
+        0
+      ],
+      "conflicts": true,
+      "maximum_correct": 1
+    },
+    {
+      "member_construction_indices": [
+        7
+      ],
+      "labels": [
+        2
+      ],
+      "conflicts": false,
+      "maximum_correct": 1
+    },
+    {
+      "member_construction_indices": [
+        8
+      ],
+      "labels": [
+        2
+      ],
+      "conflicts": false,
+      "maximum_correct": 1
+    },
+    {
+      "member_construction_indices": [
+        1,
+        3
+      ],
+      "labels": [
+        1,
+        0
+      ],
+      "conflicts": true,
+      "maximum_correct": 1
+    },
+    {
+      "member_construction_indices": [
+        5
+      ],
+      "labels": [
+        1
+      ],
+      "conflicts": false,
+      "maximum_correct": 1
+    },
+    {
+      "member_construction_indices": [
+        6
+      ],
+      "labels": [
+        1
+      ],
+      "conflicts": false,
+      "maximum_correct": 1
+    },
+    {
+      "member_construction_indices": [
+        0
+      ],
+      "labels": [
+        0
+      ],
+      "conflicts": false,
+      "maximum_correct": 1
+    }
+  ],
+  "sign_ceiling": 7,
+  "b1_ceiling": 7,
+  "rich_ceiling": 7,
+  "sign_conflict_group_count": 2,
+  "b1_collision_group_count": 2,
+  "rich_collision_group_count": 2,
+  "covered_sign_conflict_groups_b1": 2,
+  "covered_sign_conflict_groups_rich": 2,
+  "max_norm_squared_error": 0.0,
+  "replay_exact": true,
+  "hypotheses": {
+    "hb3_0_protocol_valid": true,
+    "hb3_1_b1_collisions_exist": true,
+    "hb3_2_conflict_coverage": true,
+    "hb3_3_ceiling_match": true,
+    "hb3_4_richer_bank_does_not_invent_identity": true
+  }
+}
