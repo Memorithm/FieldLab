@@ -56,8 +56,9 @@ The Boolean×Field line is observational infrastructure and experiment work that
 | **FL-B1** | ✅ Completed | Do frozen component-threshold predicates separate the three E1 axial memories under local perturbations? | Clean codes separated; local robustness through `0.25` rad supported; stress failure at `0.50` retained. |
 | **FL-B2** | ✅ Completed (negative on scientific hypotheses) | Do censor-aware True/False dwell-tail contrasts on E1 stress-probe relaxations separate memories/bit roles vs baselines? | Protocol valid; **0** determinate orderings under dual `ObservationCut` on this panel. Does not authorize FL-6. |
 | **FL-B3** | ✅ Completed | Do FL-B1 / richer Boolean codes report the same collision ceiling as FL-5G sign inputs on the nine-case panel? | Ceiling remains 7/9; conflicts covered, not hidden; richer thresholds do not invent identity. Orthogonal to FL-6. |
+| **FL-B4** | ✅ Completed (mixed) | With left `Complete` / right `ObservationCut`, do censor-aware dwell-tail contrasts become determinate on the FL-B2 panel? | **Yes** — 224 determinate `true-definitely-higher` cells; memory/role signature separation still fails. Orthogonal to FL-6. |
 
-See [`docs/BOOLEAN-FIELD-BRIDGE.md`](docs/BOOLEAN-FIELD-BRIDGE.md), [`docs/FL-B1-RESULT.md`](docs/FL-B1-RESULT.md), [`docs/FL-B2-RESULT.md`](docs/FL-B2-RESULT.md), [`docs/FL-B3-RESULT.md`](docs/FL-B3-RESULT.md).
+See [`docs/BOOLEAN-FIELD-BRIDGE.md`](docs/BOOLEAN-FIELD-BRIDGE.md), [`docs/FL-B1-RESULT.md`](docs/FL-B1-RESULT.md), [`docs/FL-B2-RESULT.md`](docs/FL-B2-RESULT.md), [`docs/FL-B3-RESULT.md`](docs/FL-B3-RESULT.md), [`docs/FL-B4-RESULT.md`](docs/FL-B4-RESULT.md).
 
 ## Latest completed result: FL-5G axial stability and observable-input qualification
 
