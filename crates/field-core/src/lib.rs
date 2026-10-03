@@ -5,6 +5,7 @@ use std::error::Error;
 use std::fmt::{Display, Formatter};
 
 const MATRIX_SYMMETRY_TOLERANCE: f64 = 1.0e-12;
+const NORMALIZED_NORM_SQUARED_TOLERANCE: f64 = 32.0 * f64::EPSILON;
 
 /// Unit-vector state carried by one field node.
 #[derive(Clone, Debug, PartialEq)]
@@ -39,7 +40,7 @@ impl NodeState {
     ///
     /// # Errors
     ///
-    /// Returns an error for empty, non-finite or effectively zero input.
+    /// Returns an error for empty, non-finite or zero input.
     pub fn from_normalized(values: Vec<f64>) -> Result<Self, ValidationError> {
         if values.is_empty() {
             return Err(ValidationError::EmptyVector);
@@ -47,14 +48,25 @@ impl NodeState {
         if values.iter().any(|value| !value.is_finite()) {
             return Err(ValidationError::NonFiniteValue);
         }
-        let norm_sq = dot(&values, &values);
-        if norm_sq <= f64::EPSILON {
+        let scale = values
+            .iter()
+            .map(|value| value.abs())
+            .fold(0.0_f64, f64::max);
+        if scale == 0.0 {
             return Err(ValidationError::ZeroVector);
         }
-        let inv_norm = norm_sq.sqrt().recip();
-        Ok(Self {
-            values: values.into_iter().map(|value| value * inv_norm).collect(),
-        })
+        let scaled_norm = scaled_sum_squares(&values, scale).sqrt();
+        let normalized = values
+            .into_iter()
+            .map(|value| (value / scale) / scaled_norm)
+            .collect::<Vec<_>>();
+        let norm_sq = scaled_sum_squares(&normalized, 1.0);
+        if !norm_sq.is_finite()
+            || (norm_sq - 1.0).abs() > NORMALIZED_NORM_SQUARED_TOLERANCE
+        {
+            return Err(ValidationError::NonUnitVector { norm_sq });
+        }
+        Ok(Self { values: normalized })
     }
 
     /// Returns the state components.
@@ -546,6 +558,20 @@ pub fn dot(left: &[f64], right: &[f64]) -> f64 {
     left.iter().zip(right).map(|(a, b)| a * b).sum()
 }
 
+fn scaled_sum_squares(values: &[f64], scale: f64) -> f64 {
+    let mut sum = 0.0;
+    let mut correction = 0.0;
+    for value in values {
+        let scaled = value / scale;
+        let term = scaled * scaled;
+        let corrected = term - correction;
+        let next = sum + corrected;
+        correction = (next - sum) - corrected;
+        sum = next;
+    }
+    sum
+}
+
 fn validate_external_fields(
     node_count: usize,
     external_fields: &[Vec<f64>],
@@ -713,6 +739,39 @@ mod tests {
     fn rejects_non_unit_state() {
         let error = NodeState::try_unit(vec![2.0, 0.0], 1.0e-12).unwrap_err();
         assert!(matches!(error, ValidationError::NonUnitVector { .. }));
+    }
+
+    #[test]
+    fn normalizes_extreme_finite_components_without_overflow() {
+        let state = NodeState::from_normalized(vec![f64::MAX, f64::MAX]).unwrap();
+        let expected = 1.0 / 2.0_f64.sqrt();
+
+        assert!(state.values().iter().all(|value| value.is_finite()));
+        assert!((state.values()[0] - expected).abs() < 1.0e-15);
+        assert!((state.values()[1] - expected).abs() < 1.0e-15);
+        assert!((dot(state.values(), state.values()) - 1.0).abs() < 1.0e-15);
+    }
+
+    #[test]
+    fn normalizes_subnormal_components_without_underflow() {
+        let smallest_subnormal = f64::from_bits(1);
+        let state = NodeState::from_normalized(vec![smallest_subnormal, 0.0]).unwrap();
+
+        assert_eq!(state.values(), &[1.0, 0.0]);
+    }
+
+    #[test]
+    fn normalization_rejects_zero_and_non_finite_components() {
+        assert_eq!(
+            NodeState::from_normalized(vec![0.0, -0.0]).unwrap_err(),
+            ValidationError::ZeroVector
+        );
+        for non_finite in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY] {
+            assert_eq!(
+                NodeState::from_normalized(vec![1.0, non_finite]).unwrap_err(),
+                ValidationError::NonFiniteValue
+            );
+        }
     }
 
     #[test]
