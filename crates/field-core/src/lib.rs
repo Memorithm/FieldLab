@@ -61,9 +61,7 @@ impl NodeState {
             .map(|value| (value / scale) / scaled_norm)
             .collect::<Vec<_>>();
         let norm_sq = scaled_sum_squares(&normalized, 1.0);
-        if !norm_sq.is_finite()
-            || (norm_sq - 1.0).abs() > NORMALIZED_NORM_SQUARED_TOLERANCE
-        {
+        if !norm_sq.is_finite() || (norm_sq - 1.0).abs() > NORMALIZED_NORM_SQUARED_TOLERANCE {
             return Err(ValidationError::NonUnitVector { norm_sq });
         }
         Ok(Self { values: normalized })
