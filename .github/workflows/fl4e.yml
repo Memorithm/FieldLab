@@ -39,10 +39,12 @@ jobs:
         run: |
           rustup toolchain install 1.89.0 --profile minimal
           rustup toolchain install nightly-2026-07-02 --profile minimal
+      - name: Capture reproducibility identity
+        run: bash scripts/capture_reproducibility.sh "${{ github.event.pull_request.head.sha || github.sha }}"
 
       - name: Build pinned CCOS runtime
         working-directory: external/CCOS-Core
-        run: cargo +1.89.0 build --release --features llm --bin ccos
+        run: cargo +1.89.0 build --locked --release --features llm --bin ccos
 
       - name: Execute frozen native workload twice
         run: |
@@ -64,7 +66,7 @@ jobs:
 
       - name: Calibrate and evaluate holdout
         run: |
-          cargo +nightly-2026-07-02 run -p field-bench --bin fl4e -- \
+          cargo +nightly-2026-07-02 run --locked -p field-bench --bin fl4e -- \
             results/ci/fl4e-trace-a.json \
             results/ci/fl4e-trace-b.json \
             "$CCOS_COMMIT" \
@@ -79,4 +81,5 @@ jobs:
             results/ci/fl4e-trace-a.json
             results/ci/fl4e-trace-b.json
             results/ci/fl4e.json
+            results/ci/reproducibility.txt
           if-no-files-found: error

@@ -23,18 +23,20 @@ jobs:
         run: |
           rustup toolchain install nightly-2026-07-02 --profile minimal --component rustfmt --component clippy
           rustup override set nightly-2026-07-02
+      - name: Capture reproducibility identity
+        run: bash scripts/capture_reproducibility.sh "${{ github.event.pull_request.head.sha || github.sha }}"
       - name: Format check
         run: cargo fmt --all -- --check
       - name: Clippy
-        run: cargo clippy --workspace --all-targets -- -D warnings
+        run: cargo clippy --locked --workspace --all-targets -- -D warnings
       - name: Qualification unit tests
         run: |
-          cargo test -p field-bench --lib
-          cargo test -p field-bench --bin fl5g
+          cargo test --locked -p field-bench --lib
+          cargo test --locked -p field-bench --bin fl5g
       - name: Execute full repeated FL-5G campaign
         run: |
           mkdir -p results/ci
-          FIELDLAB_SOURCE_SHA="${{ github.event.pull_request.head.sha || github.sha }}" cargo run -p field-bench --bin fl5g > results/ci/fl5g.json
+          FIELDLAB_SOURCE_SHA="${{ github.event.pull_request.head.sha || github.sha }}" cargo run --locked -p field-bench --bin fl5g > results/ci/fl5g.json
           python3 - <<'PY'
           import json
           from pathlib import Path
@@ -47,7 +49,9 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: fieldlab-fl5g-${{ github.event.pull_request.head.sha || github.sha }}
-          path: results/ci/fl5g.json
+          path: |
+            results/ci/fl5g.json
+            results/ci/reproducibility.txt
           if-no-files-found: warn
       - name: Collect formatting diagnostics without changing the commit
         if: failure()
