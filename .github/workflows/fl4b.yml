@@ -22,14 +22,18 @@ jobs:
         run: |
           rustup toolchain install nightly-2026-07-02 --profile minimal
           rustup override set nightly-2026-07-02
+      - name: Capture reproducibility identity
+        run: bash scripts/capture_reproducibility.sh "${{ github.event.pull_request.head.sha || github.sha }}"
       - name: Execute FL-4B campaign
         run: |
           mkdir -p results/ci
-          cargo run -p field-bench --bin fl4b > results/ci/fl4b.json
+          cargo run --locked -p field-bench --bin fl4b > results/ci/fl4b.json
           cat results/ci/fl4b.json
       - name: Retain FL-4B evidence
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: fieldlab-fl4b-${{ github.event.pull_request.head.sha || github.sha }}
-          path: results/ci/fl4b.json
+          path: |
+            results/ci/fl4b.json
+            results/ci/reproducibility.txt
           if-no-files-found: error
