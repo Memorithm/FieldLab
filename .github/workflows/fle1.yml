@@ -22,16 +22,20 @@ jobs:
         run: |
           rustup toolchain install nightly-2026-07-02 --profile minimal
           rustup override set nightly-2026-07-02
+      - name: Capture reproducibility identity
+        run: bash scripts/capture_reproducibility.sh "${{ github.event.pull_request.head.sha || github.sha }}"
 
       - name: Execute FL-E1 validation campaign
         run: |
           mkdir -p results/ci
-          cargo run -p field-bench --bin fle1 > results/ci/fle1.json
+          cargo run --locked -p field-bench --bin fle1 > results/ci/fle1.json
           cat results/ci/fle1.json
 
       - name: Retain FL-E1 evidence
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: fieldlab-fle1-${{ github.event.pull_request.head.sha || github.sha }}
-          path: results/ci/fle1.json
+          path: |
+            results/ci/fle1.json
+            results/ci/reproducibility.txt
           if-no-files-found: error
