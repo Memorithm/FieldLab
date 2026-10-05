@@ -37,19 +37,21 @@ jobs:
         run: |
           rustup toolchain install nightly-2026-07-02 --profile minimal --component rustfmt --component clippy
           rustup override set nightly-2026-07-02
+      - name: Capture reproducibility identity
+        run: bash scripts/capture_reproducibility.sh "${{ github.event.pull_request.head.sha || github.sha }}"
       - name: Format check
         run: cargo fmt --all -- --check
       - name: Clippy
-        run: cargo clippy -p field-bench --bin flb1 -- -D warnings
+        run: cargo clippy --locked -p field-bench --bin flb1 -- -D warnings
       - name: Qualification unit tests
-        run: cargo test -p field-bench --bin flb1
+        run: cargo test --locked -p field-bench --bin flb1
       - name: Execute frozen campaign twice
         env:
           FIELDLAB_SOURCE_REVISION: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           mkdir -p results/ci
-          cargo run -p field-bench --bin flb1 > results/ci/flb1-run-a.json
-          cargo run -p field-bench --bin flb1 > results/ci/flb1-run-b.json
+          cargo run --locked -p field-bench --bin flb1 > results/ci/flb1-run-a.json
+          cargo run --locked -p field-bench --bin flb1 > results/ci/flb1-run-b.json
           cmp results/ci/flb1-run-a.json results/ci/flb1-run-b.json
           cp results/ci/flb1-run-a.json results/ci/flb1.json
       - name: Validate protocol evidence without gating scientific outcomes
@@ -89,6 +91,7 @@ jobs:
             results/ci/flb1.json
             results/ci/flb1-run-a.json
             results/ci/flb1-run-b.json
+            results/ci/reproducibility.txt
           if-no-files-found: warn
           retention-days: 30
       - name: Collect formatting diagnostics without changing the commit
