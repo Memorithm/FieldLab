@@ -410,8 +410,7 @@ mod tests {
     #[test]
     fn working_set_respects_zero_budget_for_first_item() {
         let nodes = vec![node("a")];
-        let (selected, tokens) =
-            reference_working_set(&nodes, &[], 0, ScoringWeights::default());
+        let (selected, tokens) = reference_working_set(&nodes, &[], 0, ScoringWeights::default());
 
         assert!(selected.is_empty());
         assert_eq!(tokens, 0);
@@ -420,8 +419,7 @@ mod tests {
     #[test]
     fn working_set_rejects_oversized_first_item() {
         let nodes = vec![node("a")];
-        let (selected, tokens) =
-            reference_working_set(&nodes, &[], 1, ScoringWeights::default());
+        let (selected, tokens) = reference_working_set(&nodes, &[], 1, ScoringWeights::default());
 
         assert!(selected.is_empty());
         assert_eq!(tokens, 0);
@@ -432,8 +430,7 @@ mod tests {
         let mut short = node("a");
         short.content = "x".to_owned();
         let nodes = vec![short];
-        let (selected, tokens) =
-            reference_working_set(&nodes, &[], 1, ScoringWeights::default());
+        let (selected, tokens) = reference_working_set(&nodes, &[], 1, ScoringWeights::default());
 
         assert_eq!(selected, vec!["a"]);
         assert_eq!(tokens, 1);
