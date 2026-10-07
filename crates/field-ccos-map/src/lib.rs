@@ -257,7 +257,11 @@ fn emit_field(
     }
 }
 
-/// CCOS-like working-set assembly: score descending, URI ascending, then budget truncation.
+/// Historical CCOS replay assembly: score descending, URI ascending, then legacy budget truncation.
+///
+/// This function intentionally preserves the original replay contract: token cost is `chars / 4`,
+/// and the highest-ranked item is admitted even when it exceeds `budget_tokens`. Runtime callers
+/// that require a hard budget must use [`strict_reference_working_set`].
 #[must_use]
 pub fn reference_working_set(
     nodes: &[CcosNode],
@@ -266,12 +270,14 @@ pub fn reference_working_set(
     weights: ScoringWeights,
 ) -> (Vec<String>, usize) {
     let degrees = in_degrees(nodes.len(), edges);
-    assemble(nodes, budget_tokens, |index, node| {
+    assemble_legacy(nodes, budget_tokens, |index, node| {
         reference_score(node, degrees[index], weights)
     })
 }
 
-/// Working set assembled from scalar field activation rather than the reference score function.
+/// Historical field replay assembly using the same legacy admission semantics as
+/// [`reference_working_set`]. Runtime callers that require a hard budget must use
+/// [`strict_field_working_set`].
 #[must_use]
 pub fn field_working_set(
     nodes: &[CcosNode],
@@ -280,12 +286,65 @@ pub fn field_working_set(
     weights: ScoringWeights,
 ) -> (Vec<String>, usize) {
     let degrees = in_degrees(nodes.len(), edges);
-    assemble(nodes, budget_tokens, |index, node| {
+    assemble_legacy(nodes, budget_tokens, |index, node| {
         field_sources(node, degrees[index], weights).activation()
     })
 }
 
-fn assemble<F>(nodes: &[CcosNode], budget_tokens: usize, mut score: F) -> (Vec<String>, usize)
+/// A working-set item could not be admitted without violating the strict token budget.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum WorkingSetAdmissionError {
+    TokenCountOverflow {
+        node_id: String,
+    },
+    ItemExceedsBudget {
+        node_id: String,
+        estimated_tokens: usize,
+        budget_tokens: usize,
+    },
+}
+
+/// Strict runtime admission using the reference score function.
+///
+/// Token estimates round up to one token for non-empty content. The function rejects the entire
+/// assembly when any next ranked item would exceed the hard budget; it never admits an oversized
+/// first item and never returns a token count above `budget_tokens`.
+///
+/// # Errors
+///
+/// Returns [`WorkingSetAdmissionError`] if a token-count addition overflows or the next ranked item
+/// would exceed `budget_tokens`.
+pub fn strict_reference_working_set(
+    nodes: &[CcosNode],
+    edges: &[CausalEdge],
+    budget_tokens: usize,
+    weights: ScoringWeights,
+) -> Result<(Vec<String>, usize), WorkingSetAdmissionError> {
+    let degrees = in_degrees(nodes.len(), edges);
+    assemble_strict(nodes, budget_tokens, |index, node| {
+        reference_score(node, degrees[index], weights)
+    })
+}
+
+/// Strict runtime admission using scalar field activation.
+///
+/// # Errors
+///
+/// Returns [`WorkingSetAdmissionError`] if a token-count addition overflows or the next ranked item
+/// would exceed `budget_tokens`.
+pub fn strict_field_working_set(
+    nodes: &[CcosNode],
+    edges: &[CausalEdge],
+    budget_tokens: usize,
+    weights: ScoringWeights,
+) -> Result<(Vec<String>, usize), WorkingSetAdmissionError> {
+    let degrees = in_degrees(nodes.len(), edges);
+    assemble_strict(nodes, budget_tokens, |index, node| {
+        field_sources(node, degrees[index], weights).activation()
+    })
+}
+
+fn ranked_nodes<F>(nodes: &[CcosNode], mut score: F) -> Vec<(usize, f64)>
 where
     F: FnMut(usize, &CcosNode) -> f64,
 {
@@ -301,6 +360,14 @@ where
             .unwrap_or(Ordering::Equal)
             .then_with(|| nodes[*left_index].id.cmp(&nodes[*right_index].id))
     });
+    ranked
+}
+
+fn assemble_legacy<F>(nodes: &[CcosNode], budget_tokens: usize, score: F) -> (Vec<String>, usize)
+where
+    F: FnMut(usize, &CcosNode) -> f64,
+{
+    let ranked = ranked_nodes(nodes, score);
 
     let mut selected = Vec::new();
     let mut tokens = 0_usize;
@@ -319,6 +386,43 @@ where
         selected.push(node.id.clone());
     }
     (selected, tokens)
+}
+
+fn assemble_strict<F>(
+    nodes: &[CcosNode],
+    budget_tokens: usize,
+    score: F,
+) -> Result<(Vec<String>, usize), WorkingSetAdmissionError>
+where
+    F: FnMut(usize, &CcosNode) -> f64,
+{
+    let ranked = ranked_nodes(nodes, score);
+    let mut selected = Vec::new();
+    let mut tokens = 0_usize;
+    let mut seen_content: Vec<&str> = Vec::new();
+    for (index, _) in ranked {
+        let node = &nodes[index];
+        if seen_content.contains(&node.content.as_str()) {
+            continue;
+        }
+        let item_tokens = node.content.chars().count().div_ceil(4);
+        let total_tokens = tokens.checked_add(item_tokens).ok_or_else(|| {
+            WorkingSetAdmissionError::TokenCountOverflow {
+                node_id: node.id.clone(),
+            }
+        })?;
+        if total_tokens > budget_tokens {
+            return Err(WorkingSetAdmissionError::ItemExceedsBudget {
+                node_id: node.id.clone(),
+                estimated_tokens: item_tokens,
+                budget_tokens,
+            });
+        }
+        seen_content.push(node.content.as_str());
+        tokens = total_tokens;
+        selected.push(node.id.clone());
+    }
+    Ok((selected, tokens))
 }
 
 /// Two-axis representation of CCOS Q-Page evidence.
@@ -402,5 +506,42 @@ mod tests {
         assert_eq!(a, b);
         assert!((a[1].recency - 1.0).abs() <= f64::EPSILON);
         assert!((a[2].recency - 1.0).abs() <= f64::EPSILON);
+    }
+
+    #[test]
+    fn legacy_working_set_preserves_oversized_first_item() {
+        let nodes = vec![node("a")];
+        let (selected, tokens) = reference_working_set(&nodes, &[], 0, ScoringWeights::default());
+
+        assert_eq!(selected, vec!["a"]);
+        assert_eq!(tokens, 2);
+    }
+
+    #[test]
+    fn strict_working_set_rejects_oversized_first_item() {
+        let nodes = vec![node("a")];
+        let error = strict_reference_working_set(&nodes, &[], 1, ScoringWeights::default())
+            .expect_err("oversized first item must be rejected");
+
+        assert_eq!(
+            error,
+            WorkingSetAdmissionError::ItemExceedsBudget {
+                node_id: "a".to_owned(),
+                estimated_tokens: 2,
+                budget_tokens: 1,
+            }
+        );
+    }
+
+    #[test]
+    fn strict_working_set_rounds_short_content_up_to_one_token() {
+        let mut short = node("a");
+        short.content = "x".to_owned();
+        let nodes = vec![short];
+        let (selected, tokens) =
+            strict_reference_working_set(&nodes, &[], 1, ScoringWeights::default()).unwrap();
+
+        assert_eq!(selected, vec!["a"]);
+        assert_eq!(tokens, 1);
     }
 }
