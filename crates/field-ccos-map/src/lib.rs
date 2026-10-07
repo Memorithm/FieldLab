@@ -294,7 +294,9 @@ pub fn field_working_set(
 /// A working-set item could not be admitted without violating the strict token budget.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum WorkingSetAdmissionError {
-    TokenCountOverflow { node_id: String },
+    TokenCountOverflow {
+        node_id: String,
+    },
     ItemExceedsBudget {
         node_id: String,
         estimated_tokens: usize,
@@ -361,11 +363,7 @@ where
     ranked
 }
 
-fn assemble_legacy<F>(
-    nodes: &[CcosNode],
-    budget_tokens: usize,
-    score: F,
-) -> (Vec<String>, usize)
+fn assemble_legacy<F>(nodes: &[CcosNode], budget_tokens: usize, score: F) -> (Vec<String>, usize)
 where
     F: FnMut(usize, &CcosNode) -> f64,
 {
