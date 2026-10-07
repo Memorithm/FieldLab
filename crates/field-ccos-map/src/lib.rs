@@ -310,12 +310,15 @@ where
         if seen_content.contains(&node.content.as_str()) {
             continue;
         }
-        let item_tokens = node.content.chars().count() / 4;
-        if tokens + item_tokens > budget_tokens && !selected.is_empty() {
+        let item_tokens = node.content.chars().count().div_ceil(4);
+        let Some(total_tokens) = tokens.checked_add(item_tokens) else {
+            break;
+        };
+        if total_tokens > budget_tokens {
             break;
         }
         seen_content.push(node.content.as_str());
-        tokens += item_tokens;
+        tokens = total_tokens;
         selected.push(node.id.clone());
     }
     (selected, tokens)
@@ -402,5 +405,37 @@ mod tests {
         assert_eq!(a, b);
         assert!((a[1].recency - 1.0).abs() <= f64::EPSILON);
         assert!((a[2].recency - 1.0).abs() <= f64::EPSILON);
+    }
+
+    #[test]
+    fn working_set_respects_zero_budget_for_first_item() {
+        let nodes = vec![node("a")];
+        let (selected, tokens) =
+            reference_working_set(&nodes, &[], 0, ScoringWeights::default());
+
+        assert!(selected.is_empty());
+        assert_eq!(tokens, 0);
+    }
+
+    #[test]
+    fn working_set_rejects_oversized_first_item() {
+        let nodes = vec![node("a")];
+        let (selected, tokens) =
+            reference_working_set(&nodes, &[], 1, ScoringWeights::default());
+
+        assert!(selected.is_empty());
+        assert_eq!(tokens, 0);
+    }
+
+    #[test]
+    fn working_set_rounds_short_content_up_to_one_token() {
+        let mut short = node("a");
+        short.content = "x".to_owned();
+        let nodes = vec![short];
+        let (selected, tokens) =
+            reference_working_set(&nodes, &[], 1, ScoringWeights::default());
+
+        assert_eq!(selected, vec!["a"]);
+        assert_eq!(tokens, 1);
     }
 }
